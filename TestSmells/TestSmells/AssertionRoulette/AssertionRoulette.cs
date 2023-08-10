@@ -2,12 +2,11 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
-using TestSmells.AssertionRoulette;
 
 namespace TestSmells.AssertionRoulette
 {
@@ -26,57 +25,194 @@ namespace TestSmells.AssertionRoulette
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
 
-        private static readonly string[] RelevantAssertions = { "AreEqual", "AreNotEqual"};
+        private static readonly string[] RelevantAssertionsNames = {
+            "AreEqual",
+            "AreNotEqual",
+            "AreNotSame",
+            "AreSame",
+            "IsFalse",
+            "IsInstanseOfType",
+            "IsNotInstanseOfType",
+            "IsNotNull",
+            "IsNull",
+            "IsTrue",
+            "TrowsException",
+            "ThrowsExceptionAsync",
+            "Fail",
+        };
 
+        private static readonly string[] MessageAssertionsNames =
+        {
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual<T>(T, T, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual<T>(T, T, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(object, object, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(object, object, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(float, float, float, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(float, float, float, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(double, double, double, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(double, double, double, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(string, string, bool, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(string, string, bool, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(string, string, bool, System.Globalization.CultureInfo, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(string, string, bool, System.Globalization.CultureInfo, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual<T>(T, T, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual<T>(T, T, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(object, object, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(object, object, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(float, float, float, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(float, float, float, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(double, double, double, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(double, double, double, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(string, string, bool, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(string, string, bool, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(string, string, bool, System.Globalization.CultureInfo, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(string, string, bool, System.Globalization.CultureInfo, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotSame(object, object, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotSame(object, object, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreSame(object, object, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreSame(object, object, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsFalse(bool, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsFalse(bool, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(object, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(object, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(object, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(object, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(bool, string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(bool, string, params object[])",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.Fail(string)",
+            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.Fail(string, params object[])",
+
+        };
 
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-
-            context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.InvocationExpression);
+            context.RegisterCompilationStartAction(GetTestAttributes);
         }
 
-        private static void AnalyzeNode(SyntaxNodeAnalysisContext context)
+        private void GetTestAttributes(CompilationStartAnalysisContext context)
         {
-            var invocationExpr = (InvocationExpressionSyntax)context.Node;
-            var memberAccessExpr = invocationExpr.Expression as MemberAccessExpressionSyntax;
-            if (memberAccessExpr is null) return;
-            if (!RelevantAssertions.Contains(memberAccessExpr.Name.ToString())) return;
+            // Get the attribute object from the compilation
+            var testClassAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
+            if (testClassAttr is null) { return; }
+            var testMethodAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
+            if (testMethodAttr is null) { return; }
 
-            var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExpr).Symbol as IMethodSymbol;
-            if (!MethodIsAssertion(memberSymbol)) return;
+            var relevantAssertions = GetRelevantAssertions(context.Compilation);
+            if (relevantAssertions.Length == 0) return;
 
-            var argumentList = invocationExpr.ArgumentList as ArgumentListSyntax;
-            if ((argumentList?.Arguments.Count ?? 0) < 2) return;
+            //var text = new List<string>();
+            //foreach (var item in relevantAssertions)
+            //{
+            //    text.Add(item.ToString());
+            //}
 
-            var expectedArg = argumentList.Arguments[0] as ArgumentSyntax;
-            var actualArg = argumentList.Arguments[1] as ArgumentSyntax;
 
-            if (ArgumentIsNumericLiteral(expectedArg))
+            var analyzeMethod = AnalyzeMethodSymbol(testClassAttr, testMethodAttr, relevantAssertions);
+
+            context.RegisterSymbolStartAction(analyzeMethod, SymbolKind.Method);
+
+        }
+
+        private static Action<SymbolStartAnalysisContext> AnalyzeMethodSymbol(INamedTypeSymbol testClassAttr, INamedTypeSymbol testMethodAttr , IMethodSymbol[] relevantAssertions)
+        {
+            return (SymbolStartAnalysisContext context) =>
             {
-                //raise diagnostic
-                var diagnosticExpected = Diagnostic.Create(Rule, expectedArg.GetLocation(), memberAccessExpr.Name, expectedArg.ToString());
-                context.ReportDiagnostic(diagnosticExpected);
-            }
-            if (ArgumentIsNumericLiteral(actualArg))
-            {
-                //raise diagnostic
-                var diagnosticActual = Diagnostic.Create(Rule, actualArg.GetLocation(), memberAccessExpr.Name, actualArg.ToString());
-                context.ReportDiagnostic(diagnosticActual);
+                var methodSymbol = (IMethodSymbol)context.Symbol;
+                //Check if the container class is [TestClass], skip if it's not
+                var containerClass = methodSymbol.ContainingSymbol;
+                if (containerClass is null) { return; }
+                if (!FindAttributeInSymbol(testClassAttr, containerClass)) { return; }
 
-            }
+
+                if (FindAttributeInSymbol(testMethodAttr, methodSymbol)) 
+                {
+                    var operationBlockAnalisis = AnalyzeMethodOperations(relevantAssertions);
+                    context.RegisterOperationBlockAction(operationBlockAnalisis); 
+                }
+            };
 
 
         }
 
-        private static bool MethodIsAssertion(IMethodSymbol symbol)
+        private static Action<OperationBlockAnalysisContext> AnalyzeMethodOperations(IMethodSymbol[] relevantAssertions)
+
+        {
+            return (OperationBlockAnalysisContext context) =>
+            {
+                var assertions = new List<IInvocationOperation>();
+                foreach (var block in context.OperationBlocks)//we look for the method body
+                {
+                    if (block.Kind != OperationKind.Block) { continue; }
+                    var blockOperation = (IBlockOperation)block;
+                    foreach (var operation in blockOperation.Descendants())
+                    {
+                        if (operation.Kind != OperationKind.Invocation) { continue; }
+                        var invocationOperation = (IInvocationOperation)operation;
+                        if (MethodIsInList(invocationOperation.TargetMethod, relevantAssertions))
+                        {
+                            assertions.Add(invocationOperation);
+                        }
+                    }
+                }
+                if (assertions.Count>1)
+                {
+                    var messageAssertions = GetMessageAssertions(relevantAssertions);
+
+                    foreach (var assert in assertions)
+                    {
+                        if (!MethodIsInList(assert.TargetMethod, messageAssertions))
+                        {
+                            var invocationSyntax = assert.Syntax;
+                            var diagnostic = Diagnostic.Create(Rule, invocationSyntax.GetLocation(), assert.TargetMethod.Name);
+                            context.ReportDiagnostic(diagnostic);
+                        }
+                        
+
+                    }
+                }
+            };
+        }
+
+
+        private static IMethodSymbol[] GetRelevantAssertions(Compilation compilation)
+        {
+            var assertType = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.Assert");
+            var relevantAssertions = new List<IMethodSymbol>();
+            if (!(assertType is null))
+            {
+                foreach (var function in RelevantAssertionsNames)
+                {
+                    foreach (var member in assertType.GetMembers(function))
+                    {
+                        relevantAssertions.Add((IMethodSymbol)member);
+                    }
+                }
+            }
+            return relevantAssertions.ToArray();
+        }
+
+        private static IMethodSymbol[] GetMessageAssertions(IMethodSymbol[] relevantAssertions)
+        {
+            var messageAssertions = new List<IMethodSymbol>();
+            foreach (var method in relevantAssertions)
+            {
+                if (MessageAssertionsNames.Contains(method.ToString()))
+                {
+                    messageAssertions.Add(method);
+                }
+            }
+            return messageAssertions.ToArray();
+        }
+
+        private static bool MethodIsInList(IMethodSymbol symbol, ISymbol[] relevantAssertions)
         {
             if (symbol == null) return false;
 
-            foreach (string function in RelevantAssertions)
+            foreach (var function in relevantAssertions)
             {
-                if (symbol.ToString().StartsWith($"Microsoft.VisualStudio.TestTools.UnitTesting.Assert.{function}"))
+                if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, function))
                 {
                     return true;
                 }
@@ -85,20 +221,16 @@ namespace TestSmells.AssertionRoulette
 
         }
 
-        private static bool ArgumentIsNumericLiteral(ArgumentSyntax arg)
+        private static bool FindAttributeInSymbol(INamedTypeSymbol attribute, ISymbol symbol)
         {
-            //Checks if the given expression is a numeric literal, or a cast numeric literal
-            var argExpr = arg.Expression;
-            if (argExpr.Kind() == SyntaxKind.CastExpression)
+            foreach (var attr in symbol.GetAttributes())
             {
-                var castExpr = (CastExpressionSyntax)argExpr;
-                var valExpr = castExpr.Expression;
-                return valExpr.Kind() == SyntaxKind.NumericLiteralExpression;
+                if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attribute))
+                {
+                    return true;
+                }
             }
-            else
-            {
-                return argExpr.Kind() == SyntaxKind.NumericLiteralExpression;
-            }
+            return false;
         }
     }
 }

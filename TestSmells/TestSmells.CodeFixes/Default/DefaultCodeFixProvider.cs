@@ -12,16 +12,15 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TestSmells.Analysis.Default;
 
 namespace TestSmells.Default
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(TestSmellsCodeFixProvider)), Shared]
-    public class TestSmellsCodeFixProvider : CodeFixProvider
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(DefaultCodeFixProvider)), Shared]
+    public class DefaultCodeFixProvider : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
-            get { return ImmutableArray.Create(TestSmellsAnalyzer.DiagnosticId); }
+            get { return ImmutableArray.Create(DefaultAnalyzer.DiagnosticId); }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()

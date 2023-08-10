@@ -5,9 +5,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System.Threading.Tasks;
 using static Microsoft.CodeAnalysis.Testing.ReferenceAssemblies;
-using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
-    TestSmells.MagicNumber.MagicNumberAnalyzer,
-    TestSmells.MagicNumber.MagicNumberCodeFixProvider>;
+using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.MagicNumber.MagicNumberAnalyzer>;
+
+//using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
+//    TestSmells.MagicNumber.MagicNumberAnalyzer,
+//    TestSmells.MagicNumber.MagicNumberCodeFixProvider>;
 using System.Collections.Immutable;
 using TestReading;
 using System;
@@ -15,14 +17,13 @@ using System;
 namespace TestSmells.Test.MagicNumber
 {
     [TestClass]
-    public class MagicNumberAreNotEqualUnitTest
+    public class MagicNumberAreNotEqualUnitTests
 
     {
 
         private readonly ReferenceAssemblies UnitTestingAssembly = NetFramework.Net48.Default.AddPackages(ImmutableArray.Create(new PackageIdentity("Microsoft.VisualStudio.UnitTesting", "11.0.50727.1"))).AddAssemblies(ImmutableArray.Create("Microsoft.VisualStudio.UnitTesting"));
 
-        private readonly TestReader testReader = new TestReader("MagicNumber");
-        private readonly string testFolder = @"Corpus\AreNotEqual";
+        private readonly TestReader testReader = new TestReader("MagicNumber", "Corpus", "AreNotEqual");
         /* 
          * Tests are named by the type of value given to the assertion method
          * L means the value is a literal
@@ -49,7 +50,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"ObjObj.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -61,7 +62,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"StrStr.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -75,7 +76,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"StrStrL.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -88,7 +89,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -101,7 +102,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -114,7 +115,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"DoubleDouble.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -129,7 +130,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 39).WithArguments("AreNotEqual", "2.5d");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -144,7 +145,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -160,7 +161,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -175,7 +176,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"FloatFloat.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -190,7 +191,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 39).WithArguments("AreNotEqual", "2.5F");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -205,7 +206,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -221,7 +222,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -235,7 +236,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"SbyteSbyte.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -250,7 +251,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 43).WithArguments("AreNotEqual", "(sbyte)2");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -265,7 +266,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -281,7 +282,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -293,7 +294,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"ByteByte.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -307,7 +308,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 42).WithArguments("AreNotEqual", "(byte)2");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -322,7 +323,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -338,7 +339,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -351,7 +352,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"ShortShort.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -366,7 +367,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 43).WithArguments("AreNotEqual", "(short)2");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -381,7 +382,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -397,7 +398,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -409,7 +410,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"UshortUshort.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -424,7 +425,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 44).WithArguments("AreNotEqual", "(ushort)2");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -439,7 +440,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -455,7 +456,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -468,7 +469,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"IntInt.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -483,7 +484,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 36).WithArguments("AreNotEqual", "2");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -497,7 +498,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -513,7 +514,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -526,7 +527,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"UintUint.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -541,7 +542,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 37).WithArguments("AreNotEqual", "2u");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -556,7 +557,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -572,7 +573,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -585,7 +586,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"LongLong.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -600,7 +601,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 37).WithArguments("AreNotEqual", "2l");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -615,7 +616,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -631,7 +632,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -644,7 +645,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"UlongUlong.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -659,7 +660,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 38).WithArguments("AreNotEqual", "2ul");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -674,7 +675,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -691,7 +692,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -703,7 +704,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"NintNint.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -717,7 +718,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 42).WithArguments("AreNotEqual", "(nint)2");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -732,7 +733,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -748,7 +749,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -760,7 +761,7 @@ namespace TestSmells.Test.MagicNumber
             var testFile = @"NuintNuint.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -775,7 +776,7 @@ namespace TestSmells.Test.MagicNumber
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 43).WithArguments("AreNotEqual", "(nuint)2");
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -790,7 +791,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -806,7 +807,7 @@ namespace TestSmells.Test.MagicNumber
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFolder, testFile),
+                TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();

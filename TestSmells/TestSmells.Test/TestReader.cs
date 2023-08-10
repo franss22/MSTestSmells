@@ -9,11 +9,15 @@ namespace TestReading
     {
         string basePath;
 
-        public TestReader(string testClassFolder)
+        public TestReader(string filePath, params string[] filePaths)
         {
             string workingDirectory = Environment.CurrentDirectory;
             basePath = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
-            basePath = Path.Combine(basePath, testClassFolder);
+            basePath = Path.Combine(basePath, filePath);
+            foreach (var pathPart in filePaths)
+            {
+                basePath = Path.Combine(basePath, pathPart);
+            }
         }
 
         public string ReadTest(string filePath, params string[] filePaths)

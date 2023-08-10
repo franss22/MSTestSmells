@@ -13,15 +13,14 @@
 //using System.Threading;
 //using System.Threading.Tasks;
 
-//namespace TestSmells.MagicNumber
-
+//namespace TestSmells.AssertionRoulette
 //{
-//    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MagicNumberCodeFixProvider)), Shared]
-//    public class MagicNumberCodeFixProvider : CodeFixProvider
+//    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AssertionRouletteCodeFixProvider)), Shared]
+//    public class AssertionRouletteCodeFixProvider : CodeFixProvider
 //    {
 //        public sealed override ImmutableArray<string> FixableDiagnosticIds
 //        {
-//            get { return ImmutableArray.Create(TestSmellsAnalyzer.DiagnosticId); }
+//            get { return ImmutableArray.Create(AssertionRouletteAnalyzer.DiagnosticId); }
 //        }
 
 //        public sealed override FixAllProvider GetFixAllProvider()

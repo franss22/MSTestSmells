@@ -6,15 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
-using TestSmells.Default;
 
-namespace TestSmells.Analysis.Default
+
+namespace TestSmells.Default
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class TestSmellsAnalyzer : DiagnosticAnalyzer
+    public class DefaultAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "TestSmells";
+        public const string DiagnosticId = "Default";
 
 
         private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle), Resources.ResourceManager, typeof(Resources));

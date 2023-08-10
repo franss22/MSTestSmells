@@ -15,6 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="AssertionRoulette\CodeFixResources.Designer.cs">
+      <DependentUpon>CodeFixResources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
     <Compile Update="MagicNumber\CodeFixResources.Designer.cs">
       <DependentUpon>CodeFixResources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -26,6 +31,10 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <EmbeddedResource Update="AssertionRoulette\CodeFixResources.resx">
+      <LastGenOutput>CodeFixResources.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="MagicNumber\CodeFixResources.resx">
       <LastGenOutput>CodeFixResources.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>

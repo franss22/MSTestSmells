@@ -8,10 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AssertionRoulette\Corpus\**" />
     <Compile Remove="EmptyTest\Corpus\**" />
     <Compile Remove="MagicNumber\Corpus\**" />
+    <EmbeddedResource Remove="AssertionRoulette\Corpus\**" />
     <EmbeddedResource Remove="EmptyTest\Corpus\**" />
     <EmbeddedResource Remove="MagicNumber\Corpus\**" />
+    <None Remove="AssertionRoulette\Corpus\**" />
     <None Remove="EmptyTest\Corpus\**" />
     <None Remove="MagicNumber\Corpus\**" />
   </ItemGroup>
