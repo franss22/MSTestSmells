@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TestSmells.MagicNumber;
 
 namespace TestSmells.MagicNumber
@@ -26,57 +27,88 @@ namespace TestSmells.MagicNumber
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
 
-        private static readonly string[] RelevantAssertions = { "AreEqual", "AreNotEqual"};
+        private static readonly string[] RelevantAssertionsNames = { "AreEqual", "AreNotEqual"};
 
 
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-
-            context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.InvocationExpression);
+            context.RegisterCompilationStartAction(FindRelevantAssertions);
         }
 
-        private static void AnalyzeNode(SyntaxNodeAnalysisContext context)
+        private void FindRelevantAssertions(CompilationStartAnalysisContext context)
         {
-            var invocationExpr = (InvocationExpressionSyntax)context.Node;
-            var memberAccessExpr = invocationExpr.Expression as MemberAccessExpressionSyntax;
-            if (memberAccessExpr is null) return;
-            if (!RelevantAssertions.Contains(memberAccessExpr.Name.ToString())) return;
+            var relevantAssertions = GetRelevantAssertions(context.Compilation);
+            if (relevantAssertions.Length == 0) return;
 
-            var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExpr).Symbol as IMethodSymbol;
-            if (!MethodIsAssertion(memberSymbol)) return;
+            var analyzeNode = AnalyzeNode(relevantAssertions);
 
-            var argumentList = invocationExpr.ArgumentList as ArgumentListSyntax;
-            if ((argumentList?.Arguments.Count ?? 0) < 2) return;
+            context.RegisterSyntaxNodeAction(analyzeNode, SyntaxKind.InvocationExpression);
 
-            var expectedArg = argumentList.Arguments[0] as ArgumentSyntax;
-            var actualArg = argumentList.Arguments[1] as ArgumentSyntax;
+        }
 
-            if (ArgumentIsNumericLiteral(expectedArg))
+        private static Action<SyntaxNodeAnalysisContext> AnalyzeNode(ISymbol[] relevantAssertions)
+        {
+            return (SyntaxNodeAnalysisContext context) =>
             {
-                //raise diagnostic
-                var diagnosticExpected = Diagnostic.Create(Rule, expectedArg.GetLocation(), memberAccessExpr.Name, expectedArg.ToString());
-                context.ReportDiagnostic(diagnosticExpected);
-            }
-            if (ArgumentIsNumericLiteral(actualArg))
-            {
-                //raise diagnostic
-                var diagnosticActual = Diagnostic.Create(Rule, actualArg.GetLocation(), memberAccessExpr.Name, actualArg.ToString());
-                context.ReportDiagnostic(diagnosticActual);
+                var invocationExpr = (InvocationExpressionSyntax)context.Node;
+                var memberAccessExpr = invocationExpr.Expression as MemberAccessExpressionSyntax;
+                if (memberAccessExpr is null) return;
+                //if (!RelevantAssertions.Contains(memberAccessExpr.Name.ToString())) return;
 
+                var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExpr).Symbol as IMethodSymbol;
+                if (!MethodIsRelevantAssertion(memberSymbol, relevantAssertions)) return;
+
+                var argumentList = invocationExpr.ArgumentList as ArgumentListSyntax;
+                if ((argumentList?.Arguments.Count ?? 0) < 2) return;
+
+                var expectedArg = argumentList.Arguments[0] as ArgumentSyntax;
+                var actualArg = argumentList.Arguments[1] as ArgumentSyntax;
+
+                if (ArgumentIsNumericLiteral(expectedArg))
+                {
+                    //raise diagnostic
+                    var diagnosticExpected = Diagnostic.Create(Rule, expectedArg.GetLocation(), memberAccessExpr.Name, expectedArg.ToString());
+                    context.ReportDiagnostic(diagnosticExpected);
+                }
+                if (ArgumentIsNumericLiteral(actualArg))
+                {
+                    //raise diagnostic
+                    var diagnosticActual = Diagnostic.Create(Rule, actualArg.GetLocation(), memberAccessExpr.Name, actualArg.ToString());
+                    context.ReportDiagnostic(diagnosticActual);
+
+                }
+            };
+
+
+        }
+        private static ISymbol[] GetRelevantAssertions(Compilation compilation)
+        {
+            var assertType = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.Assert");
+            var relevantAssertions = new List<ISymbol>();
+            if (!(assertType is null))
+            {
+                foreach (var function in RelevantAssertionsNames)
+                {
+                foreach (var member in assertType.GetMembers(function))
+                    {
+                        relevantAssertions.Add(member);
+                    }
+                }
             }
+            return relevantAssertions.ToArray();
 
 
         }
 
-        private static bool MethodIsAssertion(IMethodSymbol symbol)
+        private static bool MethodIsRelevantAssertion(IMethodSymbol symbol, ISymbol[] relevantAssertions)
         {
             if (symbol == null) return false;
 
-            foreach (string function in RelevantAssertions)
+            foreach (var function in relevantAssertions)
             {
-                if (symbol.ToString().StartsWith($"Microsoft.VisualStudio.TestTools.UnitTesting.Assert.{function}"))
+                if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, function))
                 {
                     return true;
                 }

@@ -69,6 +69,8 @@ namespace TestSmells.EmptyTest
             , SymbolKind.Method);
         }
 
+        
+
         private static void AnalyzeMethodBlockIOperation(OperationBlockAnalysisContext context)
         {
 
