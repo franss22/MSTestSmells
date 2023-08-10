@@ -16,9 +16,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using TestSmells.EmptyTest;
 
-namespace EmptyTest
+
+
+namespace TestSmells.EmptyTest
 {
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(EmptyTestCodeFixProvider)), Shared]
     public class EmptyTestCodeFixProvider : CodeFixProvider

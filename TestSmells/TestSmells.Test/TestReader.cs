@@ -16,9 +16,14 @@ namespace TestReading
             basePath = Path.Combine(basePath, testClassFolder);
         }
 
-        public string ReadTest(string fileName)
+        public string ReadTest(string filePath, params string[] filePaths)
         {
-            return File.ReadAllText(Path.Combine(basePath, fileName));
+            var path = Path.Combine(basePath, filePath);
+            foreach (var pathPart in filePaths)
+            {
+                path = Path.Combine(path, pathPart);
+            }
+            return File.ReadAllText(path);
         }
     }
 }

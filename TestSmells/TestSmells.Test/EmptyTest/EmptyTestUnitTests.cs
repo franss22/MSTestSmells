@@ -1,16 +1,12 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Testing;
-using Microsoft.CodeAnalysis;
-using Microsoft;
-using Microsoft.CodeAnalysis.Testing;
+﻿using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using static Microsoft.CodeAnalysis.Testing.ReferenceAssemblies;
 using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
-    EmptyTest.EmptyTestAnalyzer,
-    EmptyTest.EmptyTestCodeFixProvider>;
+    TestSmells.EmptyTest.EmptyTestAnalyzer,
+    TestSmells.EmptyTest.EmptyTestCodeFixProvider>;
 using System.Collections.Immutable;
 using TestReading;
-using System;
 
 namespace TestSmells.Test.EmptyTest
 {
@@ -127,11 +123,8 @@ namespace TestSmells.Test.EmptyTest
             }.RunAsync();
         }
 
-        [TestMethod]
-        public async Task EmptyTest()
-        {
 
-        }
+        
 
     }
 }

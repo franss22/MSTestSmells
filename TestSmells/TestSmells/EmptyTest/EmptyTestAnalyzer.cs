@@ -11,9 +11,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
-using TestSmells.EmptyTest;
 
-namespace EmptyTest
+namespace TestSmells.EmptyTest
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class EmptyTestAnalyzer : DiagnosticAnalyzer
