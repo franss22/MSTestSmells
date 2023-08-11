@@ -1,39 +1,7 @@
-﻿using Microsoft.CodeAnalysis.Testing;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
-using static Microsoft.CodeAnalysis.Testing.ReferenceAssemblies;
-using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.AssertionRoulette.AssertionRouletteAnalyzer>;
-
-//using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
-//    TestSmells.AssertionRoulette.AssertionRouletteAnalyzer>;
-//    TestSmells.AssertionRoulette.AssertionRouletteCodeFixProvider >;
-using System.Collections.Immutable;
-using TestReading;
-
-namespace TestSmells.Test.AssertionRoulette
-{
-    [TestClass]
-    public class AssertionRouletteUnitTests
-
-    {
-
-        private readonly ReferenceAssemblies UnitTestingAssembly = NetFramework.Net48.Default.AddPackages(ImmutableArray.Create(new PackageIdentity("Microsoft.VisualStudio.UnitTesting", "11.0.50727.1"))).AddAssemblies(ImmutableArray.Create("Microsoft.VisualStudio.UnitTesting"));
-
-        private readonly TestReader testReader = new TestReader("AssertionRoulette", "Corpus");
-        //No diagnostics expected to show up
         [TestMethod]
-        public async Task EmptyProgram()
+        public async Task SingleAssertIntMessage()
         {
-            var test = @"";
-
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-
-        [TestMethod]
-        public async Task SingleAssertIntIntMessage()
-        {
-            var testFile = @"SingleAssertIntIntMessage.cs";
+            var testFile = @"SingleAssertIntMessage.cs";
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -43,9 +11,9 @@ namespace TestSmells.Test.AssertionRoulette
         }
 
         [TestMethod]
-        public async Task SingleAssertIntInt()
+        public async Task SingleAssertInt()
         {
-            var testFile = @"SingleAssertIntInt.cs";
+            var testFile = @"SingleAssertInt.cs";
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -55,11 +23,11 @@ namespace TestSmells.Test.AssertionRoulette
         }
 
         [TestMethod]
-        public async Task DoubleAssertIntIntNoMessageFirst()
+        public async Task DoubleAssertIntNoMessageFirst()
         {
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 34).WithArguments("AreEqual");
 
-            var testFile = @"DoubleAssertIntIntNoMessageFirst.cs";
+            var testFile = @"DoubleAssertIntNoMessageFirst.cs";
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -69,9 +37,9 @@ namespace TestSmells.Test.AssertionRoulette
         }
 
         [TestMethod]
-        public async Task DoubleAssertIntIntNoMessageSecond()
+        public async Task DoubleAssertIntNoMessageSecond()
         {
-            var testFile = @"DoubleAssertIntIntNoMessageSecond.cs";
+            var testFile = @"DoubleAssertIntNoMessageSecond.cs";
 
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 34).WithArguments("AreEqual");
 
@@ -84,9 +52,9 @@ namespace TestSmells.Test.AssertionRoulette
         }
 
         [TestMethod]
-        public async Task DoubleAssertIntIntNoMessageBoth()
+        public async Task DoubleAssertIntNoMessageBoth()
         {
-            var testFile = @"DoubleAssertIntIntNoMessageBoth.cs";
+            var testFile = @"DoubleAssertIntNoMessageBoth.cs";
 
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 34).WithArguments("AreEqual");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 34).WithArguments("AreEqual");
@@ -100,9 +68,9 @@ namespace TestSmells.Test.AssertionRoulette
         }
 
         [TestMethod]
-        public async Task DoubleAssertIntIntMessage()
+        public async Task DoubleAssertIntMessage()
         {
-            var testFile = @"DoubleAssertIntIntMessage.cs";
+            var testFile = @"DoubleAssertIntMessage.cs";
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -110,8 +78,3 @@ namespace TestSmells.Test.AssertionRoulette
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
         }
-
-
-
-    }
-}

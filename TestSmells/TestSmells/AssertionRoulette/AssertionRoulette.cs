@@ -31,13 +31,13 @@ namespace TestSmells.AssertionRoulette
             "AreNotSame",
             "AreSame",
             "IsFalse",
-            "IsInstanseOfType",
-            "IsNotInstanseOfType",
+            "IsInstanceOfType",
+            "IsNotInstanceOfType",
             "IsNotNull",
             "IsNull",
             "IsTrue",
-            "TrowsException",
-            "ThrowsExceptionAsync",
+            "ThrowsException",//not working
+            "ThrowsExceptionAsync",//not working
             "Fail",
         };
 
@@ -178,7 +178,14 @@ namespace TestSmells.AssertionRoulette
 
         private static IMethodSymbol[] GetRelevantAssertions(Compilation compilation)
         {
+            //use getType*s* oto get partial classes and then get members of each of them
             var assertType = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.Assert");
+            //var a = assertType.GetMembers();
+            //var text = new List<string>();
+            //foreach (var item in a)
+            //{
+            //    text.Add(item.ToString());
+            //}
             var relevantAssertions = new List<IMethodSymbol>();
             if (!(assertType is null))
             {
