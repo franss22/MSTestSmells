@@ -1,80 +1,31 @@
         [TestMethod]
-        public async Task SingleAssertIntMessage()
+        public async Task IsSubsetOfWithMessage()
         {
-            var testFile = @"SingleAssertIntMessage.cs";
+            var testFolder = "IsSubsetOf";
+            var testFile = @"MessageBoth.cs";
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFile),
+                TestCode = testReader.ReadTest(testFolder, testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
         }
 
         [TestMethod]
-        public async Task SingleAssertInt()
+        public async Task IsSubsetOfWithoutMessage()
         {
-            var testFile = @"SingleAssertInt.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
-        }
+            var testFolder = "IsSubsetOf";
+            var testFile = @"NoMessageBoth.cs";
 
-        [TestMethod]
-        public async Task DoubleAssertIntNoMessageFirst()
-        {
-            var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 34).WithArguments("AreEqual");
-
-            var testFile = @"DoubleAssertIntNoMessageFirst.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFile),
-                ExpectedDiagnostics = { expected1st },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
-        }
-
-        [TestMethod]
-        public async Task DoubleAssertIntNoMessageSecond()
-        {
-            var testFile = @"DoubleAssertIntNoMessageSecond.cs";
-
-            var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 34).WithArguments("AreEqual");
+            var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(26, 13, 26, 76).WithArguments("IsSubsetOf");
+            var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(29, 13, 29, 76).WithArguments("IsSubsetOf");
 
             await new VerifyCS.Test
             {
-                TestCode = testReader.ReadTest(testFile),
-                ExpectedDiagnostics = { expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
-        }
-
-        [TestMethod]
-        public async Task DoubleAssertIntNoMessageBoth()
-        {
-            var testFile = @"DoubleAssertIntNoMessageBoth.cs";
-
-            var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 34).WithArguments("AreEqual");
-            var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 34).WithArguments("AreEqual");
-
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFile),
+                TestCode = testReader.ReadTest(testFolder, testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
         }
 
-        [TestMethod]
-        public async Task DoubleAssertIntMessage()
-        {
-            var testFile = @"DoubleAssertIntMessage.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
-        }
+        

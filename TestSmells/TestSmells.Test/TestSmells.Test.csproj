@@ -9,27 +9,36 @@
 
   <ItemGroup>
     <Compile Remove="AssertionRoulette\Corpus\**" />
+    <Compile Remove="AssertionRoulette\OldCorpus\**" />
     <Compile Remove="EmptyTest\Corpus\**" />
+    <Compile Remove="GeneralFixture\Corpus\**" />
     <Compile Remove="MagicNumber\Corpus\**" />
+    <Compile Remove="MysteryGuest\Corpus\**" />
     <EmbeddedResource Remove="AssertionRoulette\Corpus\**" />
+    <EmbeddedResource Remove="AssertionRoulette\OldCorpus\**" />
     <EmbeddedResource Remove="EmptyTest\Corpus\**" />
+    <EmbeddedResource Remove="GeneralFixture\Corpus\**" />
     <EmbeddedResource Remove="MagicNumber\Corpus\**" />
+    <EmbeddedResource Remove="MysteryGuest\Corpus\**" />
     <None Remove="AssertionRoulette\Corpus\**" />
+    <None Remove="AssertionRoulette\OldCorpus\**" />
     <None Remove="EmptyTest\Corpus\**" />
+    <None Remove="GeneralFixture\Corpus\**" />
     <None Remove="MagicNumber\Corpus\**" />
+    <None Remove="MysteryGuest\Corpus\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.6.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest" Version="1.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest" Version="1.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.MSTest" Version="1.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing.MSTest" Version="1.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing.MSTest" Version="1.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing.MSTest" Version="1.1.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.8.0-2.23424.4" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest" Version="1.1.2-beta1.23411.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest" Version="1.1.2-beta1.23411.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.MSTest" Version="1.1.2-beta1.23411.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing.MSTest" Version="1.1.2-beta1.23411.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing.MSTest" Version="1.1.2-beta1.23411.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing.MSTest" Version="1.1.2-beta1.23411.1" />
   </ItemGroup>
 
   <ItemGroup>
