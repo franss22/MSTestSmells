@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.AssertionRoulette {
+namespace TestSmells.Replace {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.AssertionRoulette {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.AssertionRoulette.CodeFixResources", typeof(CodeFixResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.Replace.CodeFixResources", typeof(CodeFixResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.AssertionRoulette {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add message to assertion.
+        ///   Looks up a localized string similar to Make uppercase.
         /// </summary>
         internal static string CodeFixTitle {
             get {

@@ -26,6 +26,7 @@ namespace TestSmells.AssertionRoulette
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
 
         private static readonly string[] RelevantAssertionsNames = {
+            //Assert
             "AreEqual",
             "AreNotEqual",
             "AreNotSame",
@@ -36,62 +37,40 @@ namespace TestSmells.AssertionRoulette
             "IsNotNull",
             "IsNull",
             "IsTrue",
-            "ThrowsException",//not working
-            "ThrowsExceptionAsync",//not working
+            "ThrowsException",
+            "ThrowsExceptionAsync",
             "Fail",
-        };
-
-        private static readonly string[] MessageAssertionsNames =
-        {
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual<T>(T, T, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual<T>(T, T, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(object, object, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(object, object, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(float, float, float, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(float, float, float, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(double, double, double, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(double, double, double, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(string, string, bool, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(string, string, bool, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(string, string, bool, System.Globalization.CultureInfo, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(string, string, bool, System.Globalization.CultureInfo, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual<T>(T, T, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual<T>(T, T, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(object, object, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(object, object, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(float, float, float, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(float, float, float, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(double, double, double, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(double, double, double, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(string, string, bool, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(string, string, bool, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(string, string, bool, System.Globalization.CultureInfo, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotEqual(string, string, bool, System.Globalization.CultureInfo, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotSame(object, object, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreNotSame(object, object, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreSame(object, object, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreSame(object, object, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsFalse(bool, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsFalse(bool, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(object, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNotNull(object, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(object, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsNull(object, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(bool, string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(bool, string, params object[])",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.Fail(string)",
-            "Microsoft.VisualStudio.TestTools.UnitTesting.Assert.Fail(string, params object[])",
+            "Inconclusive",
+            //CollectionAssert
+            "AllItemsAreInstancesOfType",
+            "AllItemsAreNotNull",
+            "AllItemsAreUnique",
+            "AreEqual",
+            "AreEquivalent",
+            "AreNotEqual",
+            "AreNotEquivalent",
+            "Contains",
+            "DoesNotContain",
+            "IsNotSubsetOf",
+            "IsSubsetOf",
+            //StringAssert
+            "Contains",//edge (String, String)
+            "DoesNotMatch",
+            "EndsWith",//edge (String, String)
+            "Matches",
+            "StartsWith",//edge (String, String)
 
         };
+
 
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterCompilationStartAction(GetTestAttributes);
+            context.RegisterCompilationStartAction(GetClassesFromCompilation);
         }
 
-        private void GetTestAttributes(CompilationStartAnalysisContext context)
+        private void GetClassesFromCompilation(CompilationStartAnalysisContext context)
         {
             // Get the attribute object from the compilation
             var testClassAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
@@ -102,12 +81,6 @@ namespace TestSmells.AssertionRoulette
             var relevantAssertions = GetRelevantAssertions(context.Compilation);
             if (relevantAssertions.Length == 0) return;
 
-            //var text = new List<string>();
-            //foreach (var item in relevantAssertions)
-            //{
-            //    text.Add(item.ToString());
-            //}
-
 
             var analyzeMethod = AnalyzeMethodSymbol(testClassAttr, testMethodAttr, relevantAssertions);
 
@@ -115,22 +88,15 @@ namespace TestSmells.AssertionRoulette
 
         }
 
-        private static Action<SymbolStartAnalysisContext> AnalyzeMethodSymbol(INamedTypeSymbol testClassAttr, INamedTypeSymbol testMethodAttr , IMethodSymbol[] relevantAssertions)
+        private static Action<SymbolStartAnalysisContext> AnalyzeMethodSymbol(INamedTypeSymbol testClassAttr, INamedTypeSymbol testMethodAttr, IMethodSymbol[] relevantAssertions)
         {
             return (SymbolStartAnalysisContext context) =>
             {
-                var methodSymbol = (IMethodSymbol)context.Symbol;
-                //Check if the container class is [TestClass], skip if it's not
-                var containerClass = methodSymbol.ContainingSymbol;
-                if (containerClass is null) { return; }
-                if (!FindAttributeInSymbol(testClassAttr, containerClass)) { return; }
+                if (!TestUtils.TestMethodInTestClass(context, testClassAttr, testMethodAttr)) { return; }
 
+                var operationBlockAnalisis = AnalyzeMethodOperations(relevantAssertions);
+                context.RegisterOperationBlockAction(operationBlockAnalisis);
 
-                if (FindAttributeInSymbol(testMethodAttr, methodSymbol)) 
-                {
-                    var operationBlockAnalisis = AnalyzeMethodOperations(relevantAssertions);
-                    context.RegisterOperationBlockAction(operationBlockAnalisis); 
-                }
             };
 
 
@@ -146,7 +112,8 @@ namespace TestSmells.AssertionRoulette
                 {
                     if (block.Kind != OperationKind.Block) { continue; }
                     var blockOperation = (IBlockOperation)block;
-                    foreach (var operation in blockOperation.Descendants())
+                    var descendants = blockOperation.Descendants();
+                    foreach (var operation in descendants)
                     {
                         if (operation.Kind != OperationKind.Invocation) { continue; }
                         var invocationOperation = (IInvocationOperation)operation;
@@ -156,20 +123,17 @@ namespace TestSmells.AssertionRoulette
                         }
                     }
                 }
-                if (assertions.Count>1)
+                if (assertions.Count > 1)
                 {
-                    var messageAssertions = GetMessageAssertions(relevantAssertions);
 
                     foreach (var assert in assertions)
                     {
-                        if (!MethodIsInList(assert.TargetMethod, messageAssertions))
+                        if (!IsMessageAssertion(assert.TargetMethod))
                         {
                             var invocationSyntax = assert.Syntax;
                             var diagnostic = Diagnostic.Create(Rule, invocationSyntax.GetLocation(), assert.TargetMethod.Name);
                             context.ReportDiagnostic(diagnostic);
                         }
-                        
-
                     }
                 }
             };
@@ -178,40 +142,53 @@ namespace TestSmells.AssertionRoulette
 
         private static IMethodSymbol[] GetRelevantAssertions(Compilation compilation)
         {
-            //use getType*s* oto get partial classes and then get members of each of them
-            var assertType = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.Assert");
-            //var a = assertType.GetMembers();
-            //var text = new List<string>();
-            //foreach (var item in a)
-            //{
-            //    text.Add(item.ToString());
-            //}
+            INamedTypeSymbol[] assertTypes = {
+                compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.Assert"),
+                compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.StringAssert"),
+                compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.CollectionAssert"),
+            };
+
+
+
             var relevantAssertions = new List<IMethodSymbol>();
-            if (!(assertType is null))
+            foreach (var assertType in assertTypes)
             {
-                foreach (var function in RelevantAssertionsNames)
+                if (!(assertType is null))
                 {
-                    foreach (var member in assertType.GetMembers(function))
+                    foreach (var function in RelevantAssertionsNames)
                     {
-                        relevantAssertions.Add((IMethodSymbol)member);
+                        foreach (var member in assertType.GetMembers(function))
+                        {
+                            relevantAssertions.Add((IMethodSymbol)member);
+                        }
                     }
                 }
             }
+
             return relevantAssertions.ToArray();
         }
 
-        private static IMethodSymbol[] GetMessageAssertions(IMethodSymbol[] relevantAssertions)
+        private static bool IsMessageAssertion(IMethodSymbol method)
         {
-            var messageAssertions = new List<IMethodSymbol>();
-            foreach (var method in relevantAssertions)
+            var args = method.OriginalDefinition.Parameters;
+            if (args.Length == 0) return false;
+            else if (args.Length == 1)
             {
-                if (MessageAssertionsNames.Contains(method.ToString()))
-                {
-                    messageAssertions.Add(method);
-                }
+                var lastArg = args[0];
+                var lastArgName = lastArg.Name;
+                return (lastArgName == "message");
             }
-            return messageAssertions.ToArray();
+            else
+            {
+                var lastArg = args[args.Length - 1];
+                var lastArgName = lastArg.Name;
+                var scndLastArg = args[args.Length - 2];
+                var scndLastArgName = scndLastArg.Name;
+                return (lastArgName == "message" || (scndLastArgName == "message" && lastArgName == "parameters"));
+            }
+
         }
+
 
         private static bool MethodIsInList(IMethodSymbol symbol, ISymbol[] relevantAssertions)
         {
@@ -228,16 +205,5 @@ namespace TestSmells.AssertionRoulette
 
         }
 
-        private static bool FindAttributeInSymbol(INamedTypeSymbol attribute, ISymbol symbol)
-        {
-            foreach (var attr in symbol.GetAttributes())
-            {
-                if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attribute))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 }

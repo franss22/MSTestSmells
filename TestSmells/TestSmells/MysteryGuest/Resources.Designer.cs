@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.AssertionRoulette {
+namespace TestSmells.MysteryGuest {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace TestSmells.AssertionRoulette {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class CodeFixResources {
+    internal class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal CodeFixResources() {
+        internal Resources() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace TestSmells.AssertionRoulette {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.AssertionRoulette.CodeFixResources", typeof(CodeFixResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.MysteryGuest.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,11 +61,29 @@ namespace TestSmells.AssertionRoulette {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add message to assertion.
+        ///   Looks up a localized string similar to Tests should not read data from an external file. use Inline Resource..
         /// </summary>
-        internal static string CodeFixTitle {
+        internal static string AnalyzerDescription {
             get {
-                return ResourceManager.GetString("CodeFixTitle", resourceCulture);
+                return ResourceManager.GetString("AnalyzerDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Test &apos;{0}&apos; reads data from an external file.
+        /// </summary>
+        internal static string AnalyzerMessageFormat {
+            get {
+                return ResourceManager.GetString("AnalyzerMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mystery Guest.
+        /// </summary>
+        internal static string AnalyzerTitle {
+            get {
+                return ResourceManager.GetString("AnalyzerTitle", resourceCulture);
             }
         }
     }

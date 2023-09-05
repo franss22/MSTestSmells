@@ -1,16 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Threading;
+
 
 namespace TestSmells.EmptyTest
 {
@@ -54,22 +47,14 @@ namespace TestSmells.EmptyTest
             // We register a Symbol Start Action to filter all test classes and their test methods
             context.RegisterSymbolStartAction((ctx) =>
             {
-                var methodSymbol = (IMethodSymbol)ctx.Symbol;
-
-
-                //Check if the container class is [TestClass], skip if it's not
-                var containerClass = methodSymbol.ContainingSymbol;
-                if (containerClass is null) { return; }
-                if (!FindAttributeInSymbol(testClassAttr, containerClass)) { return; }
-
-                //Check if method is [TestMethod], register mthod analysis if it is
-                if (FindAttributeInSymbol(testMethodAttr, methodSymbol)) { ctx.RegisterOperationBlockAction(AnalyzeMethodBlockIOperation); }
+                if (!TestUtils.TestMethodInTestClass(ctx, testClassAttr, testMethodAttr)) { return; }
+                ctx.RegisterOperationBlockAction(AnalyzeMethodBlockIOperation);
 
             }
             , SymbolKind.Method);
         }
 
-        
+
 
         private static void AnalyzeMethodBlockIOperation(OperationBlockAnalysisContext context)
         {
@@ -88,17 +73,7 @@ namespace TestSmells.EmptyTest
 
         }
 
-        private static bool FindAttributeInSymbol(INamedTypeSymbol attribute, ISymbol symbol)
-        {
-            foreach (var attr in symbol.GetAttributes())
-            {
-                if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attribute))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+
 
     }
 }

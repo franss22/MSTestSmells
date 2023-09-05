@@ -70,7 +70,7 @@ namespace TestSmells.AssertionRoulette {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; has no message parameter..
+        ///   Looks up a localized string similar to &apos;{0}&apos; has no message parameter.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {

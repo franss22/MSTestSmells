@@ -13,14 +13,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TestSmells.Default
+namespace TestSmells.Replace
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(DefaultCodeFixProvider)), Shared]
-    public class DefaultCodeFixProvider : CodeFixProvider
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ReplaceCodeFixProvider)), Shared]
+    public class ReplaceCodeFixProvider : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
-            get { return ImmutableArray.Create(DefaultAnalyzer.DiagnosticId); }
+            get { return ImmutableArray.Create(ReplaceAnalyzer.DiagnosticId); }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()
@@ -61,11 +61,11 @@ namespace TestSmells.Default
 
             // Produce a new solution that has all references to that type renamed, including the declaration.
             var originalSolution = document.Project.Solution;
-            var optionSet = originalSolution.Workspace.Options;
-            var newSolution = await Renamer.RenameSymbolAsync(document.Project.Solution, typeSymbol, newName, optionSet, cancellationToken).ConfigureAwait(false);
+            //var optionSet = originalSolution.Workspace.Options;
+            //var newSolution = await Renamer.RenameSymbolAsync(document.Project.Solution, typeSymbol, newName, optionSet, cancellationToken).ConfigureAwait(false);
 
             // Return the new solution with the now-uppercase type name.
-            return newSolution;
+            return originalSolution;
         }
     }
 }

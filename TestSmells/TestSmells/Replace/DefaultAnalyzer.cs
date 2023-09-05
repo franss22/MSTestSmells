@@ -1,19 +1,15 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
 
-namespace TestSmells.Default
+namespace TestSmells.Replace
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class DefaultAnalyzer : DiagnosticAnalyzer
+    public class ReplaceAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "Default";
+        public const string DiagnosticId = "Replace";
 
 
         private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle), Resources.ResourceManager, typeof(Resources));
@@ -44,7 +40,7 @@ namespace TestSmells.Default
                 // For all such symbols, produce a diagnostic.
                 var diagnostic = Diagnostic.Create(Rule, namedTypeSymbol.Locations[0], namedTypeSymbol.Name);
 
-                context.ReportDiagnostic(diagnostic);
+                
             }
         }
     }
