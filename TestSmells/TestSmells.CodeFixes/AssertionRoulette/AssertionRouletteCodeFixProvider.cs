@@ -39,29 +39,26 @@ namespace TestSmells.AssertionRoulette
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
 
-            // Find the type declaration identified by the diagnostic.
-            var declaration = root.FindNode(diagnosticSpan);
+            var methodCall = (InvocationExpressionSyntax)root.FindNode(diagnosticSpan);
 
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: CodeFixResources.CodeFixTitle,
-                    createChangedDocument: c => AddMessageParameter(context.Document, declaration, c),
+                    createChangedDocument: c => AddMessageParameter(context.Document, methodCall, c),
                     equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                 diagnostic);
         }
 
-        private async Task<Document> AddMessageParameter(Document document, SyntaxNode methodCall, CancellationToken cancellationToken)
+        private async Task<Document> AddMessageParameter(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
         {
-            var invocation = (InvocationExpressionSyntax)methodCall;
                 var parameters = invocation.ArgumentList;
                 var message = Argument(
                     LiteralExpression(
                                 SyntaxKind.StringLiteralExpression,
-                                Literal("message")));//.WithAdditionalAnnotations(RenameAnnotation.Create()))
-            var newParams = parameters.AddArguments(message);
+                                Literal("message")).WithAdditionalAnnotations(RenameAnnotation.Create()));
 
-                var newInvocation = invocation.WithArgumentList(newParams);
+            InvocationExpressionSyntax newInvocation = invocation.WithArgumentList(parameters.AddArguments(message));
 
                 var root = await document.GetSyntaxRootAsync(cancellationToken);
                 var newDocument = document.WithSyntaxRoot(root.ReplaceNode(invocation, newInvocation));

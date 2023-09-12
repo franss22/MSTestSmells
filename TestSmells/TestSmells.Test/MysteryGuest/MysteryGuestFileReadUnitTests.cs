@@ -152,7 +152,7 @@ namespace TestSmells.Test.MysteryGuest
             //ReadLinesAsync only exists in .Net 7 and 8
             //But the reference is not working right now
 
-            var net7Assemblies = Net.Net80
+            var net7Assemblies = Net.Net60
                 .AddPackages(ImmutableArray.Create(new PackageIdentity("MSTest.TestFramework", "3.1.1")))
                 .AddAssemblies(ImmutableArray.Create("Microsoft.VisualStudio.UnitTesting"));
 

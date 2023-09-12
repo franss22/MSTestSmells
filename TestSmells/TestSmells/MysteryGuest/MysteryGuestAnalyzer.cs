@@ -110,8 +110,11 @@ namespace TestSmells.MysteryGuest
             if (writeMethods.Length == 0) return;
 
 
+            var options = context.Options.AnalyzerConfigOptionsProvider;
 
-            var analyzeMethod = FilterMethods(testClassAttr, testMethodAttr, readMethods, writeMethods, fileClass, fileStreamClass);
+            var analyzeMethod = FilterMethods(testClassAttr, testMethodAttr, readMethods, writeMethods, fileClass, fileStreamClass, options);
+
+
 
             context.RegisterSymbolStartAction(analyzeMethod, SymbolKind.Method);
 
@@ -144,13 +147,13 @@ namespace TestSmells.MysteryGuest
             IMethodSymbol[] readMethods, 
             IMethodSymbol[] writeMethods,
             INamedTypeSymbol fileClass,
-            INamedTypeSymbol fileStreamClass)
+            INamedTypeSymbol fileStreamClass,
+            AnalyzerConfigOptionsProvider options)
         {
             return (SymbolStartAnalysisContext context) =>
             {
                 if (!TestUtils.TestMethodInTestClass(context, testClassAttr, testMethodAttr)) { return; }
-
-                var operationBlockAnalisis = AnalyzeMethodOperations(readMethods, writeMethods, fileClass, fileStreamClass);
+                var operationBlockAnalisis = AnalyzeMethodOperations(readMethods, writeMethods, fileClass, fileStreamClass, options);
                 context.RegisterOperationBlockAction(operationBlockAnalisis);
             };
         }
@@ -159,10 +162,18 @@ namespace TestSmells.MysteryGuest
             IMethodSymbol[] fileReadMethods, 
             IMethodSymbol[] fileWriteMethods,
             INamedTypeSymbol fileClass,
-            INamedTypeSymbol fileStreamClass)
+            INamedTypeSymbol fileStreamClass,
+            AnalyzerConfigOptionsProvider options)
         {
             return (OperationBlockAnalysisContext context) =>
             {
+                var fileOptions = options.GetOptions(context.FilterTree);
+                fileOptions.TryGetValue("dotnet_diagnostic.MysteryGuest.IgnoredFiles", out var ignoredFiles);
+                if (ignoredFiles != null)
+                {
+                    return;
+                }
+
                 foreach (var block in context.OperationBlocks)//we look for the method body
                 {
                     if (block.Kind != OperationKind.Block) { continue; }

@@ -38,6 +38,7 @@ namespace TestSmells.Test.EmptyTest
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
+
         }
 
 
