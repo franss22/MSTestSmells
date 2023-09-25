@@ -6,6 +6,7 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 AssertionRoulette | Test Smells | Warning | AssertionRouletteAnalyzer
+EagerTest | Test Smells | Warning | EagerTestAnalyzer
 EmptyTest | Test Smells | Warning | EmptyTestAnalyzer
 GeneralFixture | Test Smells | Warning | GeneralFixtureAnalyzer
 MagicNumber | Test Smells | Warning | MagicNumberAnalyzer

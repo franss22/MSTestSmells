@@ -1,24 +1,26 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using EnvDTE;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Rename;
-using Microsoft.CodeAnalysis.Text;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Document = Microsoft.CodeAnalysis.Document;
 
 namespace TestSmells.AssertionRoulette
 {
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AssertionRouletteCodeFixProvider)), Shared]
     public class AssertionRouletteCodeFixProvider : CodeFixProvider
     {
+
+        [Import]
+        internal SVsServiceProvider ServiceProvider { get; set; }
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
             get { return ImmutableArray.Create(AssertionRouletteAnalyzer.DiagnosticId); }
@@ -45,14 +47,17 @@ namespace TestSmells.AssertionRoulette
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: CodeFixResources.CodeFixTitle,
-                    createChangedDocument: c => AddMessageParameter(context.Document, methodCall, c),
+                    createChangedDocument: c => AddMessageParameterAsync(context.Document, methodCall, c),
                     equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                 diagnostic);
         }
 
-        private async Task<Document> AddMessageParameter(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+        private async Task<Document> AddMessageParameterAsync(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
         {
-                var parameters = invocation.ArgumentList;
+            //ThreadHelper.ThrowIfNotOnUIThread();
+            DTE dte = (DTE)ServiceProvider.GetService(typeof(DTE));
+
+            var parameters = invocation.ArgumentList;
                 var message = Argument(
                     LiteralExpression(
                                 SyntaxKind.StringLiteralExpression,

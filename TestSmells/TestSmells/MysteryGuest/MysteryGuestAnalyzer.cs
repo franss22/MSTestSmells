@@ -110,9 +110,8 @@ namespace TestSmells.MysteryGuest
             if (writeMethods.Length == 0) return;
 
 
-            var options = context.Options.AnalyzerConfigOptionsProvider;
 
-            var analyzeMethod = FilterMethods(testClassAttr, testMethodAttr, readMethods, writeMethods, fileClass, fileStreamClass, options);
+            var analyzeMethod = FilterMethods(testClassAttr, testMethodAttr, readMethods, writeMethods, fileClass, fileStreamClass);
 
 
 
@@ -147,13 +146,12 @@ namespace TestSmells.MysteryGuest
             IMethodSymbol[] readMethods, 
             IMethodSymbol[] writeMethods,
             INamedTypeSymbol fileClass,
-            INamedTypeSymbol fileStreamClass,
-            AnalyzerConfigOptionsProvider options)
+            INamedTypeSymbol fileStreamClass)
         {
             return (SymbolStartAnalysisContext context) =>
             {
                 if (!TestUtils.TestMethodInTestClass(context, testClassAttr, testMethodAttr)) { return; }
-                var operationBlockAnalisis = AnalyzeMethodOperations(readMethods, writeMethods, fileClass, fileStreamClass, options);
+                var operationBlockAnalisis = AnalyzeMethodOperations(readMethods, writeMethods, fileClass, fileStreamClass);
                 context.RegisterOperationBlockAction(operationBlockAnalisis);
             };
         }
@@ -162,16 +160,23 @@ namespace TestSmells.MysteryGuest
             IMethodSymbol[] fileReadMethods, 
             IMethodSymbol[] fileWriteMethods,
             INamedTypeSymbol fileClass,
-            INamedTypeSymbol fileStreamClass,
-            AnalyzerConfigOptionsProvider options)
+            INamedTypeSymbol fileStreamClass)
         {
             return (OperationBlockAnalysisContext context) =>
             {
-                var fileOptions = options.GetOptions(context.FilterTree);
-                fileOptions.TryGetValue("dotnet_diagnostic.MysteryGuest.IgnoredFiles", out var ignoredFiles);
+                var fileOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(context.FilterTree);
+                fileOptions.TryGetValue("dotnet_diagnostic.EagerTest.DifferentMethodsThreshold", out var ignoredFiles);
+                var ignoredFilesList = new List<string>();
                 if (ignoredFiles != null)
                 {
                     return;
+                }
+                else
+                {
+                    foreach (var filename in ignoredFiles.Split(','))
+                    {
+                        ignoredFilesList.Add(filename.Trim());
+                    }
                 }
 
                 foreach (var block in context.OperationBlocks)//we look for the method body
@@ -209,7 +214,17 @@ namespace TestSmells.MysteryGuest
                     if(writeOperations.Count > 0) { return; }
                     foreach (var readOperation in readOperations)
                     {
-                        var diagnostic = Diagnostic.Create(Rule, readOperation.Syntax.GetLocation(), context.OwningSymbol.Name);
+                        var args = readOperation.Arguments;
+                        var isIgnored = false;
+                        foreach (var argument in args)
+                        {
+                            var val = argument.Value;
+                        }
+                        if ( isIgnored)
+                        {
+                            continue;
+                        }
+                        var diagnostic = Diagnostic.Create(Rule, readOperation.Syntax.GetLocation(), context.OwningSymbol.Name, readOperation.TargetMethod.Name);
                         context.ReportDiagnostic(diagnostic);
                     }
                 }

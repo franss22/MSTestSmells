@@ -61,7 +61,7 @@ namespace TestSmells.GeneralFixture {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test Method must not use external files as a data source.
+        ///   Looks up a localized string similar to All fields initialized in a fixture should be used by every test.
         /// </summary>
         internal static string AnalyzerDescription {
             get {

@@ -8,10 +8,20 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0" />
+	  <PackageReference Include="envdte" Version="17.7.37355" />
+	  <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.7.37355" />
+	  <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
+
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TestSmells\TestSmells.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="WindowsBase">
+      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\WindowsBase.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

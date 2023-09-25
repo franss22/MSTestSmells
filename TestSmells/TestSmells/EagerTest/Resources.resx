@@ -117,8 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CodeFixTitle" xml:space="preserve">
-    <value>Extract Local Constant</value>
-    <comment>The title of the code fix.</comment>
+  <data name="AnalyzerDescription" xml:space="preserve">
+    <value>Test method should test a single production method</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="AnalyzerMessageFormat" xml:space="preserve">
+    <value>Test Method '{0}' runs assert on more than one production method</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="AnalyzerTitle" xml:space="preserve">
+    <value>Eager Test</value>
+    <comment>The title of the diagnostic.</comment>
   </data>
 </root>

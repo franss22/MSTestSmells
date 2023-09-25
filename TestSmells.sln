@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		NuGet.Config = NuGet.Config
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTEtest", "DTEtest\DTEtest.csproj", "{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +94,18 @@ Global
 		{C1EB2465-6DF6-4E57-B10D-8DA383D15A11}.Release|x86.ActiveCfg = Release|Any CPU
 		{C1EB2465-6DF6-4E57-B10D-8DA383D15A11}.Release|x86.Build.0 = Release|Any CPU
 		{C1EB2465-6DF6-4E57-B10D-8DA383D15A11}.Release|x86.Deploy.0 = Release|Any CPU
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Debug|arm64.ActiveCfg = Debug|arm64
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Debug|arm64.Build.0 = Debug|arm64
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Debug|x86.ActiveCfg = Debug|x86
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Debug|x86.Build.0 = Debug|x86
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Release|arm64.ActiveCfg = Release|arm64
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Release|arm64.Build.0 = Release|arm64
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Release|x86.ActiveCfg = Release|x86
+		{2CB851CC-0EE2-4ADF-BCDE-85FE57C16142}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
