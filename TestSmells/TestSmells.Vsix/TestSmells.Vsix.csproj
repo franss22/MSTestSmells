@@ -19,6 +19,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
 	  <PackageReference Include="Microsoft.CodeAnalysis" Version="4.7.0" />
 	  <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.7.2196" PrivateAssets="all" />
   </ItemGroup>

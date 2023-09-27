@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0" />
 	  <PackageReference Include="envdte" Version="17.7.37355" />
+	  <PackageReference Include="Microsoft.VisualStudio.Language.Intellisense" Version="17.0.491" />
 	  <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.7.37355" />
 	  <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
 
