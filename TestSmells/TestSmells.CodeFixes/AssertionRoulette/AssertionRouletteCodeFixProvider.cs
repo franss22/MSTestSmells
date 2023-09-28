@@ -12,14 +12,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Document = Microsoft.CodeAnalysis.Document;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextManager.Interop;
-using Microsoft.VisualStudio.Language.Intellisense;
 using EnvDTE80;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Generic;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace TestSmells.AssertionRoulette
 {
@@ -35,10 +32,10 @@ namespace TestSmells.AssertionRoulette
             ChangedDocument = changedDocument;
         }
 
-        public override void Apply(Workspace workspace, CancellationToken cancellationToken)
+        public override async void Apply(Workspace workspace, CancellationToken cancellationToken)
         {
-            // Execute the custom action
-            SelectText(cancellationToken, ChangedDocument).RunSynchronously();
+            await SelectText(cancellationToken, ChangedDocument);
+
         }
     }
 
@@ -60,27 +57,30 @@ namespace TestSmells.AssertionRoulette
             SelectText = selectText;
         }
 
-
+        protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
+        {
+            return await CreateChangedDocument(cancellationToken);
+        }
         protected override async Task<IEnumerable<CodeActionOperation>> ComputePreviewOperationsAsync(CancellationToken cancellationToken)
         {
             var changedDocument = await CreateChangedDocument(cancellationToken).ConfigureAwait(false);
             if (changedDocument == null)
                 return null;
 
-            return new CodeActionOperation[] { new ApplyChangesOperation(changedDocument.Project.Solution), new CustomOperation(SelectText, changedDocument) };
+            return new CodeActionOperation[] { new ApplyChangesOperation(changedDocument.Project.Solution) };
         }
 
         protected override async Task<IEnumerable<CodeActionOperation>> ComputeOperationsAsync(CancellationToken cancellationToken)
         {
-            var changedDocument = await CreateChangedDocument(cancellationToken);
+            var changedDocument = await CreateChangedDocument(cancellationToken).ConfigureAwait(false);
             if (changedDocument == null)
                 return null;
             var root = changedDocument.GetSyntaxRootAsync(cancellationToken);
 
-            await SelectText(cancellationToken, changedDocument);
+            var selectionOperation = new CustomOperation(SelectText, changedDocument);
 
 
-            return new CodeActionOperation[] { new ApplyChangesOperation(changedDocument.Project.Solution) };
+            return new CodeActionOperation[] { new ApplyChangesOperation(changedDocument.Project.Solution) ,  selectionOperation};
         }
 
 
@@ -96,21 +96,13 @@ namespace TestSmells.AssertionRoulette
 
         [Import]
         internal SVsServiceProvider ServiceProvider { get; set; }
-        public static readonly DTE2 DTE;
+        private static DTE2 DTE;
         public static readonly IVsTextManager TextManager;
 
-        static AssertionRouletteCodeFixProvider()
-        {
-            try
-            {
-                DTE = Package.GetGlobalService(typeof(DTE)) as DTE2;
-
-            }
-            catch (System.Exception)
-            {
-                DTE = null;
-            }
-        }
+        //static AssertionRouletteCodeFixProvider()
+        //{
+            
+        //}
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
@@ -147,6 +139,20 @@ namespace TestSmells.AssertionRoulette
 
         private async Task SelectText(Document document, CancellationToken cancellationToken)
         {
+            if (DTE == null)
+            {
+                try
+                {
+                    DTE = Package.GetGlobalService(typeof(DTE)) as DTE2;
+
+                }
+                catch (System.Exception)
+                {
+                    DTE = null;
+                    return;
+                }
+            }
+            
             var root = await document.GetSyntaxRootAsync(cancellationToken);
             var changedMessage = root.DescendantNodesAndSelf()
             .Where(node => node.GetAnnotations("MessageArgument").Any()).FirstOrDefault();
@@ -158,10 +164,10 @@ namespace TestSmells.AssertionRoulette
             LinePosition endLinePosition = location.GetLineSpan().EndLinePosition;
 
             int startLine = startLinePosition.Line + 1; // Lines are zero-based, so we add 1 to get the 1-based line number
-            int startColumn = startLinePosition.Character + 1 + 1; // Characters are zero-based, so we add 1 to get the 1-based column number
+            int startColumn = startLinePosition.Character + 1 + 2; // Characters are zero-based, so we add 1 to get the 1-based column number
 
             int endLine = endLinePosition.Line + 1;
-            int endColumn = endLinePosition.Character + 1 - 1;
+            int endColumn = endLinePosition.Character + 1 ;
 
             if (DTE != null)
             {

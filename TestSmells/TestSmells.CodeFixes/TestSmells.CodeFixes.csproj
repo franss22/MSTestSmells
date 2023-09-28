@@ -12,7 +12,7 @@
 	  <PackageReference Include="Microsoft.VisualStudio.Language.Intellisense" Version="17.0.491" />
 	  <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.7.37355" />
 	  <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
-
+	  <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
