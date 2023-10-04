@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.MagicNumber {
+namespace TestSmells.EagerTest {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.MagicNumber {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.MagicNumber.CodeFixResources", typeof(CodeFixResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.EagerTest.CodeFixResources", typeof(CodeFixResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.MagicNumber {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Separate assertions into new test methods.
+        ///   Looks up a localized string similar to Extract Method.
         /// </summary>
         internal static string CodeFixTitle {
             get {

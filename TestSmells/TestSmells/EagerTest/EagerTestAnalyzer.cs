@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-
+using System.Net.NetworkInformation;
 
 namespace TestSmells.EagerTest
 {
@@ -117,106 +117,99 @@ namespace TestSmells.EagerTest
 
                 var assignments = new List<IOperation>();
                 var assertions = new List<IInvocationOperation>();
-                foreach (var block in context.OperationBlocks)//we look for the method body
+
+                var blockOperation = TestUtils.GetBlockOperation(context);
+                if (blockOperation is null) { return; }
+
+                foreach (var operation in blockOperation.Descendants())
                 {
-                    if (block.Kind != OperationKind.Block) { continue; }
-                    var blockOperation = (IBlockOperation)block;
-                    var descendants = blockOperation.Descendants();
-                    foreach (var operation in descendants)
-                    {
-                        if ((operation.Kind == OperationKind.SimpleAssignment) || (operation.Kind == OperationKind.VariableDeclarator))
-                        { assignments.Add(operation); }
-                        if (operation.Kind != OperationKind.Invocation) { continue; }
-                        var invocationOperation = (IInvocationOperation)operation;
-                        if (MethodIsInList(invocationOperation.TargetMethod, relevantAssertions))
-                        {
-                            assertions.Add(invocationOperation);
-                        }
+                    if ((operation.Kind == OperationKind.SimpleAssignment) || (operation.Kind == OperationKind.VariableDeclarator))
+                    { 
+                        assignments.Add(operation);
+                        continue;
                     }
+
+                    if (operation.Kind != OperationKind.Invocation) { continue; }
+                    var invocationOperation = (IInvocationOperation)operation;
+                    if (MethodIsInList(invocationOperation.TargetMethod, relevantAssertions))
+                    {
+                        assertions.Add(invocationOperation);
+                    }
+
                 }
                 if (assertions.Count > 1)
                 {
                     var calledMethods = new List<IMethodSymbol>();
                     var invocations = new List<IInvocationOperation>();
+                    //var relatedAssertions = new List<IInvocationOperation>();
                     foreach (var assert in assertions)
                     {
-                        foreach (var argument in assert.Arguments)
+                        var argValue = GetAssertionValueArgument(assert);
+
+                        if (argValue.Kind == OperationKind.Invocation)
                         {
-                            if (argument.Parameter is null) { continue; };
-                            if (!ParamNames.Contains(argument.Parameter.Name)) { continue; };
+                            var invocationArg = (IInvocationOperation)argValue;
+                            calledMethods.Add(invocationArg.TargetMethod);
+                            invocations.Add(invocationArg);
+                        }
 
-
-                            var argValue = argument.Value;
-                            if (argValue.Kind == OperationKind.Invocation)
+                        if (argValue.Kind == OperationKind.LocalReference)
+                        {
+                            var referenceArg = (ILocalReferenceOperation)argValue;
+                            foreach (IOperation operation in assignments)
                             {
-                                var invocationArg = (IInvocationOperation)argValue;
-                                calledMethods.Add(invocationArg.TargetMethod);
-                                invocations.Add(invocationArg);
-                            }
-
-                            if (argValue.Kind == OperationKind.LocalReference)
-                            {
-                                var referenceArg = (ILocalReferenceOperation)argValue;
-                                foreach (IOperation operation in assignments)
+                                if (operation.Kind == OperationKind.SimpleAssignment)
                                 {
-                                    if (operation.Kind == OperationKind.SimpleAssignment)
+                                    var assign = (ISimpleAssignmentOperation)operation;
+                                    var target = (ILocalReferenceOperation)assign.Target;
+                                    if (SymbolEqualityComparer.Default.Equals(target.Local, referenceArg.Local))
                                     {
-                                        var assign = (ISimpleAssignmentOperation)operation;
-                                        var target = (ILocalReferenceOperation)assign.Target;
-                                        if (SymbolEqualityComparer.Default.Equals(target.Local, referenceArg.Local))
+                                        foreach (var op in assign.Value.DescendantsAndSelf())
                                         {
-                                            foreach (var op in assign.Value.DescendantsAndSelf())
+                                            if (op.Kind == OperationKind.Invocation)
                                             {
-                                                if (op.Kind == OperationKind.Invocation)
-                                                {
-                                                    var invocation = (IInvocationOperation)op;
-                                                    calledMethods.Add(invocation.TargetMethod);
-                                                    invocations.Add(invocation);
-
-                                                }
+                                                var invocation = (IInvocationOperation)op;
+                                                calledMethods.Add(invocation.TargetMethod);
+                                                invocations.Add(invocation);
                                             }
-                                            
-                                        }
-
-                                    }
-                                    if (operation.Kind == OperationKind.VariableDeclarator)
-                                    {
-                                        var declaration = (IVariableDeclaratorOperation)operation;
-                                        if (SymbolEqualityComparer.Default.Equals(declaration.Symbol, referenceArg.Local))
-                                        {
-                                            var init = declaration.Initializer;
-                                            foreach (var op in init.Value.DescendantsAndSelf())
-                                            {
-                                                if (op.Kind == OperationKind.Invocation)
-                                                {
-                                                    var invocation = (IInvocationOperation)op;
-                                                    calledMethods.Add(invocation.TargetMethod);
-                                                    invocations.Add(invocation);
-
-                                                }
-                                            }
-
                                         }
                                     }
                                 }
+                                if (operation.Kind == OperationKind.VariableDeclarator)
+                                {
+                                    var declaration = (IVariableDeclaratorOperation)operation;
+                                    if (SymbolEqualityComparer.Default.Equals(declaration.Symbol, referenceArg.Local))
+                                    {
+                                        var init = declaration.Initializer;
+                                        foreach (var op in init.Value.DescendantsAndSelf())
+                                        {
+                                            if (op.Kind == OperationKind.Invocation)
+                                            {
+                                                var invocation = (IInvocationOperation)op;
+                                                calledMethods.Add(invocation.TargetMethod);
+                                                invocations.Add(invocation);
 
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
-
-
-
                     }
+                    
+
 
                     var methodNamesSet = new HashSet<string>(from m in calledMethods select m.Name);
                     if (methodNamesSet.Count>1)
                     {
-                        var invocationLocations = new List<Location>();
-                        foreach (var inv in invocations)
-                        {
-                            invocationLocations.Add(inv.Syntax.GetLocation());
-                        }
+                        var firstLocation = assertions.First().Syntax.GetLocation();
                         var testLocation = context.OwningSymbol.Locations.First();
-                        var diagnostic = Diagnostic.Create(Rule, testLocation, invocationLocations, context.OwningSymbol.Name);
+
+                        var secondaryLocations = new List<Location>(from o in assertions select o.Syntax.GetLocation());
+                        secondaryLocations.Insert(0, testLocation);
+
+
+                        var diagnostic = Diagnostic.Create(Rule, firstLocation, secondaryLocations, context.OwningSymbol.Name);
                         context.ReportDiagnostic(diagnostic);
                     }
 
@@ -224,6 +217,20 @@ namespace TestSmells.EagerTest
             };
 
 
+        }
+
+
+
+
+        private static IOperation GetAssertionValueArgument(IInvocationOperation assertion)
+        {
+            foreach (var argument in assertion.Arguments)
+            {
+                if (argument.Parameter is null) { continue; };
+                if (!ParamNames.Contains(argument.Parameter.Name)) { continue; };
+                return argument.Value;
+            }
+            return null;
         }
 
         private static IMethodSymbol[] GetRelevantAssertions(Compilation compilation)

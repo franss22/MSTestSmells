@@ -12,11 +12,8 @@ namespace Corpus
             var a = new List<int>();
             var b = new List<int>();
 
-            var expected = a.Equals(b);
-
-            Assert.IsTrue(expected);
+            Assert.IsTrue(a.Equals(b));
             Assert.IsTrue(b.Equals(a));
-
         }
     }
 }

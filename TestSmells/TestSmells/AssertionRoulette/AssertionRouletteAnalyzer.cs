@@ -131,8 +131,12 @@ namespace TestSmells.AssertionRoulette
                         if (!IsMessageAssertion(assert.TargetMethod))
                         {
                             var invocationSyntax = assert.Syntax;
-                            var diagnostic = Diagnostic.Create(Rule, invocationSyntax.GetLocation(), assert.TargetMethod.Name);
-                            context.ReportDiagnostic(diagnostic);
+                            if (invocationSyntax.IsKind(SyntaxKind.InvocationExpression))
+                            {
+                                var diagnostic = Diagnostic.Create(Rule, invocationSyntax.GetLocation(), assert.TargetMethod.Name);
+                                context.ReportDiagnostic(diagnostic);
+                            }
+                            
                         }
                     }
                 }

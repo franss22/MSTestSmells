@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +9,18 @@ namespace TestSmells
 {
     public class TestUtils
     {
+
+        public static IBlockOperation GetBlockOperation(OperationBlockAnalysisContext context)
+        {
+            foreach (var block in context.OperationBlocks)//we look for the method body
+            {
+                if (block.Kind != OperationKind.Block) { continue; }
+                var blockOperation = (IBlockOperation)block;
+                return blockOperation;
+            }
+            return null;
+        }
+
         public static bool FindAttributeInSymbol(INamedTypeSymbol attribute, ISymbol symbol)
         {
             foreach (var attr in symbol.GetAttributes())

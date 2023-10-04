@@ -165,71 +165,85 @@ namespace TestSmells.MysteryGuest
             return (OperationBlockAnalysisContext context) =>
             {
                 var fileOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(context.FilterTree);
-                fileOptions.TryGetValue("dotnet_diagnostic.EagerTest.DifferentMethodsThreshold", out var ignoredFiles);
+                fileOptions.TryGetValue("dotnet_diagnostic.MysteryGuest.IgnoredFiles", out var ignoredFiles);
                 var ignoredFilesList = new List<string>();
                 if (ignoredFiles != null)
-                {
-                    return;
-                }
-                else
                 {
                     foreach (var filename in ignoredFiles.Split(','))
                     {
                         ignoredFilesList.Add(filename.Trim());
                     }
                 }
+                var blockOperation = TestUtils.GetBlockOperation(context);
+                if (blockOperation == null) { return; }
 
-                foreach (var block in context.OperationBlocks)//we look for the method body
+                var descendants = blockOperation.Descendants();
+
+                var readOperations = new List<IInvocationOperation>();
+                var writeOperations = new List<IInvocationOperation>();
+                foreach (var operation in descendants)
                 {
-                    if (block.Kind != OperationKind.Block) { continue; }
-                    var blockOperation = (IBlockOperation)block;
-                    var descendants = blockOperation.Descendants();
-
-                    var readOperations = new List<IInvocationOperation>();
-                    var writeOperations = new List<IInvocationOperation>();
-                    foreach (var operation in descendants)
+                    if (operation is ILiteralOperation literal) 
                     {
-                        if (operation.Kind != OperationKind.Invocation) { continue; }
-                        var invocationOperation = (IInvocationOperation)operation;
-                        var methodIsStatic = invocationOperation.Instance is null;
-                        if (!methodIsStatic)
+                        if (literal.Type != null && literal.Type.SpecialType == SpecialType.System_String && literal.ConstantValue.HasValue)
                         {
-                            var methodInstanceIsFile = SymbolEqualityComparer.Default.Equals(invocationOperation.Instance.Type, fileClass);
-                            var methodInstanceIsFileStream = SymbolEqualityComparer.Default.Equals(invocationOperation.Instance.Type, fileStreamClass);
-                            if (!(methodInstanceIsFile || methodInstanceIsFileStream)) { continue; }
-
+                            if (ContainsStringFromList(literal.ConstantValue.Value.ToString(), ignoredFilesList))
+                            {
+                                return;
+                            }
                         }
+                        
+                    }
+                    if (operation.Kind != OperationKind.Invocation) { continue; }
+                    var invocationOperation = (IInvocationOperation)operation;
+                    var methodIsStatic = invocationOperation.Instance is null;
+                    if (!methodIsStatic)
+                    {
+                        var methodInstanceIsFile = SymbolEqualityComparer.Default.Equals(invocationOperation.Instance.Type, fileClass);
+                        var methodInstanceIsFileStream = SymbolEqualityComparer.Default.Equals(invocationOperation.Instance.Type, fileStreamClass);
+                        if (!(methodInstanceIsFile || methodInstanceIsFileStream)) { continue; }
 
-
-                        if (MethodIsInList(invocationOperation.TargetMethod.OriginalDefinition, fileReadMethods))
-                        {
-                            readOperations.Add(invocationOperation);
-                        }
-                        if (MethodIsInList(invocationOperation.TargetMethod.OriginalDefinition, fileWriteMethods))
-                        {
-                            writeOperations.Add(invocationOperation);
-                        }
                     }
 
-                    if(writeOperations.Count > 0) { return; }
-                    foreach (var readOperation in readOperations)
+
+                    if (MethodIsInList(invocationOperation.TargetMethod.OriginalDefinition, fileReadMethods))
                     {
-                        var args = readOperation.Arguments;
-                        var isIgnored = false;
-                        foreach (var argument in args)
-                        {
-                            var val = argument.Value;
-                        }
-                        if ( isIgnored)
-                        {
-                            continue;
-                        }
-                        var diagnostic = Diagnostic.Create(Rule, readOperation.Syntax.GetLocation(), context.OwningSymbol.Name, readOperation.TargetMethod.Name);
-                        context.ReportDiagnostic(diagnostic);
+                        readOperations.Add(invocationOperation);
+                    }
+                    if (MethodIsInList(invocationOperation.TargetMethod.OriginalDefinition, fileWriteMethods))
+                    {
+                        writeOperations.Add(invocationOperation);
                     }
                 }
 
+                if(writeOperations.Count > 0) { return; }
+                foreach (var readOperation in readOperations)
+                {
+                    var args = readOperation.Arguments;
+                    var isIgnored = false;
+                    foreach (var argument in args)
+                    {
+                        var val = argument.Value;
+                    }
+                    if ( isIgnored)
+                    {
+                        continue;
+                    }
+                    var diagnostic = Diagnostic.Create(Rule, readOperation.Syntax.GetLocation(), context.OwningSymbol.Name, readOperation.TargetMethod.Name);
+                    context.ReportDiagnostic(diagnostic);
+                }
+                
+
             };
+        }
+
+        private static bool ContainsStringFromList(string url, IEnumerable<string> stringList)
+        {
+            foreach (var item in stringList)
+            {
+                if (url.Contains(item)) return true;
+            }
+            return false;
         }
 
         private static bool MethodIsInList(IMethodSymbol symbol, ISymbol[] relevantAssertions)

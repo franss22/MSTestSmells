@@ -10,18 +10,21 @@
   <ItemGroup>
     <Compile Remove="AssertionRoulette\Corpus\**" />
     <Compile Remove="AssertionRoulette\OldCorpus\**" />
+    <Compile Remove="EagerTest\Corpus\**" />
     <Compile Remove="EmptyTest\Corpus\**" />
     <Compile Remove="GeneralFixture\Corpus\**" />
     <Compile Remove="MagicNumber\Corpus\**" />
     <Compile Remove="MysteryGuest\Corpus\**" />
     <EmbeddedResource Remove="AssertionRoulette\Corpus\**" />
     <EmbeddedResource Remove="AssertionRoulette\OldCorpus\**" />
+    <EmbeddedResource Remove="EagerTest\Corpus\**" />
     <EmbeddedResource Remove="EmptyTest\Corpus\**" />
     <EmbeddedResource Remove="GeneralFixture\Corpus\**" />
     <EmbeddedResource Remove="MagicNumber\Corpus\**" />
     <EmbeddedResource Remove="MysteryGuest\Corpus\**" />
     <None Remove="AssertionRoulette\Corpus\**" />
     <None Remove="AssertionRoulette\OldCorpus\**" />
+    <None Remove="EagerTest\Corpus\**" />
     <None Remove="EmptyTest\Corpus\**" />
     <None Remove="GeneralFixture\Corpus\**" />
     <None Remove="MagicNumber\Corpus\**" />

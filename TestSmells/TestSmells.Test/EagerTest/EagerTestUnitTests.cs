@@ -26,31 +26,78 @@ namespace TestSmells.Test.EagerTest
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
+
+
         [TestMethod]
-        public async Task EagerTestReported()
+        public async Task SimpleEagerTest()
         {
-            var testFile = @"EagerTest.cs";
-            var expected = VerifyCS.Diagnostic("EagerTest").WithSpan(9, 21, 9, 32).WithArguments("TestMethod1");
+            var testFile = @"SimpleEagerTest.cs";
+            var expected = VerifyCS.Diagnostic()
+                .WithSpan(16, 13, 16, 41) //First Assert
+                .WithSpan(10, 21, 10, 32) //Method Declaration
+                .WithSpan(16, 13, 16, 41) //First Assert
+                .WithSpan(17, 13, 17, 39) //Second Assert
+                .WithArguments("TestMethod1");
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
-
         }
 
         [TestMethod]
-        public async Task NoEagerTestReported()
+        public async Task LocalVarEagerTest()
         {
-            var testFile = @"EagerTest.cs";
+            var testFile = @"LocalVarEagerTest.cs";
+            var expected = VerifyCS.Diagnostic()
+                .WithSpan(18, 13, 18, 31) //First Assert
+                .WithSpan(10, 21, 10, 32) //Method Declaration
+                .WithSpan(18, 13, 18, 31) //First Assert
+                .WithSpan(19, 13, 19, 31) //Second Assert
+                .WithArguments("TestMethod1");
+            await new VerifyCS.Test
+            {
+                TestCode = testReader.ReadTest(testFile),
+                ExpectedDiagnostics = { expected },
+                ReferenceAssemblies = UnitTestingAssembly
+            }.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task NoSmellTwoAssertsSameMethod()
+        {
+            var testFile = @"TwoAssertsSameMethod.cs";
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = {},
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
+        }
 
+        [TestMethod]
+        public async Task NoSmellTwoAssertsSameMethodLocalVar()
+        {
+            var testFile = @"TwoAssertsSameMethodLocalVar.cs";
+            await new VerifyCS.Test
+            {
+                TestCode = testReader.ReadTest(testFile),
+                ExpectedDiagnostics = { },
+                ReferenceAssemblies = UnitTestingAssembly
+            }.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task NoSmellTwoMethodsSameAssert()
+        {
+            var testFile = @"TwoMethodsSameAssert.cs";
+            await new VerifyCS.Test
+            {
+                TestCode = testReader.ReadTest(testFile),
+                ExpectedDiagnostics = { },
+                ReferenceAssemblies = UnitTestingAssembly
+            }.RunAsync();
         }
 
 

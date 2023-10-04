@@ -26,7 +26,7 @@ namespace TestSmells.Test.MysteryGuest
 
 
 
-        private readonly TestReader testReader = new TestReader("MysteryGuest", "Corpus", "FileRead");
+        private readonly TestReader testReader = new TestReader("MysteryGuest", "Corpus", "editorconfig");
 
         //No diagnostics expected to show up
         [TestMethod]
@@ -41,17 +41,26 @@ namespace TestSmells.Test.MysteryGuest
         [TestMethod]
         public async Task OpenRead()
         {
-            var testFile = @"OpenRead.cs";
+            var testFile = @"shouldignore.cs";
 
-            var diagnostic = VerifyCS.Diagnostic().WithSpan(13, 24, 13, 43).WithArguments("TestMethod");
+            //var diagnostic = VerifyCS.Diagnostic().WithSpan(13, 24, 13, 43).WithArguments("TestMethod");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
-                ExpectedDiagnostics = { diagnostic },
+                ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly,
-                //EditorConfig = "",
-            }.RunAsync();
+            };
+
+            (string filename, string content) editorconfig = ("/.editorconfig", 
+                @"root = true
+
+[*.cs]
+
+dotnet_diagnostic.MysteryGuest.IgnoredFiles = C:\Program Files\AMD\atikmdag_dce.log, C:\Program Files\AMD\atikmdag_dceb.log");
+
+            test.TestState.AnalyzerConfigFiles.Add(editorconfig);
+            await test.RunAsync();
         }
 
  
