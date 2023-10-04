@@ -4,15 +4,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 using System.Threading.Tasks;
-using static Microsoft.CodeAnalysis.Testing.ReferenceAssemblies;
 using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.MysteryGuest.MysteryGuestAnalyzer>;
 //using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
 //    TestSmells.MagicNumber.MagicNumberAnalyzer,
 //    TestSmells.MagicNumber.MagicNumberCodeFixProvider>;
-using System.Collections.Immutable;
 using TestReading;
-using System;
-using Microsoft.CodeAnalysis;
 
 namespace TestSmells.Test.MysteryGuest
 {

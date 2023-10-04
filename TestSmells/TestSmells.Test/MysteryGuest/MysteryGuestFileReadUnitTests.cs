@@ -11,8 +11,6 @@ using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.MysteryGuest.
 //    TestSmells.MagicNumber.MagicNumberCodeFixProvider>;
 using System.Collections.Immutable;
 using TestReading;
-using System;
-using Microsoft.CodeAnalysis;
 
 namespace TestSmells.Test.MysteryGuest
 {

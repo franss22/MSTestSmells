@@ -1,15 +1,10 @@
 ﻿using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
-using static Microsoft.CodeAnalysis.Testing.ReferenceAssemblies;
 using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
     TestSmells.AssertionRoulette.AssertionRouletteAnalyzer,
-TestSmells.AssertionRoulette.AssertionRouletteCodeFixProvider >;
-using System.Collections.Immutable;
+TestSmells.AssertionRoulette.AssertionRouletteCodeFixProvider>;
 using TestReading;
-using System.Globalization;
-using System.Collections.Generic;
-using System;
 
 namespace TestSmells.Test.AssertionRoulette
 {

@@ -1,11 +1,9 @@
 ﻿using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
-using static Microsoft.CodeAnalysis.Testing.ReferenceAssemblies;
 using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
     TestSmells.EmptyTest.EmptyTestAnalyzer,
     TestSmells.EmptyTest.EmptyTestCodeFixProvider>;
-using System.Collections.Immutable;
 using TestReading;
 
 namespace TestSmells.Test.EmptyTest

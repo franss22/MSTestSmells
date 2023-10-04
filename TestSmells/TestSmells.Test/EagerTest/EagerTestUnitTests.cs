@@ -1,10 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
-using static Microsoft.CodeAnalysis.Testing.ReferenceAssemblies;
 using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.EagerTest.EagerTestAnalyzer>;
-
-using System.Collections.Immutable;
 using TestReading;
 
 namespace TestSmells.Test.EagerTest

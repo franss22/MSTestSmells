@@ -1,8 +1,5 @@
 ﻿using Microsoft.CodeAnalysis.Testing;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Text;
 using static Microsoft.CodeAnalysis.Testing.ReferenceAssemblies;
 
 namespace TestSmells.Test
