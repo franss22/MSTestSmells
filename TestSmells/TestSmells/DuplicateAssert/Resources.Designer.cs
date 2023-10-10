@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.GeneralFixture {
+namespace TestSmells.DuplicateAssert {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.GeneralFixture {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.GeneralFixture.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.DuplicateAssert.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.GeneralFixture {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to All fields initialized in a fixture should be used by every test.
+        ///   Looks up a localized string similar to Assertion testing the same condition should be in different methods.
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -70,7 +70,7 @@ namespace TestSmells.GeneralFixture {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field &apos;{0}&apos; is not used in method &apos;{1}&apos;.
+        ///   Looks up a localized string similar to Test method &apos;{0}&apos; contains multiple similar assertions..
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace TestSmells.GeneralFixture {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Mystery Guest.
+        ///   Looks up a localized string similar to Duplicate assertion.
         /// </summary>
         internal static string AnalyzerTitle {
             get {
