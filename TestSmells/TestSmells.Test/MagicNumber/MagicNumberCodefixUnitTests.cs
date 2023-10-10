@@ -47,7 +47,6 @@ namespace TestSmells.Test.MagicNumber
 
             var expected = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 30).WithArguments("AreEqual", "1");
 
-
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),

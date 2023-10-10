@@ -61,7 +61,7 @@ namespace TestSmells.MagicNumber {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Separate assertions into new test methods.
+        ///   Looks up a localized string similar to Extract local constant.
         /// </summary>
         internal static string CodeFixTitle {
             get {

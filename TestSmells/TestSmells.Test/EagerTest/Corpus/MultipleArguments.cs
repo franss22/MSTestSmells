@@ -12,8 +12,9 @@ namespace Corpus
             var a = new List<int>();
             var b = new List<int>();
 
-            Assert.IsTrue(a.Contains(1));
-            Assert.IsTrue(a.Equals(b));
+
+            Assert.AreEqual(a.Contains(2), a.Contains(1), "hello");
+            Assert.AreEqual(a.Equals(b), b.Equals(a), "goobye");
         }
     }
 }
