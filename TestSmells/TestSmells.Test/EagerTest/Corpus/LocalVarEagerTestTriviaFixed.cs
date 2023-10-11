@@ -13,10 +13,10 @@ namespace Corpus
             var b = new List<int>();
 
             var ex1 = a.Contains(1);
-            var ex2 = a.Equals(b);
+            var ex2 = a.Equals(b);//a
 
-            Assert.IsTrue(ex1);
-
+            Assert.IsTrue(ex1/*a*/);//first assert
+            //second assert
         }
 
         [TestMethod]
@@ -26,10 +26,10 @@ namespace Corpus
             var b = new List<int>();
 
             var ex1 = a.Contains(1);
-            var ex2 = a.Equals(b);
+            var ex2 = a.Equals(b);//a
 
-
-            Assert.IsTrue(ex2);
+            //first assert
+            Assert.IsTrue(ex2);//second assert
         }
     }
 }

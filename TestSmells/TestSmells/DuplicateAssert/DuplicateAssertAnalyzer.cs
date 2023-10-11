@@ -146,12 +146,16 @@ namespace TestSmells.DuplicateAssert
                     }
                 }
 
-                if (duplications.Count != assertions.Count) { return; }
+                if (duplications.Count == assertions.Count) { return; }
                 foreach (var assertionGroup in duplications)
                 {
-                    var locations = new List<Location>(from o in assertionGroup select o.Syntax.GetLocation());
-                    var diagnostic = Diagnostic.Create(Rule, locations.First(), locations.Skip(1), context.OwningSymbol.Name);
+                    var testLocation = context.OwningSymbol.Locations.First();
 
+                    var locations = new List<Location>(from o in assertionGroup select o.Syntax.GetLocation());
+                    var diagnosticLocation = locations.First();
+                    locations.Insert(0, testLocation);
+                    var diagnostic = Diagnostic.Create(Rule, diagnosticLocation, locations, context.OwningSymbol.Name);
+                    context.ReportDiagnostic(diagnostic);
 
                 }
 
@@ -161,7 +165,7 @@ namespace TestSmells.DuplicateAssert
 
         private static bool AreSimilarInvocations(IInvocationOperation invocation1, IInvocationOperation invocation2)
         {
-            return (invocation1.ToString() == invocation2.ToString());
+            return (invocation1.Syntax.IsEquivalentTo(invocation2.Syntax, true));
         }
 
         private static IMethodSymbol[] GetRelevantAssertions(Compilation compilation)

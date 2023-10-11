@@ -85,7 +85,9 @@ namespace TestSmells.EagerTest
                     }
                     else if (replaces.Count == 1)
                     {
-                        body = body.ReplaceNode(assert, replaces.First());
+                        var leading = assert.Parent.GetLeadingTrivia();
+                        var trailing = assert.Parent.GetTrailingTrivia();
+                        body = body.ReplaceNode(assert.Parent, ExpressionStatement(replaces.First()).WithTrailingTrivia(trailing).WithLeadingTrivia(leading));
                     }
                     else
                     {
@@ -103,7 +105,9 @@ namespace TestSmells.EagerTest
 
                     }
                 }
-                newMethod = newMethod.WithBody(body).WithIdentifier(Identifier(methodName + $"_{i}")).WithAdditionalAnnotations(Formatter.Annotation);
+                var mLeading = newMethod.GetLeadingTrivia();
+                if (i != 1) { mLeading = mLeading.Insert(0, CarriageReturnLineFeed); }
+                newMethod = newMethod.WithBody(body).WithIdentifier(Identifier(methodName + $"_{i}")).WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(mLeading);
                 i++;
 
                 newMethods.Add(newMethod);

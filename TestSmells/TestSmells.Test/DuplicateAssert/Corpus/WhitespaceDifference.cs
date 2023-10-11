@@ -4,17 +4,19 @@ using System.Collections.Generic;
 namespace Corpus
 {
     [TestClass]
-    public class UnitTest3
+    public class UnitTest4
     {
-        public int dead = 1;
 
         [TestMethod]
         public void TestMethod1()
         {
-            var a = 1;
-            var b = 1;
+            var a = new List<int>();
+            var b = new List<int>();
 
-            Assert.AreEqual(b, a);
+            Assert.AreEqual(   b,        a);
+            b.Add(1);
+               Assert.AreEqual(b   , a   );
+
         }
     }
 }

@@ -94,6 +94,28 @@ namespace TestSmells.Test.EagerTest
             }.RunAsync();
         }
 
+        [TestMethod]
+        public async Task LocalVarEagerTestTrivia()
+        {
+            var testFile = @"LocalVarEagerTestTrivia.cs";
+            var fixedFile = @"LocalVarEagerTestTriviaFixed.cs";
+
+            var expected = VerifyCS.Diagnostic()
+                .WithSpan(18, 13, 18, 36)
+                .WithSpan(10, 21, 10, 32)
+                .WithSpan(18, 13, 18, 36)
+                .WithSpan(19, 13, 19, 31)
+                .WithArguments("TestMethod1");
+            await new VerifyCS.Test
+            {
+                TestCode = testReader.ReadTest(testFile),
+                FixedCode = testReader.ReadTest(fixedFile),
+
+                ExpectedDiagnostics = { expected },
+                ReferenceAssemblies = UnitTestingAssembly
+            }.RunAsync();
+        }
+
 
     }
 }
