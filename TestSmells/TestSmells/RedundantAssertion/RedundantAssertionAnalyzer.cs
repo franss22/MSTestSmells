@@ -4,12 +4,12 @@ using System.Collections.Immutable;
 using System.Linq;
 
 
-namespace TestSmells.Replace
+namespace TestSmells.RedundantAssertion
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class ReplaceAnalyzer : DiagnosticAnalyzer
+    public class RedundantAssertionAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "Replace";
+        public const string DiagnosticId = "RedundantAssertion";
 
 
         private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle), Resources.ResourceManager, typeof(Resources));
@@ -31,7 +31,7 @@ namespace TestSmells.Replace
 
         private static void AnalyzeSymbol(SymbolAnalysisContext context)
         {
-            // TODO: Replace the following code with your own analysis, generating Diagnostic objects for any issues you find
+            // TODO: RedundantAssertion the following code with your own analysis, generating Diagnostic objects for any issues you find
             var namedTypeSymbol = (INamedTypeSymbol)context.Symbol;
 
             // Find just those named type symbols with names containing lowercase letters.

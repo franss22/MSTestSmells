@@ -73,7 +73,8 @@ namespace TestSmells.IgnoredTest
                 {
                     var attributeSymbol = context.SemanticModel.GetSymbolInfo(attribute).Symbol;
                     if (attributeSymbol is null) { continue;}
-                    if (SymbolEqualityComparer.Default.Equals(ignoreAttr, attributeSymbol))
+                    var classSymbol = attributeSymbol.ContainingSymbol;
+                    if (SymbolEqualityComparer.Default.Equals(ignoreAttr, classSymbol))
                     {
                         var diagnostic = Diagnostic.Create(Rule, attribute.GetLocation(), methodSyntax.Identifier.Text);
                         context.ReportDiagnostic(diagnostic);

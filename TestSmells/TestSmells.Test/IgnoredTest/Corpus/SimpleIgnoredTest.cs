@@ -8,15 +8,13 @@ namespace Corpus
     {
 
         [TestMethod]
+        [Ignore]
         public void TestMethod1()
         {
             var a = new List<int>();
             var b = new List<int>();
 
-            Assert.AreEqual(b, a);//hello
-            b.Add(1);
-            Assert.AreEqual(/*hello*/b/*hello*/,/*hello*/ a/*hello*/);
-
+            Assert.AreEqual(b, a);
         }
     }
 }
