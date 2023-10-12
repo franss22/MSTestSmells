@@ -1,13 +1,15 @@
 ﻿using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
-using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.IgnoredTest.IgnoredTestAnalyzer>;
+using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
+    TestSmells.IgnoredTest.IgnoredTestAnalyzer,
+    TestSmells.IgnoredTest.IgnoredTestCodeFixProvider>;
 using TestReading;
 
 namespace TestSmells.Test.IgnoredTest
 {
     [TestClass]
-    public class IgnoredTestUnitTests
+    public class IgnoredTestCodefixUnitTests
 
     {
 
@@ -29,10 +31,12 @@ namespace TestSmells.Test.IgnoredTest
         public async Task SimpleIgnoredTest()
         {
             var testFile = @"SimpleIgnoredTest.cs";
+            var fixedFile = @"SimpleIgnoredTestFixed.cs";
             var expected = VerifyCS.Diagnostic().WithSpan(11, 10, 11, 16).WithArguments("TestMethod1");
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
+                FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -42,10 +46,13 @@ namespace TestSmells.Test.IgnoredTest
         public async Task IgnoredTestInListFirst()
         {
             var testFile = @"IgnoredTestInListFirst.cs";
+            var fixedFile = @"IgnoredTestInListFirstFixed.cs";
+
             var expected = VerifyCS.Diagnostic().WithSpan(10, 10, 10, 16).WithArguments("TestMethod1");
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
+                FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -55,10 +62,13 @@ namespace TestSmells.Test.IgnoredTest
         public async Task IgnoredTestInListLast()
         {
             var testFile = @"IgnoredTestInListLast.cs";
+            var fixedFile = @"IgnoredTestInListLastFixed.cs";
+
             var expected = VerifyCS.Diagnostic().WithSpan(10, 22, 10, 28).WithArguments("TestMethod1");
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
+                FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
@@ -68,28 +78,17 @@ namespace TestSmells.Test.IgnoredTest
         public async Task IgnoredTestInListMiddle()
         {
             var testFile = @"IgnoredTestInListMiddle.cs";
+            var fixedFile = @"IgnoredTestInListMiddleFixed.cs";
+
             var expected = VerifyCS.Diagnostic().WithSpan(10, 22, 10, 28).WithArguments("TestMethod1");
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
+                FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
         }
-
-        [TestMethod]
-        public async Task NotIgnoredTest()
-        {
-            var testFile = @"NotIgnoredTest.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
-        }
-
-
 
 
     }
