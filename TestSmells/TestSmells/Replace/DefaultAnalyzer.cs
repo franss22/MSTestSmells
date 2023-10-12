@@ -1,5 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -23,25 +25,44 @@ namespace TestSmells.Replace
 
         public override void Initialize(AnalysisContext context)
         {
+            // Controls analysis of generated code (ex. EntityFramework Migration) None means generated code is not analyzed
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+
             context.EnableConcurrentExecution();
 
-            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
+            //Registers callback to start analysis
+            context.RegisterCompilationStartAction(FindTestingClass);
         }
 
-        private static void AnalyzeSymbol(SymbolAnalysisContext context)
+        private static void FindTestingClass(CompilationStartAnalysisContext context)
         {
-            // TODO: Replace the following code with your own analysis, generating Diagnostic objects for any issues you find
-            var namedTypeSymbol = (INamedTypeSymbol)context.Symbol;
 
-            // Find just those named type symbols with names containing lowercase letters.
-            if (namedTypeSymbol.Name.ToCharArray().Any(char.IsLower))
+            // Get the attribute object from the compilation
+            var testClassAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
+            if (testClassAttr is null) { return; }
+            var testMethodAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
+            if (testMethodAttr is null) { return; }
+
+
+
+            // We register a Symbol Start Action to filter all test classes and their test methods
+            context.RegisterSymbolStartAction((ctx) =>
             {
-                // For all such symbols, produce a diagnostic.
-                var diagnostic = Diagnostic.Create(Rule, namedTypeSymbol.Locations[0], namedTypeSymbol.Name);
+                if (!TestUtils.TestMethodInTestClass(ctx, testClassAttr, testMethodAttr)) { return; }
+                ctx.RegisterOperationBlockAction(AnalyzeMethodBlockIOperation);
 
-                
             }
+            , SymbolKind.Method);
+        }
+
+        private static void AnalyzeMethodBlockIOperation(OperationBlockAnalysisContext context)
+        {
+
+            var blockOperation = TestUtils.GetBlockOperation(context);
+            if (blockOperation is null) { return; }
+
+            throw new NotImplementedException();
+
         }
     }
 }

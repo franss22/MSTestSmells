@@ -117,16 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AnalyzerDescription" xml:space="preserve">
-    <value>Assertions shouldn't compare an object with itself</value>
-    <comment>An optional longer localizable description of the diagnostic.</comment>
-  </data>
-  <data name="AnalyzerMessageFormat" xml:space="preserve">
-    <value>Test method '{0}' calls '{1}' with identical arguments</value>
-    <comment>The format-able message the diagnostic displays.</comment>
-  </data>
-  <data name="AnalyzerTitle" xml:space="preserve">
-    <value>Redundant assertion</value>
-    <comment>The title of the diagnostic.</comment>
+  <data name="CodeFixTitle" xml:space="preserve">
+    <value>Make uppercase</value>
+    <comment>The title of the code fix.</comment>
   </data>
 </root>

@@ -30,10 +30,10 @@ namespace TestSmells.Test.EagerTest
         {
             var testFile = @"SimpleEagerTest.cs";
             var expected = VerifyCS.Diagnostic()
-                .WithSpan(16, 13, 16, 41) //First Assert
+                .WithSpan(15, 13, 15, 41) //First Assert
                 .WithSpan(10, 21, 10, 32) //Method Declaration
-                .WithSpan(16, 13, 16, 41) //First Assert
-                .WithSpan(17, 13, 17, 39) //Second Assert
+                .WithSpan(15, 13, 15, 41) //First Assert
+                .WithSpan(16, 13, 16, 39) //Second Assert
                 .WithArguments("TestMethod1");
             await new VerifyCS.Test
             {

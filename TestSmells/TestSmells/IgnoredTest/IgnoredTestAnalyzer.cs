@@ -47,41 +47,21 @@ namespace TestSmells.IgnoredTest
             var ignoreAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute");
             if (ignoreAttr is null) { return; }
 
-            // We register a Symbol Start Action to filter all test classes and their test methods
-            context.RegisterSymbolStartAction((ctx) =>
+            context.RegisterSymbolAction((ctx) =>
             {
                 if (!TestUtils.TestMethodInTestClass(ctx, testClassAttr, testMethodAttr)) { return; }
-                if (TestUtils.FindAttributeInSymbol(ignoreAttr, ctx.Symbol))
-                {
-                    ctx.RegisterSyntaxNodeAction(ReportIgnoreDiagnostic(ignoreAttr), SyntaxKind.MethodDeclaration);
-                }
+                var methodSymbol = ctx.Symbol;
 
+                foreach (var attr in methodSymbol.GetAttributes())
+                {
+                    if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, ignoreAttr))
+                    {
+                        ctx.ReportDiagnostic(Diagnostic.Create(Rule, attr.ApplicationSyntaxReference.GetSyntax().GetLocation(), methodSymbol.Name));
+                    }
+                }
             }
             , SymbolKind.Method);
         }
 
-        private static Action<SyntaxNodeAnalysisContext> ReportIgnoreDiagnostic(INamedTypeSymbol ignoreAttr)
-        {
-
-            return (SyntaxNodeAnalysisContext context) =>
-            {
-                var methodSyntax = (MethodDeclarationSyntax)context.Node;
-                var attributeList = methodSyntax.AttributeLists.SelectMany(list => list.Attributes);
-
-                
-                foreach (var attribute in attributeList)
-                {
-                    var attributeSymbol = context.SemanticModel.GetSymbolInfo(attribute).Symbol;
-                    if (attributeSymbol is null) { continue;}
-                    var classSymbol = attributeSymbol.ContainingSymbol;
-                    if (SymbolEqualityComparer.Default.Equals(ignoreAttr, classSymbol))
-                    {
-                        var diagnostic = Diagnostic.Create(Rule, attribute.GetLocation(), methodSyntax.Identifier.Text);
-                        context.ReportDiagnostic(diagnostic);
-                    }
-                }
-                
-            };
-        }
     }
 }

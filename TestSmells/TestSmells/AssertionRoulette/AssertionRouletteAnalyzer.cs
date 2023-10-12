@@ -23,44 +23,6 @@ namespace TestSmells.AssertionRoulette
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
 
-        private static readonly string[] RelevantAssertionsNames = {
-            //Assert
-            "AreEqual",
-            "AreNotEqual",
-            "AreNotSame",
-            "AreSame",
-            "IsFalse",
-            "IsInstanceOfType",
-            "IsNotInstanceOfType",
-            "IsNotNull",
-            "IsNull",
-            "IsTrue",
-            "ThrowsException",
-            "ThrowsExceptionAsync",
-            "Fail",
-            "Inconclusive",
-            //CollectionAssert
-            "AllItemsAreInstancesOfType",
-            "AllItemsAreNotNull",
-            "AllItemsAreUnique",
-            "AreEqual",
-            "AreEquivalent",
-            "AreNotEqual",
-            "AreNotEquivalent",
-            "Contains",
-            "DoesNotContain",
-            "IsNotSubsetOf",
-            "IsSubsetOf",
-            //StringAssert
-            "Contains",//edge (String, String)
-            "DoesNotMatch",
-            "EndsWith",//edge (String, String)
-            "Matches",
-            "StartsWith",//edge (String, String)
-
-        };
-
-
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -76,7 +38,7 @@ namespace TestSmells.AssertionRoulette
             var testMethodAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
             if (testMethodAttr is null) { return; }
 
-            var relevantAssertions = GetRelevantAssertions(context.Compilation);
+            var relevantAssertions = TestUtils.GetAssertionMethodSymbols(context.Compilation);
             if (relevantAssertions.Length == 0) return;
 
 
@@ -115,7 +77,7 @@ namespace TestSmells.AssertionRoulette
                     {
                         if (operation.Kind != OperationKind.Invocation) { continue; }
                         var invocationOperation = (IInvocationOperation)operation;
-                        if (MethodIsInList(invocationOperation.TargetMethod, relevantAssertions))
+                        if (TestUtils.MethodIsInList(invocationOperation.TargetMethod, relevantAssertions))
                         {
                             assertions.Add(invocationOperation);
                         }
@@ -142,34 +104,6 @@ namespace TestSmells.AssertionRoulette
         }
 
 
-        private static IMethodSymbol[] GetRelevantAssertions(Compilation compilation)
-        {
-            INamedTypeSymbol[] assertTypes = {
-                compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.Assert"),
-                compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.StringAssert"),
-                compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.CollectionAssert"),
-            };
-
-
-
-            var relevantAssertions = new List<IMethodSymbol>();
-            foreach (var assertType in assertTypes)
-            {
-                if (!(assertType is null))
-                {
-                    foreach (var function in RelevantAssertionsNames)
-                    {
-                        foreach (var member in assertType.GetMembers(function))
-                        {
-                            relevantAssertions.Add((IMethodSymbol)member);
-                        }
-                    }
-                }
-            }
-
-            return relevantAssertions.ToArray();
-        }
-
         private static bool IsMessageAssertion(IMethodSymbol method)
         {
             var args = method.OriginalDefinition.Parameters;
@@ -188,22 +122,6 @@ namespace TestSmells.AssertionRoulette
                 var scndLastArgName = scndLastArg.Name;
                 return (lastArgName == "message" || (scndLastArgName == "message" && lastArgName == "parameters"));
             }
-
-        }
-
-
-        private static bool MethodIsInList(IMethodSymbol symbol, ISymbol[] relevantAssertions)
-        {
-            if (symbol == null) return false;
-
-            foreach (var function in relevantAssertions)
-            {
-                if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, function))
-                {
-                    return true;
-                }
-            }
-            return false;
 
         }
 

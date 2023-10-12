@@ -77,7 +77,7 @@ namespace TestSmells.DuplicateAssert
             var testMethodAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
             if (testMethodAttr is null) { return; }
 
-            var relevantAssertions = GetRelevantAssertions(context.Compilation);
+            var relevantAssertions = TestUtils.GetAssertionMethodSymbols(context.Compilation);
             if (relevantAssertions.Length == 0) return;
 
 
@@ -114,7 +114,7 @@ namespace TestSmells.DuplicateAssert
                 {
                     if (operation.Kind != OperationKind.Invocation) { continue; }
                     var invocationOperation = (IInvocationOperation)operation;
-                    if (MethodIsInList(invocationOperation.TargetMethod, relevantAssertions))
+                    if (TestUtils.MethodIsInList(invocationOperation.TargetMethod, relevantAssertions))
                     {
                         assertions.Add(invocationOperation);
                     }
@@ -166,52 +166,6 @@ namespace TestSmells.DuplicateAssert
         private static bool AreSimilarInvocations(IInvocationOperation invocation1, IInvocationOperation invocation2)
         {
             return (invocation1.Syntax.IsEquivalentTo(invocation2.Syntax, true));
-        }
-
-        private static IMethodSymbol[] GetRelevantAssertions(Compilation compilation)
-        {
-            INamedTypeSymbol[] assertTypes = {
-                compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.Assert"),
-                compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.StringAssert"),
-                compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.CollectionAssert"),
-            };
-
-
-
-            var relevantAssertions = new List<IMethodSymbol>();
-            foreach (var assertType in assertTypes)
-            {
-                if (!(assertType is null))
-                {
-                    foreach (var function in RelevantAssertionsNames)
-                    {
-                        foreach (var member in assertType.GetMembers(function))
-                        {
-                            relevantAssertions.Add((IMethodSymbol)member);
-                        }
-                    }
-                }
-            }
-
-            return relevantAssertions.ToArray();
-        }
-
-
-
-
-        private static bool MethodIsInList(IMethodSymbol symbol, ISymbol[] relevantAssertions)
-        {
-            if (symbol == null) return false;
-
-            foreach (var function in relevantAssertions)
-            {
-                if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, function))
-                {
-                    return true;
-                }
-            }
-            return false;
-
         }
 
     }

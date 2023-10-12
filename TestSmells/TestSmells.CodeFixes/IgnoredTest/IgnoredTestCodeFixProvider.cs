@@ -39,12 +39,12 @@ namespace TestSmells.IgnoredTest
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: CodeFixResources.CodeFixTitle,
-                    createChangedDocument: c => MakeUppercaseAsync(context.Document, root, ignoreAttribute, c),
+                    createChangedDocument: c => DeleteIgnoreAttributeAsync(context.Document, root, ignoreAttribute, c),
                     equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                 diagnostic);
         }
 
-        private async Task<Document> DeleteIgnoreAttribute(Document document, SyntaxNode root, AttributeSyntax ignoreAttr, CancellationToken cancellationToken)
+        private async Task<Document> DeleteIgnoreAttributeAsync(Document document, SyntaxNode root, AttributeSyntax ignoreAttr, CancellationToken cancellationToken)
         {
 
             var attributeList = (AttributeListSyntax)ignoreAttr.Parent;

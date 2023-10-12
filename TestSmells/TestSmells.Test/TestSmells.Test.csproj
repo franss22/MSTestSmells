@@ -18,6 +18,7 @@
     <Compile Remove="IgnoredTest\Corpus\**" />
     <Compile Remove="MagicNumber\Corpus\**" />
     <Compile Remove="MysteryGuest\Corpus\**" />
+    <Compile Remove="RedundantAssertion\Corpus\**" />
     <EmbeddedResource Remove="AssertionRoulette\Corpus\**" />
     <EmbeddedResource Remove="AssertionRoulette\OldCorpus\**" />
     <EmbeddedResource Remove="ConditionalTest\Corpus\**" />
@@ -28,6 +29,7 @@
     <EmbeddedResource Remove="IgnoredTest\Corpus\**" />
     <EmbeddedResource Remove="MagicNumber\Corpus\**" />
     <EmbeddedResource Remove="MysteryGuest\Corpus\**" />
+    <EmbeddedResource Remove="RedundantAssertion\Corpus\**" />
     <None Remove="AssertionRoulette\Corpus\**" />
     <None Remove="AssertionRoulette\OldCorpus\**" />
     <None Remove="ConditionalTest\Corpus\**" />
@@ -38,6 +40,7 @@
     <None Remove="IgnoredTest\Corpus\**" />
     <None Remove="MagicNumber\Corpus\**" />
     <None Remove="MysteryGuest\Corpus\**" />
+    <None Remove="RedundantAssertion\Corpus\**" />
   </ItemGroup>
 
   <ItemGroup>
