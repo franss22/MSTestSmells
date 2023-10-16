@@ -115,11 +115,11 @@ namespace TestSmells
             return assertionSymbols.ToArray();
         }
 
-        public static bool MethodIsInList(IMethodSymbol symbol, ISymbol[] relevantAssertions)
+        public static bool MethodIsInList(IMethodSymbol symbol, IEnumerable<ISymbol> methodList)
         {
             if (symbol == null) return false;
 
-            foreach (var function in relevantAssertions)
+            foreach (var function in methodList)
             {
                 if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, function))
                 {
