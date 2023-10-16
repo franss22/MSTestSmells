@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.Replace {
+namespace TestSmells.UnknownTest {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace TestSmells.Replace {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class CodeFixResources {
+    internal class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal CodeFixResources() {
+        internal Resources() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace TestSmells.Replace {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.Replace.CodeFixResources", typeof(CodeFixResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.UnknownTest.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,11 +61,29 @@ namespace TestSmells.Replace {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Make uppercase.
+        ///   Looks up a localized string similar to Tests should have assertions.
         /// </summary>
-        internal static string CodeFixTitle {
+        internal static string AnalyzerDescription {
             get {
-                return ResourceManager.GetString("CodeFixTitle", resourceCulture);
+                return ResourceManager.GetString("AnalyzerDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Test method &apos;{0}&apos; has no assertions.
+        /// </summary>
+        internal static string AnalyzerMessageFormat {
+            get {
+                return ResourceManager.GetString("AnalyzerMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown Test.
+        /// </summary>
+        internal static string AnalyzerTitle {
+            get {
+                return ResourceManager.GetString("AnalyzerTitle", resourceCulture);
             }
         }
     }

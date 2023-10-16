@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.SleepyTest {
+namespace TestSmells._Replace {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.SleepyTest {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.SleepyTest.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells._Replace.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.SleepyTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tests should not use Thread.Sleep.
+        ///   Looks up a localized string similar to Type names should be all uppercase..
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -70,7 +70,7 @@ namespace TestSmells.SleepyTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test method &apos;{0}&apos; calls Thread.Sleep.
+        ///   Looks up a localized string similar to Type name &apos;{0}&apos; contains lowercase letters.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace TestSmells.SleepyTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sleepy Test.
+        ///   Looks up a localized string similar to Type name contains lowercase letters.
         /// </summary>
         internal static string AnalyzerTitle {
             get {

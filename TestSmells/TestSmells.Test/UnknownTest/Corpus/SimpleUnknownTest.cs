@@ -5,7 +5,7 @@ using System.Threading;
 namespace Corpus
 {
     [TestClass]
-    public class UnitTest45252
+    public class UnitTest41
     {
 
         [TestMethod]
@@ -13,9 +13,7 @@ namespace Corpus
         {
             var a = new List<int>();
             var b = new List<int>();
-            Thread.Sleep(1000);
-            Assert.AreEqual(b, a);
-
+            var eq = a.Equals(b);
         }
     }
 }

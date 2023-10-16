@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TestSmells.Replace
+namespace TestSmells._Replace
 {
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ReplaceCodeFixProvider)), Shared]
     public class ReplaceCodeFixProvider : CodeFixProvider

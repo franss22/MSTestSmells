@@ -1,11 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
 namespace Corpus
 {
     [TestClass]
-    public class UnitTest45252
+    public class UnitTest401
     {
 
         [TestMethod]
@@ -13,9 +14,9 @@ namespace Corpus
         {
             var a = new List<int>();
             var b = new List<int>();
-            Thread.Sleep(1000);
+            
             Assert.AreEqual(b, a);
-
+            throw new Exception("smelly exception");
         }
     }
 }

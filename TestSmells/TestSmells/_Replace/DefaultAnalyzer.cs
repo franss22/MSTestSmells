@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 
 
-namespace TestSmells.Replace
+namespace TestSmells._Replace
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ReplaceAnalyzer : DiagnosticAnalyzer

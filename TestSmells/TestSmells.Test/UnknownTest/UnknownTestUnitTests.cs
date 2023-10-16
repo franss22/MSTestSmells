@@ -1,19 +1,19 @@
 ﻿using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
-using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.SleepyTest.SleepyTestAnalyzer>;
+using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.UnknownTest.UnknownTestAnalyzer>;
 using TestReading;
 
-namespace TestSmells.Test.SleepyTest
+namespace TestSmells.Test.UnknownTest
 {
     [TestClass]
-    public class SleepyTestUnitTests
+    public class UnknownTestUnitTests
 
     {
 
         private readonly ReferenceAssemblies UnitTestingAssembly = TestSmellReferenceAssembly.Assemblies();
 
-        private readonly TestReader testReader = new TestReader("SleepyTest", "Corpus");
+        private readonly TestReader testReader = new TestReader("UnknownTest", "Corpus");
         //No diagnostics expected to show up
         [TestMethod]
         public async Task EmptyProgram()
@@ -26,10 +26,10 @@ namespace TestSmells.Test.SleepyTest
 
 
         [TestMethod]
-        public async Task SimpleSleepyTest()
+        public async Task SimpleUnknownTest()
         {
-            var testFile = @"SimpleSleepyTest.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(16, 13, 16, 31).WithArguments("TestMethod1");
+            var testFile = @"SimpleUnknownTest.cs";
+            var expected = VerifyCS.Diagnostic().WithSpan(12, 21, 12, 32).WithArguments("TestMethod1");
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -39,22 +39,9 @@ namespace TestSmells.Test.SleepyTest
         }
 
         [TestMethod]
-        public async Task TimespanSleepyTest()
+        public async Task TestWithAssertion()
         {
-            var testFile = @"TimespanSleepyTest.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(20, 13, 20, 35).WithArguments("TestMethod1");
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFile),
-                ExpectedDiagnostics = { expected },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
-        }
-
-        [TestMethod]
-        public async Task TestWithoutSleep()
-        {
-            var testFile = @"TestWithoutSleep.cs";
+            var testFile = @"TestWithAssertion.cs";
             await new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -62,6 +49,7 @@ namespace TestSmells.Test.SleepyTest
                 ReferenceAssemblies = UnitTestingAssembly
             }.RunAsync();
         }
+
 
 
     }

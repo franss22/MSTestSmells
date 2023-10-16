@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.SleepyTest {
+namespace TestSmells._Replace {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace TestSmells.SleepyTest {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    internal class CodeFixResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        internal CodeFixResources() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace TestSmells.SleepyTest {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.SleepyTest.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells._Replace.CodeFixResources", typeof(CodeFixResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,29 +61,11 @@ namespace TestSmells.SleepyTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tests should not use Thread.Sleep.
+        ///   Looks up a localized string similar to Make uppercase.
         /// </summary>
-        internal static string AnalyzerDescription {
+        internal static string CodeFixTitle {
             get {
-                return ResourceManager.GetString("AnalyzerDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Test method &apos;{0}&apos; calls Thread.Sleep.
-        /// </summary>
-        internal static string AnalyzerMessageFormat {
-            get {
-                return ResourceManager.GetString("AnalyzerMessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sleepy Test.
-        /// </summary>
-        internal static string AnalyzerTitle {
-            get {
-                return ResourceManager.GetString("AnalyzerTitle", resourceCulture);
+                return ResourceManager.GetString("CodeFixTitle", resourceCulture);
             }
         }
     }
