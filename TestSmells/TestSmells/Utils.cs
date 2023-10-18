@@ -127,11 +127,6 @@ namespace TestSmells
                 }
             }
             return false;
-
         }
-
     }
-    
-
-
 }

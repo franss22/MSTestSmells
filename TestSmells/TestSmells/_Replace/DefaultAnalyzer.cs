@@ -31,7 +31,7 @@ namespace TestSmells._Replace
             context.EnableConcurrentExecution();
 
             //Registers callback to start analysis
-            context.RegisterCompilationStartAction(FindTestingClass);
+            //context.RegisterCompilationStartAction(FindTestingClass);
         }
 
         private static void FindTestingClass(CompilationStartAnalysisContext context)

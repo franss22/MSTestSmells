@@ -112,6 +112,7 @@ namespace TestSmells.EagerTest
                     foreach (var assert in assertions)
                     {
                         var argValue = GetAssertionValueArgument(assert);
+                        if (argValue is null) { continue; }
 
                         if (argValue.Kind == OperationKind.Invocation)
                         {
