@@ -36,7 +36,7 @@ namespace TestSmells.MagicNumber
 
         private void FindRelevantAssertions(CompilationStartAnalysisContext context)
         {
-            var relevantAssertions = GetRelevantAssertions(context.Compilation);
+            var relevantAssertions = TestUtils.GetAssertionMethodSymbols(context.Compilation, RelevantAssertionsNames);
             if (relevantAssertions.Length == 0) return;
 
             var analyzeNode = AnalyzeNode(relevantAssertions);
@@ -55,7 +55,7 @@ namespace TestSmells.MagicNumber
                 //if (!RelevantAssertions.Contains(memberAccessExpr.Name.ToString())) return;
 
                 var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExpr).Symbol as IMethodSymbol;
-                if (!MethodIsRelevantAssertion(memberSymbol, relevantAssertions)) return;
+                if (!TestUtils.MethodIsInList(memberSymbol, relevantAssertions)) return;
 
                 var argumentList = invocationExpr.ArgumentList as ArgumentListSyntax;
                 if ((argumentList?.Arguments.Count ?? 0) < 2) return;
@@ -78,39 +78,6 @@ namespace TestSmells.MagicNumber
                 }
             };
 
-
-        }
-        private static ISymbol[] GetRelevantAssertions(Compilation compilation)
-        {
-            var assertType = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.Assert");
-            var relevantAssertions = new List<ISymbol>();
-            if (!(assertType is null))
-            {
-                foreach (var function in RelevantAssertionsNames)
-                {
-                foreach (var member in assertType.GetMembers(function))
-                    {
-                        relevantAssertions.Add(member);
-                    }
-                }
-            }
-            return relevantAssertions.ToArray();
-
-
-        }
-
-        private static bool MethodIsRelevantAssertion(IMethodSymbol symbol, ISymbol[] relevantAssertions)
-        {
-            if (symbol == null) return false;
-
-            foreach (var function in relevantAssertions)
-            {
-                if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, function))
-                {
-                    return true;
-                }
-            }
-            return false;
 
         }
 

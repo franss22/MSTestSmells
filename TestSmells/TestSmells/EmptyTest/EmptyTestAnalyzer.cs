@@ -36,44 +36,31 @@ namespace TestSmells.EmptyTest
         private static void FindTestingClass(CompilationStartAnalysisContext context)
         {
 
-            // Get the attribute object from the compilation
+            // Get the attribute symbols from the compilation
             var testClassAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
             if (testClassAttr is null) { return; }
             var testMethodAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
             if (testMethodAttr is null) { return; }
-
-
 
             // We register a Symbol Start Action to filter all test classes and their test methods
             context.RegisterSymbolStartAction((ctx) =>
             {
                 if (!TestUtils.TestMethodInTestClass(ctx, testClassAttr, testMethodAttr)) { return; }
                 ctx.RegisterOperationBlockAction(AnalyzeMethodBlockIOperation);
-
             }
             , SymbolKind.Method);
         }
 
-
-
         private static void AnalyzeMethodBlockIOperation(OperationBlockAnalysisContext context)
         {
-
-            foreach (var block in context.OperationBlocks)//we look for the method body
+            var block = TestUtils.GetBlockOperation(context);
+            if (block is null) { return; }
+            if (block.Descendants().Count() == 0)//if the method body has no operations, it is empty
             {
-                if (block.Kind != OperationKind.Block) { continue; }
-                if (block.Descendants().Count() == 0)//if the method body has no operations, it is empty
-                {
-                    var methodSymbol = context.OwningSymbol;
-                    var diagnostic = Diagnostic.Create(Rule, methodSymbol.Locations.First(), methodSymbol.Name);
-                    context.ReportDiagnostic(diagnostic);
-                }
-
+                var methodSymbol = context.OwningSymbol;
+                var diagnostic = Diagnostic.Create(Rule, methodSymbol.Locations.First(), methodSymbol.Name);
+                context.ReportDiagnostic(diagnostic);
             }
-
         }
-
-
-
     }
 }

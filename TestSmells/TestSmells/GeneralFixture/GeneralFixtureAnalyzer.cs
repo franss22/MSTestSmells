@@ -54,7 +54,7 @@ namespace TestSmells.GeneralFixture
             return (SymbolStartAnalysisContext context) =>
             {
                 var classSymbol = (INamedTypeSymbol)context.Symbol;
-                if (!TestUtils.FindAttributeInSymbol(testClassAttr, classSymbol)) { return; }
+                if (!TestUtils.AttributeIsInSymbol(testClassAttr, classSymbol)) { return; }
 
                 IMethodSymbol testInitMethod = null;
                 var testMethods = new List<IMethodSymbol>();
@@ -64,8 +64,8 @@ namespace TestSmells.GeneralFixture
                 {
                     if (member.Kind == SymbolKind.Method)
                     {
-                        if (TestUtils.FindAttributeInSymbol(testMethodAttr, member)) { testMethods.Add((IMethodSymbol)member); }
-                        if (TestUtils.FindAttributeInSymbol(initTestMethodAttr, member)) { testInitMethod = (IMethodSymbol)member; }
+                        if (TestUtils.AttributeIsInSymbol(testMethodAttr, member)) { testMethods.Add((IMethodSymbol)member); }
+                        if (TestUtils.AttributeIsInSymbol(initTestMethodAttr, member)) { testInitMethod = (IMethodSymbol)member; }
 
                     }
                     if (member.Kind == SymbolKind.Field)

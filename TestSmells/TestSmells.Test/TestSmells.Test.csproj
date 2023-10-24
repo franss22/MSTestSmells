@@ -61,4 +61,12 @@
     <ProjectReference Include="..\TestSmells\TestSmells.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Repos\TestSmellsMemoria\TestSmells\TestSmells.Test\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Repos\TestSmellsMemoria\TestSmells\TestSmells.Test\.editorconfig" />
+  </ItemGroup>
+
 </Project>

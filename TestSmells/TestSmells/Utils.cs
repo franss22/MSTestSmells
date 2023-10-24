@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TestSmells
 {
@@ -44,25 +45,12 @@ namespace TestSmells
         };
         public static IBlockOperation GetBlockOperation(OperationBlockAnalysisContext context)
         {
-            foreach (var block in context.OperationBlocks)//we look for the method body
-            {
-                if (block.Kind != OperationKind.Block) { continue; }
-                var blockOperation = (IBlockOperation)block;
-                return blockOperation;
-            }
-            return null;
+            return (IBlockOperation)context.OperationBlocks.Where(op => op.Kind == OperationKind.Block).FirstOrDefault();
         }
 
-        public static bool FindAttributeInSymbol(INamedTypeSymbol attribute, ISymbol symbol)
+        public static bool AttributeIsInSymbol(INamedTypeSymbol attribute, ISymbol symbol)
         {
-            foreach (var attr in symbol.GetAttributes())
-            {
-                if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attribute))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return symbol.GetAttributes().Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attribute));
         }
 
         public static bool TestMethodInTestClass(SymbolAnalysisContext context, INamedTypeSymbol testClassAttr, INamedTypeSymbol testMethodAttr)
@@ -71,7 +59,7 @@ namespace TestSmells
             var containerClass = methodSymbol.ContainingSymbol;
             if (containerClass is null) { return false; }
 
-            return FindAttributeInSymbol(testClassAttr, containerClass) && FindAttributeInSymbol(testMethodAttr, methodSymbol);
+            return AttributeIsInSymbol(testClassAttr, containerClass) && AttributeIsInSymbol(testMethodAttr, methodSymbol);
 
         }
         public static bool TestMethodInTestClass(SymbolStartAnalysisContext context, INamedTypeSymbol testClassAttr, INamedTypeSymbol testMethodAttr)
@@ -80,7 +68,7 @@ namespace TestSmells
             var containerClass = methodSymbol.ContainingSymbol;
             if (containerClass is null) { return false; }
 
-            return FindAttributeInSymbol(testClassAttr, containerClass) && FindAttributeInSymbol(testMethodAttr, methodSymbol);
+            return AttributeIsInSymbol(testClassAttr, containerClass) && AttributeIsInSymbol(testMethodAttr, methodSymbol);
 
         }
 
@@ -98,17 +86,11 @@ namespace TestSmells
             }
 
             var assertionSymbols = new List<IMethodSymbol>();
-            foreach (var assertType in assertTypes)
+            foreach (var assertType in assertTypes.Where(a => a != null))
             {
-                if (!(assertType is null))
+                foreach (var function in nameList)
                 {
-                    foreach (var function in nameList)
-                    {
-                        foreach (var member in assertType.GetMembers(function))
-                        {
-                            assertionSymbols.Add((IMethodSymbol)member);
-                        }
-                    }
+                    assertionSymbols.AddRange(from m in assertType.GetMembers(function) select (IMethodSymbol)m);
                 }
             }
 
@@ -119,14 +101,8 @@ namespace TestSmells
         {
             if (symbol == null) return false;
 
-            foreach (var function in methodList)
-            {
-                if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, function))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return methodList.Any(function => SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, function));
+
         }
     }
 }

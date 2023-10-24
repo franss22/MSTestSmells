@@ -70,7 +70,7 @@ namespace TestSmells.IgnoredTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test method &apos;{0}&apos; has the [Ignore] attrbiute.
+        ///   Looks up a localized string similar to Test method &apos;{0}&apos; has the [Ignore] attribute.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {

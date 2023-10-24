@@ -1,0 +1,2 @@
+[*.cs]
+dotnet_diagnostic.UnknownTest.severity = silent

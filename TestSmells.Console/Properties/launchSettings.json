@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "Analyze TestProject": {
+      "commandName": "Project",
+      "commandLineArgs": "-s C:\\Users\\frano\\source\\repos\\TestProject1\\TestProject1.sln\r\n-o Analisis.csv"
+    },
+    "Analyze TestSmells": {
+      "commandName": "Project",
+      "commandLineArgs": "-s C:\\Repos\\TestSmellsMemoria\\TestSmells.sln\r\n-o Analisis.csv"
+    }
+  }
+}
