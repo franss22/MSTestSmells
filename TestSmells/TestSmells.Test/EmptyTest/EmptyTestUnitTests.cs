@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
-    TestSmells.EmptyTest.EmptyTestAnalyzer,
+    TestSmells.Compendium.AnalyzerCompendium,
     TestSmells.EmptyTest.EmptyTestCodeFixProvider>;
 using TestReading;
 
@@ -16,6 +16,9 @@ namespace TestSmells.Test.EmptyTest
         private readonly ReferenceAssemblies UnitTestingAssembly = TestSmellReferenceAssembly.Assemblies();
 
         private readonly TestReader testReader = new TestReader("EmptyTest", "Corpus");
+
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("ConditionalTest");
+
         //No diagnostics expected to show up
         [TestMethod]
         public async Task EmptyProgram()
@@ -30,12 +33,14 @@ namespace TestSmells.Test.EmptyTest
         {
             var testFile = @"Emptytest.cs";
             var expected = VerifyCS.Diagnostic("EmptyTest").WithSpan(9, 21, 9, 32).WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
 
         }
 
@@ -45,12 +50,14 @@ namespace TestSmells.Test.EmptyTest
         {
             var testFile = @"EmptyTestWithComments.cs";
             var expected = VerifyCS.Diagnostic("EmptyTest").WithSpan(9, 21, 9, 32).WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -58,36 +65,42 @@ namespace TestSmells.Test.EmptyTest
         public async Task NotEmptyTestNotReported()
         {
             var testFile = @"TestNotEmpty.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
         public async Task EmptyMethodNotTestMethodNotReported()
         {
             var testFile = @"NotTestMethod.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
         public async Task EmptyTestNotTestClassNotReported()
         {
             var testFile = @"EmptyTestNotTestClass.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -97,13 +110,15 @@ namespace TestSmells.Test.EmptyTest
             var fixedFile = @"EmptytestFixed.cs";
 
             var expected = VerifyCS.Diagnostic("EmptyTest").WithSpan(9, 21, 9, 32).WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -113,13 +128,15 @@ namespace TestSmells.Test.EmptyTest
             var fixedFile = @"EmptyTestWithCommentsFixed.cs";
 
             var expected = VerifyCS.Diagnostic("EmptyTest").WithSpan(9, 21, 9, 32).WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 

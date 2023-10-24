@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
-    TestSmells.AssertionRoulette.AssertionRouletteAnalyzer,
+    TestSmells.Compendium.AnalyzerCompendium,
 TestSmells.AssertionRoulette.AssertionRouletteCodeFixProvider>;
 using TestReading;
 
@@ -16,6 +16,8 @@ namespace TestSmells.Test.AssertionRoulette
         private readonly ReferenceAssemblies UnitTestingAssembly = TestSmellReferenceAssembly.Assemblies();
 
         private readonly TestReader testReader = new TestReader("AssertionRoulette", "Corpus", "Codefix");
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("AssertionRoulette");
+
         //No diagnostics expected to show up
         [TestMethod]
         public async Task EmptyProgram()
@@ -34,13 +36,15 @@ namespace TestSmells.Test.AssertionRoulette
             var fixedFile = @"NoMessageFirstFixed.cs";
 
             var expected = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 39).WithArguments("AreEqual");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
-using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.AssertionRoulette.AssertionRouletteAnalyzer>;
+using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.Compendium.AnalyzerCompendium>;
 
 //using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
 //    TestSmells.AssertionRoulette.AssertionRouletteAnalyzer>;
@@ -16,6 +16,8 @@ namespace TestSmells.Test.AssertionRoulette
     {
 
         private readonly ReferenceAssemblies UnitTestingAssembly = TestSmellReferenceAssembly.Assemblies();
+
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("AssertionRoulette");
 
         private readonly TestReader testReader = new TestReader("AssertionRoulette", "Corpus", "CollectionAssert");
         //No diagnostics expected to show up
@@ -34,12 +36,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "AllItemsAreInstancesOfType";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -51,12 +55,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 72).WithArguments("AllItemsAreInstancesOfType");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 72).WithArguments("AllItemsAreInstancesOfType");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -64,12 +70,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "AllItemsAreNotNull";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -81,12 +89,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 51).WithArguments("AllItemsAreNotNull");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 51).WithArguments("AllItemsAreNotNull");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -94,12 +104,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "AllItemsAreUnique";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -111,12 +123,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 50).WithArguments("AllItemsAreUnique");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 50).WithArguments("AllItemsAreUnique");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -124,12 +138,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "AreEqual";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -141,12 +157,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 44).WithArguments("AreEqual");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 44).WithArguments("AreEqual");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -154,12 +172,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "AreEquivalent";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -171,12 +191,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 49).WithArguments("AreEquivalent");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 49).WithArguments("AreEquivalent");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -184,12 +206,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "AreNotEqual";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -201,12 +225,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 47).WithArguments("AreNotEqual");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 47).WithArguments("AreNotEqual");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -214,12 +240,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "AreNotEquivalent";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -231,12 +259,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 52).WithArguments("AreNotEquivalent");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 52).WithArguments("AreNotEquivalent");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -244,12 +274,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "Contains";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -261,12 +293,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 44).WithArguments("Contains");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 44).WithArguments("Contains");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -274,12 +308,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "DoesNotContain";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -291,12 +327,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 50).WithArguments("DoesNotContain");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 50).WithArguments("DoesNotContain");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -304,12 +342,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "IsNotSubsetOf";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -321,12 +361,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 49).WithArguments("IsNotSubsetOf");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 49).WithArguments("IsNotSubsetOf");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -334,12 +376,14 @@ namespace TestSmells.Test.AssertionRoulette
         {
             var testFolder = "IsSubsetOf";
             var testFile = @"MessageBoth.cs";
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -351,12 +395,14 @@ namespace TestSmells.Test.AssertionRoulette
             var expected1st = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(13, 13, 13, 46).WithArguments("IsSubsetOf");
             var expected2nd = VerifyCS.Diagnostic("AssertionRoulette").WithSpan(17, 13, 17, 46).WithArguments("IsSubsetOf");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFolder, testFile),
-                ExpectedDiagnostics = { expected1st, expected2nd },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFolder, testFile),
+    ExpectedDiagnostics = { expected1st, expected2nd },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
 

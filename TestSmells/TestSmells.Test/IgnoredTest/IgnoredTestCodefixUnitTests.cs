@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
-    TestSmells.IgnoredTest.IgnoredTestAnalyzer,
+    TestSmells.Compendium.AnalyzerCompendium,
     TestSmells.IgnoredTest.IgnoredTestCodeFixProvider>;
 using TestReading;
 
@@ -16,6 +16,9 @@ namespace TestSmells.Test.IgnoredTest
         private readonly ReferenceAssemblies UnitTestingAssembly = TestSmellReferenceAssembly.Assemblies();
 
         private readonly TestReader testReader = new TestReader("IgnoredTest", "Corpus");
+
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("IgnoredTest");
+
         //No diagnostics expected to show up
         [TestMethod]
         public async Task EmptyProgram()
@@ -33,13 +36,15 @@ namespace TestSmells.Test.IgnoredTest
             var testFile = @"SimpleIgnoredTest.cs";
             var fixedFile = @"SimpleIgnoredTestFixed.cs";
             var expected = VerifyCS.Diagnostic().WithSpan(11, 10, 11, 16).WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -49,13 +54,15 @@ namespace TestSmells.Test.IgnoredTest
             var fixedFile = @"IgnoredTestInListFirstFixed.cs";
 
             var expected = VerifyCS.Diagnostic().WithSpan(10, 10, 10, 16).WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -65,13 +72,15 @@ namespace TestSmells.Test.IgnoredTest
             var fixedFile = @"IgnoredTestInListLastFixed.cs";
 
             var expected = VerifyCS.Diagnostic().WithSpan(10, 22, 10, 28).WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -81,13 +90,15 @@ namespace TestSmells.Test.IgnoredTest
             var fixedFile = @"IgnoredTestInListMiddleFixed.cs";
 
             var expected = VerifyCS.Diagnostic().WithSpan(10, 22, 10, 28).WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 

@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System.Threading.Tasks;
 using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
-    TestSmells.MagicNumber.MagicNumberAnalyzer,
+    TestSmells.Compendium.AnalyzerCompendium,
     TestSmells.MagicNumber.MagicNumberCodeFixProvider>;
 using TestReading;
 
@@ -19,6 +19,9 @@ namespace TestSmells.Test.MagicNumber
         private readonly ReferenceAssemblies UnitTestingAssembly = TestSmellReferenceAssembly.Assemblies();
 
         private readonly TestReader testReader = new TestReader("MagicNumber", "Corpus", "Codefix");
+
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("MagicNumber");
+
         /* 
          * Tests are named by the type of value given to the assertion method
          * L means the value is a literal
@@ -47,13 +50,15 @@ namespace TestSmells.Test.MagicNumber
 
             var expected = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 30).WithArguments("AreEqual", "1");
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFile),
-                FixedCode = testReader.ReadTest(fixedFile),
-                ExpectedDiagnostics = { expected },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFile),
+    FixedCode = testReader.ReadTest(fixedFile),
+    ExpectedDiagnostics = { expected },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
         [TestMethod]
         public async Task CodefixIntIntL()
@@ -64,13 +69,15 @@ namespace TestSmells.Test.MagicNumber
             var expected = VerifyCS.Diagnostic().WithSpan(12, 32, 12, 33).WithArguments("AreEqual", "2");
 
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFile),
-                FixedCode = testReader.ReadTest(fixedFile),
-                ExpectedDiagnostics = { expected },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFile),
+    FixedCode = testReader.ReadTest(fixedFile),
+    ExpectedDiagnostics = { expected },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -82,13 +89,15 @@ namespace TestSmells.Test.MagicNumber
             var expected = VerifyCS.Diagnostic().WithSpan(12, 29, 12, 31).WithArguments("AreEqual", "1f");
 
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFile),
-                FixedCode = testReader.ReadTest(fixedFile),
-                ExpectedDiagnostics = { expected },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFile),
+    FixedCode = testReader.ReadTest(fixedFile),
+    ExpectedDiagnostics = { expected },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
         [TestMethod]
@@ -100,13 +109,15 @@ namespace TestSmells.Test.MagicNumber
             var expected = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 35).WithArguments("AreEqual", "(int)1");
 
 
-            await new VerifyCS.Test
-            {
-                TestCode = testReader.ReadTest(testFile),
-                FixedCode = testReader.ReadTest(fixedFile),
-                ExpectedDiagnostics = { expected },
-                ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            var test = new VerifyCS.Test
+{
+    TestCode = testReader.ReadTest(testFile),
+    FixedCode = testReader.ReadTest(fixedFile),
+    ExpectedDiagnostics = { expected },
+    ReferenceAssemblies = UnitTestingAssembly
+};
+test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+await test.RunAsync();
         }
 
     }

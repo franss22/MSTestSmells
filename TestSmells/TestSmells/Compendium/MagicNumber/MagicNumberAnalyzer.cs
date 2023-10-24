@@ -7,10 +7,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 
 
-namespace TestSmells.MagicNumber
+namespace TestSmells.Compendium.MagicNumber
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class MagicNumberAnalyzer : DiagnosticAnalyzer
+    public class MagicNumberAnalyzer
     {
         public const string DiagnosticId = "MagicNumber";
 
@@ -20,61 +19,42 @@ namespace TestSmells.MagicNumber
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.AnalyzerDescription), Resources.ResourceManager, typeof(Resources));
         private const string Category = "Test Smells";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
-
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
-
-        private static readonly string[] RelevantAssertionsNames = { "AreEqual", "AreNotEqual"};
+        internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
 
-        public override void Initialize(AnalysisContext context)
+        private static readonly string[] SmellSpecificAssertionMethodNames = { "AreEqual", "AreNotEqual" };
+
+        internal static IMethodSymbol[] RelevantAssertions(Compilation compilation)
         {
-            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-            context.EnableConcurrentExecution();
-            context.RegisterCompilationStartAction(FindRelevantAssertions);
+            return TestUtils.GetAssertionMethodSymbols(compilation, SmellSpecificAssertionMethodNames);
         }
 
-        private void FindRelevantAssertions(CompilationStartAnalysisContext context)
+        internal static Action<SyntaxNodeAnalysisContext> AnalyzeInvocation(ISymbol[] assertionMethods)
         {
-            var relevantAssertions = TestUtils.GetAssertionMethodSymbols(context.Compilation, RelevantAssertionsNames);
-            if (relevantAssertions.Length == 0) return;
-
-            var analyzeNode = AnalyzeNode(relevantAssertions);
-
-            context.RegisterSyntaxNodeAction(analyzeNode, SyntaxKind.InvocationExpression);
-
-        }
-
-        private static Action<SyntaxNodeAnalysisContext> AnalyzeNode(ISymbol[] relevantAssertions)
-        {
-            return (SyntaxNodeAnalysisContext context) =>
+            return (context) =>
             {
                 var invocationExpr = (InvocationExpressionSyntax)context.Node;
                 var memberAccessExpr = invocationExpr.Expression as MemberAccessExpressionSyntax;
                 if (memberAccessExpr is null) return;
-                //if (!RelevantAssertions.Contains(memberAccessExpr.Name.ToString())) return;
 
                 var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExpr).Symbol as IMethodSymbol;
-                if (!TestUtils.MethodIsInList(memberSymbol, relevantAssertions)) return;
+                if (!TestUtils.MethodIsInList(memberSymbol, assertionMethods)) return;
 
-                var argumentList = invocationExpr.ArgumentList as ArgumentListSyntax;
+                var argumentList = invocationExpr.ArgumentList;
                 if ((argumentList?.Arguments.Count ?? 0) < 2) return;
 
-                var expectedArg = argumentList.Arguments[0] as ArgumentSyntax;
-                var actualArg = argumentList.Arguments[1] as ArgumentSyntax;
+                var expectedArg = argumentList.Arguments[0];
+                var actualArg = argumentList.Arguments[1];
 
                 if (ArgumentIsNumericLiteral(expectedArg))
                 {
-                    //raise diagnostic
                     var diagnosticExpected = Diagnostic.Create(Rule, expectedArg.GetLocation(), memberAccessExpr.Name, expectedArg.ToString());
                     context.ReportDiagnostic(diagnosticExpected);
                 }
                 if (ArgumentIsNumericLiteral(actualArg))
                 {
-                    //raise diagnostic
                     var diagnosticActual = Diagnostic.Create(Rule, actualArg.GetLocation(), memberAccessExpr.Name, actualArg.ToString());
                     context.ReportDiagnostic(diagnosticActual);
-
                 }
             };
 

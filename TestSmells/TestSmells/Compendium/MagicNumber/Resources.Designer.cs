@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.ConditionalTest {
+namespace TestSmells.Compendium.MagicNumber {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.ConditionalTest {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.ConditionalTest.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.Compendium.MagicNumber.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.ConditionalTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test methods should not have conditional logic.
+        ///   Looks up a localized string similar to Assertions should not have numeric literals as arguments. Extract the local constant and give it a descriptive name..
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -70,7 +70,7 @@ namespace TestSmells.ConditionalTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test method &apos;{0}&apos; contains a {1} operation.
+        ///   Looks up a localized string similar to &apos;{0}&apos; contains numeric literal &apos;{1}&apos;.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace TestSmells.ConditionalTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Conditional test logic.
+        ///   Looks up a localized string similar to Magic Number Test.
         /// </summary>
         internal static string AnalyzerTitle {
             get {

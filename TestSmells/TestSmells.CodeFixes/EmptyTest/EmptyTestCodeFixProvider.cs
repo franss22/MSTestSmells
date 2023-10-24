@@ -10,8 +10,7 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
-
+using TestSmells.Compendium.EmptyTest;
 
 namespace TestSmells.EmptyTest
 {

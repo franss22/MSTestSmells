@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 using System.Threading.Tasks;
-using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.MagicNumber.MagicNumberAnalyzer>;
+using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.Compendium.AnalyzerCompendium>;
 //using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
 //    TestSmells.MagicNumber.MagicNumberAnalyzer,
 //    TestSmells.MagicNumber.MagicNumberCodeFixProvider>;
@@ -20,6 +20,9 @@ namespace TestSmells.Test.MagicNumber
         private readonly ReferenceAssemblies UnitTestingAssembly = TestSmellReferenceAssembly.Assemblies();
 
         private readonly TestReader testReader = new TestReader("MagicNumber", "Corpus", "AreEqual");
+
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("MagicNumber");
+
         /* 
          * Tests are named by the type of value given to the assertion method
          * L means the value is a literal
@@ -44,24 +47,28 @@ namespace TestSmells.Test.MagicNumber
         public async Task ObjObj()
         {
             var testFile = @"ObjObj.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
         public async Task StringString()
         {
             var testFile = @"StrStr.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -70,12 +77,14 @@ namespace TestSmells.Test.MagicNumber
         {
 
             var testFile = @"StrStrL.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task StringLString()
@@ -83,12 +92,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"StrLStr.cs";
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task StringLStringL()
@@ -96,12 +107,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"StrLStrL.cs";
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -109,12 +122,14 @@ namespace TestSmells.Test.MagicNumber
         public async Task DoubleDouble()
         {
             var testFile = @"DoubleDouble.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -124,12 +139,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"DoubleDoubleL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 36).WithArguments("AreEqual", "2.5d");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task DoubleLDouble()
@@ -139,12 +156,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 33).WithArguments("AreEqual", "1.5d");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task DoubleLDoubleL()
@@ -155,12 +174,14 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 39).WithArguments("AreEqual", "2.5d");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -170,12 +191,14 @@ namespace TestSmells.Test.MagicNumber
         public async Task FloatFloat()
         {
             var testFile = @"FloatFloat.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -185,12 +208,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"FloatFloatL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 36).WithArguments("AreEqual", "2.5F");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task FloatLFloat()
@@ -200,12 +225,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 33).WithArguments("AreEqual", "1.5F");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task FloatLFloatL()
@@ -216,12 +243,14 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 35, 12, 39).WithArguments("AreEqual", "2.5F");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -230,12 +259,14 @@ namespace TestSmells.Test.MagicNumber
         public async Task SbyteSbyte()
         {
             var testFile = @"SbyteSbyte.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -245,12 +276,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"SbyteSbyteL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 40).WithArguments("AreEqual", "(sbyte)2");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task SbyteLSbyte()
@@ -260,12 +293,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 37).WithArguments("AreEqual", "(sbyte)1");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task SbyteLSbyteL()
@@ -276,24 +311,28 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 39, 12, 47).WithArguments("AreEqual", "(sbyte)2");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
         public async Task ByteByte()
         {
             var testFile = @"ByteByte.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -302,12 +341,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"ByteByteL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 39).WithArguments("AreEqual", "(byte)2");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task ByteLByte()
@@ -317,12 +358,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 36).WithArguments("AreEqual", "(byte)1");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task ByteLByteL()
@@ -333,12 +376,14 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 38, 12, 45).WithArguments("AreEqual", "(byte)2");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -346,12 +391,14 @@ namespace TestSmells.Test.MagicNumber
         public async Task ShortShort()
         {
             var testFile = @"ShortShort.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -361,12 +408,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"ShortShortL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 40).WithArguments("AreEqual", "(short)2");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task ShortLShort()
@@ -376,12 +425,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 37).WithArguments("AreEqual", "(short)1");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task ShortLShortL()
@@ -392,24 +443,28 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 39, 12, 47).WithArguments("AreEqual", "(short)2");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
         public async Task UshortUshort()
         {
             var testFile = @"UshortUshort.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -419,12 +474,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"UshortUshortL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 41).WithArguments("AreEqual", "(ushort)2");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task UshortLUshort()
@@ -434,12 +491,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 38).WithArguments("AreEqual", "(ushort)1");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task UshortLUshortL()
@@ -450,12 +509,14 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 40, 12, 49).WithArguments("AreEqual", "(ushort)2");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -463,12 +524,14 @@ namespace TestSmells.Test.MagicNumber
         public async Task IntInt()
         {
             var testFile = @"IntInt.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -478,12 +541,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"IntIntL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 33).WithArguments("AreEqual", "2");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task IntLInt()
@@ -493,12 +558,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 30).WithArguments("AreEqual", "1");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task IntLIntL()
@@ -509,12 +576,14 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 33).WithArguments("AreEqual", "2");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -522,12 +591,14 @@ namespace TestSmells.Test.MagicNumber
         public async Task UintUint()
         {
             var testFile = @"UintUint.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -537,12 +608,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"UintUintL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 34).WithArguments("AreEqual", "2u");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task UintLUint()
@@ -552,12 +625,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 31).WithArguments("AreEqual", "1u");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task UintLUintL()
@@ -568,12 +643,14 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 33, 12, 35).WithArguments("AreEqual", "2u");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -581,12 +658,14 @@ namespace TestSmells.Test.MagicNumber
         public async Task LongLong()
         {
             var testFile = @"LongLong.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -596,12 +675,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"LongLongL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 34).WithArguments("AreEqual", "2l");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task LongLLong()
@@ -611,12 +692,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 31).WithArguments("AreEqual", "1l");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task LongLLongL()
@@ -627,12 +710,14 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 33, 12, 35).WithArguments("AreEqual", "2l");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -640,12 +725,14 @@ namespace TestSmells.Test.MagicNumber
         public async Task UlongUlong()
         {
             var testFile = @"UlongUlong.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -655,12 +742,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"UlongUlongL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 35).WithArguments("AreEqual", "2ul");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task UlongLUlong()
@@ -670,12 +759,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 32).WithArguments("AreEqual", "1ul");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -687,24 +778,28 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 34, 12, 37).WithArguments("AreEqual", "2ul");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
         public async Task NintNint()
         {
             var testFile = @"NintNint.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -713,12 +808,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"NintNintL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 39).WithArguments("AreEqual", "(nint)2");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task NintLNint()
@@ -728,12 +825,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 36).WithArguments("AreEqual", "(nint)1");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task NintLNintL()
@@ -744,24 +843,28 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 38, 12, 45).WithArguments("AreEqual", "(nint)2");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
         public async Task NuintNuint()
         {
             var testFile = @"NuintNuint.cs";
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 
@@ -771,12 +874,14 @@ namespace TestSmells.Test.MagicNumber
 
             var testFile = @"NuintNuintL.cs";
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 40).WithArguments("AreEqual", "(nuint)2");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task NuintLNuint()
@@ -786,12 +891,14 @@ namespace TestSmells.Test.MagicNumber
             var expected1st = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 37).WithArguments("AreEqual", "(nuint)1");
 
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
         [TestMethod]
         public async Task NuintLNuintL()
@@ -802,12 +909,14 @@ namespace TestSmells.Test.MagicNumber
 
             var expected2nd = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 39, 12, 47).WithArguments("AreEqual", "(nuint)2");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected1st, expected2nd },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
     }
 }

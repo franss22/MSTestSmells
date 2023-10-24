@@ -17,6 +17,7 @@ using EnvDTE80;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Generic;
 using System;
+using TestSmells.Compendium.AssertionRoulette;
 
 namespace TestSmells.AssertionRoulette
 {
@@ -45,7 +46,7 @@ namespace TestSmells.AssertionRoulette
         private readonly Func<CancellationToken, Task<Document>> CreateChangedDocument;
         public override string EquivalenceKey { get; }
         public override string Title { get; }
-        private Func<CancellationToken, Document, Task> SelectText;
+        private readonly Func<CancellationToken, Document, Task> SelectText;
 
 
 

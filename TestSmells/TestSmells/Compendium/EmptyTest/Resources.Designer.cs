@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.ExceptionHandling {
+namespace TestSmells.Compendium.EmptyTest {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.ExceptionHandling {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.ExceptionHandling.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.Compendium.EmptyTest.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.ExceptionHandling {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test methods should not handle nor throw exceptions. Use Assert.ThrowsException instead.
+        ///   Looks up a localized string similar to Test method should run a test..
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -70,7 +70,7 @@ namespace TestSmells.ExceptionHandling {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test method &apos;{0}&apos; {1}.
+        ///   Looks up a localized string similar to Test Method &apos;{0}&apos; is empty.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace TestSmells.ExceptionHandling {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Exception Handling.
+        ///   Looks up a localized string similar to Empty Test.
         /// </summary>
         internal static string AnalyzerTitle {
             get {

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.IgnoredTest {
+namespace TestSmells.Compendium.ConditionalTest {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.IgnoredTest {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.IgnoredTest.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.Compendium.ConditionalTest.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.IgnoredTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tests shouldn&apos;t be ignored.
+        ///   Looks up a localized string similar to Test methods should not have conditional logic.
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -70,7 +70,7 @@ namespace TestSmells.IgnoredTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test method &apos;{0}&apos; has the [Ignore] attribute.
+        ///   Looks up a localized string similar to Test method &apos;{0}&apos; contains a {1} operation.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace TestSmells.IgnoredTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ignored Test.
+        ///   Looks up a localized string similar to Conditional test logic.
         /// </summary>
         internal static string AnalyzerTitle {
             get {

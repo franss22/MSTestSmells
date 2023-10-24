@@ -16,6 +16,9 @@ namespace TestSmells.Test.EagerTest
         private readonly ReferenceAssemblies UnitTestingAssembly = TestSmellReferenceAssembly.Assemblies();
 
         private readonly TestReader testReader = new TestReader("EagerTest", "Corpus");
+
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("EagerTest");
+
         //No diagnostics expected to show up
         [TestMethod]
         public async Task EmptyProgram()
@@ -39,15 +42,16 @@ namespace TestSmells.Test.EagerTest
                 .WithSpan(15, 13, 15, 41)
                 .WithSpan(16, 13, 16, 39)
                 .WithArguments("TestMethod1");
-;
-            await new VerifyCS.Test
+            ;
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
-
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -62,14 +66,15 @@ namespace TestSmells.Test.EagerTest
                 .WithSpan(18, 13, 18, 31) //First Assert
                 .WithSpan(19, 13, 19, 31) //Second Assert
                 .WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
-
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -84,14 +89,15 @@ namespace TestSmells.Test.EagerTest
                 .WithSpan(16, 13, 16, 67)
                 .WithSpan(17, 13, 17, 64)
                 .WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
-
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -106,14 +112,15 @@ namespace TestSmells.Test.EagerTest
                 .WithSpan(18, 13, 18, 36)
                 .WithSpan(19, 13, 19, 31)
                 .WithArguments("TestMethod1");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 FixedCode = testReader.ReadTest(fixedFile),
-
                 ExpectedDiagnostics = { expected },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
 

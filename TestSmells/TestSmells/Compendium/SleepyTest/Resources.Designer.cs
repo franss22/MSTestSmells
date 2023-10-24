@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.MagicNumber {
+namespace TestSmells.Compendium.SleepyTest {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.MagicNumber {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.MagicNumber.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.Compendium.SleepyTest.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.MagicNumber {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Assertions should not have numeric literals as arguments. Extract the local constant and give it a descriptive name..
+        ///   Looks up a localized string similar to Tests should not use Thread.Sleep.
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -70,7 +70,7 @@ namespace TestSmells.MagicNumber {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; contains numeric literal &apos;{1}&apos;.
+        ///   Looks up a localized string similar to Test method &apos;{0}&apos; calls Thread.Sleep.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace TestSmells.MagicNumber {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Magic Number Test.
+        ///   Looks up a localized string similar to Sleepy Test.
         /// </summary>
         internal static string AnalyzerTitle {
             get {

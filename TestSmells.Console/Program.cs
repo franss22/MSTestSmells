@@ -86,18 +86,11 @@ namespace TestSmells.Console
         {
             DiagnosticAnalyzer[] a =
             {
-                new AssertionRoulette.AssertionRouletteAnalyzer(),
-                new ConditionalTest.ConditionalTestAnalyzer(),
+                new Compendium.AnalyzerCompendium(),
                 new DuplicateAssert.DuplicateAssertAnalyzer(),
                 new EagerTest.EagerTestAnalyzer(),
-                new EmptyTest.EmptyTestAnalyzer(),
-                new ExceptionHandling.ExceptionHandlingAnalyzer(),
                 new GeneralFixture.GeneralFixtureAnalyzer(),
-                new IgnoredTest.IgnoredTestAnalyzer(),
-                new MagicNumber.MagicNumberAnalyzer(),
                 new MysteryGuest.MysteryGuestAnalyzer(),
-                new RedundantAssertion.RedundantAssertionAnalyzer(),
-                new SleepyTest.SleepyTestAnalyzer(),
                 new UnknownTest.UnknownTestAnalyzer(),
             };
             return ImmutableArray.Create(a);

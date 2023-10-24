@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
-    TestSmells.RedundantAssertion.RedundantAssertionAnalyzer,
+    TestSmells.Compendium.AnalyzerCompendium,
     TestSmells.RedundantAssertion.RedundantAssertionCodeFixProvider>;
 using TestReading;
 
@@ -16,19 +16,24 @@ namespace TestSmells.Test.RedundantAssertion
 
         private readonly TestReader testReader = new TestReader("RedundantAssertion", "Corpus");
 
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("RedundantAssertion");
+
+
         [TestMethod]
         public async Task SameIdentifier()
         {
             var testFile = @"SameIdentifier.cs";
             var fixedFile = @"SameIdentifierFixed.cs";
             var expected = VerifyCS.Diagnostic().WithSpan(13, 13, 13, 34).WithArguments("TestMethod1", "AreEqual");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
-                FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
+                FixedCode = testReader.ReadTest(fixedFile),
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -37,13 +42,15 @@ namespace TestSmells.Test.RedundantAssertion
             var testFile = @"SameButWithComments.cs";
             var fixedFile = @"SameIdentifierFixed.cs";
             var expected = VerifyCS.Diagnostic().WithSpan(13, 13, 13, 44).WithArguments("TestMethod1", "AreEqual");
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
-                FixedCode = testReader.ReadTest(fixedFile),
                 ExpectedDiagnostics = { expected },
+                FixedCode = testReader.ReadTest(fixedFile),
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
     }
