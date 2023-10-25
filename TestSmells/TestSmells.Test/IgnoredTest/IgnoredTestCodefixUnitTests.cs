@@ -35,7 +35,7 @@ namespace TestSmells.Test.IgnoredTest
         {
             var testFile = @"SimpleIgnoredTest.cs";
             var fixedFile = @"SimpleIgnoredTestFixed.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(11, 10, 11, 16).WithArguments("TestMethod1");
+            var expected = VerifyCS.Diagnostic("IgnoredTest").WithSpan(11, 10, 11, 16).WithArguments("TestMethod1");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -53,7 +53,7 @@ namespace TestSmells.Test.IgnoredTest
             var testFile = @"IgnoredTestInListFirst.cs";
             var fixedFile = @"IgnoredTestInListFirstFixed.cs";
 
-            var expected = VerifyCS.Diagnostic().WithSpan(10, 10, 10, 16).WithArguments("TestMethod1");
+            var expected = VerifyCS.Diagnostic("IgnoredTest").WithSpan(10, 10, 10, 16).WithArguments("TestMethod1");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -71,7 +71,7 @@ namespace TestSmells.Test.IgnoredTest
             var testFile = @"IgnoredTestInListLast.cs";
             var fixedFile = @"IgnoredTestInListLastFixed.cs";
 
-            var expected = VerifyCS.Diagnostic().WithSpan(10, 22, 10, 28).WithArguments("TestMethod1");
+            var expected = VerifyCS.Diagnostic("IgnoredTest").WithSpan(10, 22, 10, 28).WithArguments("TestMethod1");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -89,7 +89,7 @@ namespace TestSmells.Test.IgnoredTest
             var testFile = @"IgnoredTestInListMiddle.cs";
             var fixedFile = @"IgnoredTestInListMiddleFixed.cs";
 
-            var expected = VerifyCS.Diagnostic().WithSpan(10, 22, 10, 28).WithArguments("TestMethod1");
+            var expected = VerifyCS.Diagnostic("IgnoredTest").WithSpan(10, 22, 10, 28).WithArguments("TestMethod1");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),

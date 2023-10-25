@@ -32,7 +32,7 @@ namespace TestSmells.Test.SleepyTest
         public async Task SimpleSleepyTest()
         {
             var testFile = @"SimpleSleepyTest.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(16, 13, 16, 31).WithArguments("TestMethod1");
+            var expected = VerifyCS.Diagnostic("SleepyTest").WithSpan(16, 13, 16, 31).WithArguments("TestMethod1");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -47,7 +47,7 @@ namespace TestSmells.Test.SleepyTest
         public async Task TimespanSleepyTest()
         {
             var testFile = @"TimespanSleepyTest.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(20, 13, 20, 35).WithArguments("TestMethod1");
+            var expected = VerifyCS.Diagnostic("SleepyTest").WithSpan(20, 13, 20, 35).WithArguments("TestMethod1");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),

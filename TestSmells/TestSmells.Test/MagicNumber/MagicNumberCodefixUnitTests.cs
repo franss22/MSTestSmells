@@ -66,7 +66,7 @@ await test.RunAsync();
             var testFile = @"IntIntL.cs";
             var fixedFile = @"IntIntLFixed.cs";
 
-            var expected = VerifyCS.Diagnostic().WithSpan(12, 32, 12, 33).WithArguments("AreEqual", "2");
+            var expected = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 32, 12, 33).WithArguments("AreEqual", "2");
 
 
             var test = new VerifyCS.Test
@@ -86,7 +86,7 @@ await test.RunAsync();
             var testFile = @"FloatLFloat.cs";
             var fixedFile = @"FloatLFloatFixed.cs";
 
-            var expected = VerifyCS.Diagnostic().WithSpan(12, 29, 12, 31).WithArguments("AreEqual", "1f");
+            var expected = VerifyCS.Diagnostic("MagicNumber").WithSpan(12, 29, 12, 31).WithArguments("AreEqual", "1f");
 
 
             var test = new VerifyCS.Test

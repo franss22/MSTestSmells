@@ -32,7 +32,7 @@ namespace TestSmells.Test.IgnoredTest
         public async Task SimpleIgnoredTest()
         {
             var testFile = @"SimpleIgnoredTest.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(11, 10, 11, 16).WithArguments("TestMethod1"); var test = new VerifyCS.Test
+            var expected = VerifyCS.Diagnostic("IgnoredTest").WithSpan(11, 10, 11, 16).WithArguments("TestMethod1"); var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },
@@ -46,7 +46,7 @@ namespace TestSmells.Test.IgnoredTest
         public async Task IgnoredTestInListFirst()
         {
             var testFile = @"IgnoredTestInListFirst.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(10, 10, 10, 16).WithArguments("TestMethod1"); var test = new VerifyCS.Test
+            var expected = VerifyCS.Diagnostic("IgnoredTest").WithSpan(10, 10, 10, 16).WithArguments("TestMethod1"); var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },
@@ -60,7 +60,7 @@ namespace TestSmells.Test.IgnoredTest
         public async Task IgnoredTestInListLast()
         {
             var testFile = @"IgnoredTestInListLast.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(10, 22, 10, 28).WithArguments("TestMethod1"); var test = new VerifyCS.Test
+            var expected = VerifyCS.Diagnostic("IgnoredTest").WithSpan(10, 22, 10, 28).WithArguments("TestMethod1"); var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },
@@ -74,7 +74,7 @@ namespace TestSmells.Test.IgnoredTest
         public async Task IgnoredTestInListMiddle()
         {
             var testFile = @"IgnoredTestInListMiddle.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(10, 22, 10, 28).WithArguments("TestMethod1"); var test = new VerifyCS.Test
+            var expected = VerifyCS.Diagnostic("IgnoredTest").WithSpan(10, 22, 10, 28).WithArguments("TestMethod1"); var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },

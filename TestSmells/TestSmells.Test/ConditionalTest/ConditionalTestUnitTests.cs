@@ -32,7 +32,7 @@ namespace TestSmells.Test.ConditionalTest
         public async Task SimpleIf()
         {
             var testFile = @"SimpleIf.cs";
-            var expected = VerifyCS.Diagnostic()
+            var expected = VerifyCS.Diagnostic("ConditionalTest")
                 .WithSpan(14, 13, 17, 14)
                 .WithArguments("TestMethod1", "conditional");
 
@@ -50,7 +50,7 @@ namespace TestSmells.Test.ConditionalTest
         public async Task Do()
         {
             var testFile = @"Do.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(14, 13, 17, 35).WithArguments("TestMethod1", "loop");
+            var expected = VerifyCS.Diagnostic("ConditionalTest").WithSpan(14, 13, 17, 35).WithArguments("TestMethod1", "loop");
 
             var test = new VerifyCS.Test
             {
@@ -66,7 +66,7 @@ namespace TestSmells.Test.ConditionalTest
         public async Task For()
         {
             var testFile = @"For.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(14, 13, 17, 14).WithArguments("TestMethod1", "loop")
+            var expected = VerifyCS.Diagnostic("ConditionalTest").WithSpan(14, 13, 17, 14).WithArguments("TestMethod1", "loop")
 ;
 
             var test = new VerifyCS.Test
@@ -83,7 +83,7 @@ namespace TestSmells.Test.ConditionalTest
         public async Task Foreach()
         {
             var testFile = @"Foreach.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(14, 13, 17, 14).WithArguments("TestMethod1", "loop");
+            var expected = VerifyCS.Diagnostic("ConditionalTest").WithSpan(14, 13, 17, 14).WithArguments("TestMethod1", "loop");
 
             var test = new VerifyCS.Test
             {
@@ -99,7 +99,7 @@ namespace TestSmells.Test.ConditionalTest
         public async Task IfElse()
         {
             var testFile = @"IfElse.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(14, 13, 21, 14).WithArguments("TestMethod1", "conditional");
+            var expected = VerifyCS.Diagnostic("ConditionalTest").WithSpan(14, 13, 21, 14).WithArguments("TestMethod1", "conditional");
 
             var test = new VerifyCS.Test
             {
@@ -115,7 +115,7 @@ namespace TestSmells.Test.ConditionalTest
         public async Task Switch()
         {
             var testFile = @"Switch.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(15, 13, 26, 14).WithArguments("TestMethod1", "switch");
+            var expected = VerifyCS.Diagnostic("ConditionalTest").WithSpan(15, 13, 26, 14).WithArguments("TestMethod1", "switch");
 
             var test = new VerifyCS.Test
             {
@@ -131,7 +131,7 @@ namespace TestSmells.Test.ConditionalTest
         public async Task TernaryIf()
         {
             var testFile = @"TernaryIf.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(14, 20, 14, 39).WithArguments("TestMethod1", "conditional");
+            var expected = VerifyCS.Diagnostic("ConditionalTest").WithSpan(14, 20, 14, 39).WithArguments("TestMethod1", "conditional");
 
             var test = new VerifyCS.Test
             {
@@ -147,7 +147,7 @@ namespace TestSmells.Test.ConditionalTest
         public async Task While()
         {
             var testFile = @"While.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(14, 13, 17, 14).WithArguments("TestMethod1", "loop");
+            var expected = VerifyCS.Diagnostic("ConditionalTest").WithSpan(14, 13, 17, 14).WithArguments("TestMethod1", "loop");
 
             var test = new VerifyCS.Test
             {

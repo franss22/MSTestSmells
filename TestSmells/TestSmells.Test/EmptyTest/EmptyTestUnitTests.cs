@@ -17,7 +17,7 @@ namespace TestSmells.Test.EmptyTest
 
         private readonly TestReader testReader = new TestReader("EmptyTest", "Corpus");
 
-        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("ConditionalTest");
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("EmptyTest");
 
         //No diagnostics expected to show up
         [TestMethod]

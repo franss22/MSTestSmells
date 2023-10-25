@@ -28,7 +28,7 @@ dotnet_diagnostic.SleepyTest.severity = {Severity(diagnosticName, "SleepyTest")}
 
         private static string Severity(string name1, string name2)
         {
-            return name1 == name2 ? "warning" : "silent";
+            return name1 == name2 ? "warning" : "none";
         }
 
 

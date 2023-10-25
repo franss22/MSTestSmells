@@ -31,7 +31,7 @@ namespace TestSmells.Test.RedundantAssertion
         public async Task SameIdentifier()
         {
             var testFile = @"SameIdentifier.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(13, 13, 13, 34).WithArguments("TestMethod1", "AreEqual");
+            var expected = VerifyCS.Diagnostic("RedundantAssertion").WithSpan(13, 13, 13, 34).WithArguments("TestMethod1", "AreEqual");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -59,7 +59,7 @@ namespace TestSmells.Test.RedundantAssertion
         public async Task SameButWithComments()
         {
             var testFile = @"SameButWithComments.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(13, 13, 13, 44).WithArguments("TestMethod1", "AreEqual");
+            var expected = VerifyCS.Diagnostic("RedundantAssertion").WithSpan(13, 13, 13, 44).WithArguments("TestMethod1", "AreEqual");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -74,7 +74,7 @@ namespace TestSmells.Test.RedundantAssertion
         public async Task SameMethod()
         {
             var testFile = @"SameMethod.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(13, 13, 13, 54).WithArguments("TestMethod1", "AreEqual"); var test = new VerifyCS.Test
+            var expected = VerifyCS.Diagnostic("RedundantAssertion").WithSpan(13, 13, 13, 54).WithArguments("TestMethod1", "AreEqual"); var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },
@@ -88,7 +88,7 @@ namespace TestSmells.Test.RedundantAssertion
         public async Task Contains()
         {
             var testFile = @"Contains.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(13, 13, 13, 40).WithArguments("TestMethod1", "Contains"); var test = new VerifyCS.Test
+            var expected = VerifyCS.Diagnostic("RedundantAssertion").WithSpan(13, 13, 13, 40).WithArguments("TestMethod1", "Contains"); var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },
@@ -102,7 +102,7 @@ namespace TestSmells.Test.RedundantAssertion
         public async Task AreNotEqual()
         {
             var testFile = @"AreNotEqual.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(13, 13, 13, 34).WithArguments("TestMethod1", "AreEqual"); var test = new VerifyCS.Test
+            var expected = VerifyCS.Diagnostic("RedundantAssertion").WithSpan(13, 13, 13, 34).WithArguments("TestMethod1", "AreEqual"); var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },
@@ -116,7 +116,7 @@ namespace TestSmells.Test.RedundantAssertion
         public async Task IsSubsetOf()
         {
             var testFile = @"IsSubsetOf.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(13, 13, 13, 34).WithArguments("TestMethod1", "AreEqual"); var test = new VerifyCS.Test
+            var expected = VerifyCS.Diagnostic("RedundantAssertion").WithSpan(13, 13, 13, 34).WithArguments("TestMethod1", "AreEqual"); var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },

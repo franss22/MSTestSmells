@@ -24,7 +24,7 @@ namespace TestSmells.Test.RedundantAssertion
         {
             var testFile = @"SameIdentifier.cs";
             var fixedFile = @"SameIdentifierFixed.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(13, 13, 13, 34).WithArguments("TestMethod1", "AreEqual");
+            var expected = VerifyCS.Diagnostic("RedundantAssertion").WithSpan(13, 13, 13, 34).WithArguments("TestMethod1", "AreEqual");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -41,7 +41,7 @@ namespace TestSmells.Test.RedundantAssertion
         {
             var testFile = @"SameButWithComments.cs";
             var fixedFile = @"SameIdentifierFixed.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(13, 13, 13, 44).WithArguments("TestMethod1", "AreEqual");
+            var expected = VerifyCS.Diagnostic("RedundantAssertion").WithSpan(13, 13, 13, 44).WithArguments("TestMethod1", "AreEqual");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),

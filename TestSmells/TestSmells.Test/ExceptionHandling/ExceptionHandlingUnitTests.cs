@@ -32,7 +32,7 @@ namespace TestSmells.Test.ExceptionHandling
         public async Task TryCatch()
         {
             var testFile = @"TryCatch.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(16, 13, 23, 14).WithArguments("TestMethod1", "handles exceptions");
+            var expected = VerifyCS.Diagnostic("ExceptionHandling").WithSpan(16, 13, 23, 14).WithArguments("TestMethod1", "handles exceptions");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -47,7 +47,7 @@ namespace TestSmells.Test.ExceptionHandling
         public async Task Throw()
         {
             var testFile = @"Throw.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(19, 13, 19, 53).WithArguments("TestMethod1", "throws an exception");
+            var expected = VerifyCS.Diagnostic("ExceptionHandling").WithSpan(19, 13, 19, 53).WithArguments("TestMethod1", "throws an exception");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -62,7 +62,7 @@ namespace TestSmells.Test.ExceptionHandling
         public async Task TryCatchFinally()
         {
             var testFile = @"TryCatchFinally.cs";
-            var expected = VerifyCS.Diagnostic().WithSpan(16, 13, 23, 14).WithArguments("TestMethod1", "handles exceptions");
+            var expected = VerifyCS.Diagnostic("ExceptionHandling").WithSpan(16, 13, 23, 14).WithArguments("TestMethod1", "handles exceptions");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
