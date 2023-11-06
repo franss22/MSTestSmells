@@ -196,8 +196,8 @@ namespace TestSmells.MysteryGuest
                     var methodIsStatic = invocationOperation.Instance is null;
                     if (!methodIsStatic)
                     {
-                        var methodInstanceIsFile = SymbolEqualityComparer.Default.Equals(invocationOperation.Instance.Type, fileClass);
-                        var methodInstanceIsFileStream = SymbolEqualityComparer.Default.Equals(invocationOperation.Instance.Type, fileStreamClass);
+                        var methodInstanceIsFile = TestUtils.SymbolEquals(invocationOperation.Instance.Type, fileClass);
+                        var methodInstanceIsFileStream = TestUtils.SymbolEquals(invocationOperation.Instance.Type, fileStreamClass);
                         if (!(methodInstanceIsFile || methodInstanceIsFileStream)) { continue; }
 
                     }
@@ -249,7 +249,7 @@ namespace TestSmells.MysteryGuest
 
             foreach (var function in relevantAssertions)
             {
-                if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, function))
+                if (TestUtils.SymbolEquals(symbol.OriginalDefinition, function))
                 {
                     return true;
 

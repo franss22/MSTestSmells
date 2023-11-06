@@ -33,7 +33,7 @@ namespace TestSmells.Compendium.IgnoredTest
                 //Done manually to get location of ignore attribute
                 foreach (var attr in methodSymbol.GetAttributes())
                 {
-                    if (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, ignoreAttr))
+                    if (TestUtils.SymbolEquals(attr.AttributeClass, ignoreAttr))
                     {
                         context.ReportDiagnostic(Diagnostic.Create(Rule, attr.ApplicationSyntaxReference.GetSyntax().GetLocation(), methodSymbol.Name));
                     }

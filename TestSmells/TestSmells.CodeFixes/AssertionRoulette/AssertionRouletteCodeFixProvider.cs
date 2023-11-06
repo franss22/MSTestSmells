@@ -36,7 +36,6 @@ namespace TestSmells.AssertionRoulette
         public override async void Apply(Workspace workspace, CancellationToken cancellationToken)
         {
             await SelectText(cancellationToken, ChangedDocument);
-
         }
     }
 
@@ -76,17 +75,12 @@ namespace TestSmells.AssertionRoulette
             var changedDocument = await CreateChangedDocument(cancellationToken).ConfigureAwait(false);
             if (changedDocument == null)
                 return null;
-            var root = changedDocument.GetSyntaxRootAsync(cancellationToken);
 
             var selectionOperation = new CustomOperation(SelectText, changedDocument);
 
 
             return new CodeActionOperation[] { new ApplyChangesOperation(changedDocument.Project.Solution) ,  selectionOperation};
         }
-
-
-
-
 
     }
 
@@ -100,10 +94,6 @@ namespace TestSmells.AssertionRoulette
         private static DTE2 DTE;
         public static readonly IVsTextManager TextManager;
 
-        //static AssertionRouletteCodeFixProvider()
-        //{
-            
-        //}
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
@@ -145,7 +135,6 @@ namespace TestSmells.AssertionRoulette
                 try
                 {
                     DTE = Package.GetGlobalService(typeof(DTE)) as DTE2;
-
                 }
                 catch (System.Exception)
                 {

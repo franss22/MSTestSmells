@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -29,31 +30,29 @@ namespace TestSmells.Compendium.MagicNumber
             return TestUtils.GetAssertionMethodSymbols(compilation, SmellSpecificAssertionMethodNames);
         }
 
-        internal static Action<SyntaxNodeAnalysisContext> AnalyzeInvocation(ISymbol[] assertionMethods)
+        internal static Action<OperationAnalysisContext> AnalyzeInvocation(ISymbol[] assertionMethods)
         {
-            return (context) =>
+            return (OperationAnalysisContext context) =>
             {
-                var invocationExpr = (InvocationExpressionSyntax)context.Node;
-                var memberAccessExpr = invocationExpr.Expression as MemberAccessExpressionSyntax;
-                if (memberAccessExpr is null) return;
+                var invocation = (IInvocationOperation)context.Operation;
+                var targetMethod = invocation.TargetMethod;
 
-                var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccessExpr).Symbol as IMethodSymbol;
-                if (!TestUtils.MethodIsInList(memberSymbol, assertionMethods)) return;
+                if (!TestUtils.MethodIsInList(targetMethod, assertionMethods)) { return; }
 
-                var argumentList = invocationExpr.ArgumentList;
-                if ((argumentList?.Arguments.Count ?? 0) < 2) return;
+                var argumentList = invocation.Arguments;
+                //if (argumentList.Length < 2) return;
 
-                var expectedArg = argumentList.Arguments[0];
-                var actualArg = argumentList.Arguments[1];
+                var expectedArg = argumentList[0].Syntax;
+                var actualArg = argumentList[1].Syntax;
 
                 if (ArgumentIsNumericLiteral(expectedArg))
                 {
-                    var diagnosticExpected = Diagnostic.Create(Rule, expectedArg.GetLocation(), memberAccessExpr.Name, expectedArg.ToString());
+                    var diagnosticExpected = Diagnostic.Create(Rule, expectedArg.GetLocation(), targetMethod.Name, expectedArg.ToString());
                     context.ReportDiagnostic(diagnosticExpected);
                 }
                 if (ArgumentIsNumericLiteral(actualArg))
                 {
-                    var diagnosticActual = Diagnostic.Create(Rule, actualArg.GetLocation(), memberAccessExpr.Name, actualArg.ToString());
+                    var diagnosticActual = Diagnostic.Create(Rule, actualArg.GetLocation(), targetMethod.Name, actualArg.ToString());
                     context.ReportDiagnostic(diagnosticActual);
                 }
             };
@@ -61,9 +60,14 @@ namespace TestSmells.Compendium.MagicNumber
 
         }
 
-        private static bool ArgumentIsNumericLiteral(ArgumentSyntax arg)
+        private static bool ArgumentIsNumericLiteral(SyntaxNode node)
         {
             //Checks if the given expression is a numeric literal, or a cast numeric literal
+            var arg = node as ArgumentSyntax;
+            if ( arg is null)
+            {
+                return false;
+            }
             var argExpr = arg.Expression;
             if (argExpr.Kind() == SyntaxKind.CastExpression)
             {

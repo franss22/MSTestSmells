@@ -20,13 +20,12 @@ namespace TestSmells.Compendium.EmptyTest
         internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
 
-        internal static void AnalyzeMethodBlockIOperation(OperationBlockAnalysisContext context)
+        internal static void AnalyzeMethodBodyOperation(OperationAnalysisContext context)
         {
-            var block = TestUtils.GetBlockOperation(context);
-            if (block is null) { return; }
-            if (block.Descendants().Count() == 0)//if the method body has no operations, it is empty
+            var body = (IMethodBodyOperation)context.Operation;
+            if (body.BlockBody.Descendants().Count() == 0)//if the method body has no operations, it is empty
             {
-                var methodSymbol = context.OwningSymbol;
+                var methodSymbol = context.ContainingSymbol;
                 var diagnostic = Diagnostic.Create(Rule, methodSymbol.Locations.First(), methodSymbol.Name);
                 context.ReportDiagnostic(diagnostic);
             }

@@ -45,6 +45,7 @@ namespace TestSmells.Compendium
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
+
             context.RegisterCompilationStartAction(CompilationAction);
         }
         private static void CompilationAction(CompilationStartAnalysisContext context)
@@ -55,6 +56,8 @@ namespace TestSmells.Compendium
             if (testClassAttr is null) { return; }
             var testMethodAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
             if (testMethodAttr is null) { return; }
+
+
             var ignoreAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute");
             if (ignoreAttr is null) { return; }
 
@@ -74,7 +77,7 @@ namespace TestSmells.Compendium
                 if (!TestUtils.TestMethodInTestClass(ctx, testClassAttr, testMethodAttr)) { return; }
 
                 // Empty Test
-                ctx.RegisterOperationBlockAction(EmptyTestAnalyzer.AnalyzeMethodBlockIOperation);
+                ctx.RegisterOperationAction(EmptyTestAnalyzer.AnalyzeMethodBodyOperation, OperationKind.MethodBody);
 
                 //Exception Handling
                 ctx.RegisterOperationAction(ExceptionHandlingAnalyzer.AnalyzeOperations("throws an exception"), OperationKind.Throw);
@@ -86,7 +89,7 @@ namespace TestSmells.Compendium
                 ctx.RegisterOperationAction(ConditionalTestAnalyzer.AnalyzeConditionalOperations("switch"), OperationKind.Switch);
 
                 //Magic Number
-                ctx.RegisterSyntaxNodeAction(MagicNumberAnalyzer.AnalyzeInvocation(magicNumberAssertions), SyntaxKind.InvocationExpression);
+                ctx.RegisterOperationAction(MagicNumberAnalyzer.AnalyzeInvocation(magicNumberAssertions), OperationKind.Invocation);
 
                 //Sleepy Test
                 ctx.RegisterOperationAction(SleepyTestAnalyzer.AnalyzeInvocation(threadSleep), OperationKind.Invocation);

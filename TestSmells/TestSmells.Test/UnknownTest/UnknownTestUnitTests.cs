@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.UnknownTest.UnknownTestAnalyzer>;
 using TestReading;
+using System.Threading;
+using System.IO;
 
 namespace TestSmells.Test.UnknownTest
 {
@@ -51,6 +53,17 @@ namespace TestSmells.Test.UnknownTest
         }
 
 
+        [TestMethod]
+        public async Task TestWithHelperAssertion()
+        {
+            var testFile = @"TestWithHelperAssertion.cs";
+            await new VerifyCS.Test
+            {
+                TestCode = testReader.ReadTest(testFile),
+                ExpectedDiagnostics = { },
+                ReferenceAssemblies = UnitTestingAssembly
+            }.RunAsync();
+        }
 
     }
 }

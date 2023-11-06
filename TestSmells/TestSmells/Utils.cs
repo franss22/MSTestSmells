@@ -50,7 +50,7 @@ namespace TestSmells
 
         public static bool AttributeIsInSymbol(INamedTypeSymbol attribute, ISymbol symbol)
         {
-            return symbol.GetAttributes().Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attribute));
+            return symbol.GetAttributes().Any(attr => TestUtils.SymbolEquals(attr.AttributeClass, attribute));
         }
 
         public static bool TestMethodInTestClass(SymbolAnalysisContext context, INamedTypeSymbol testClassAttr, INamedTypeSymbol testMethodAttr)
@@ -101,8 +101,14 @@ namespace TestSmells
         {
             if (symbol == null) return false;
 
-            return methodList.Any(function => SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, function));
+            return methodList.Any(function => SymbolEquals(symbol.OriginalDefinition, function));
 
         }
+
+        public static bool SymbolEquals(ISymbol s1, ISymbol s2)
+        {
+            return SymbolEqualityComparer.Default.Equals(s1, s2);
+        }
+
     }
 }

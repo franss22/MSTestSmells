@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace TestSmells.GeneralFixture
 {
@@ -104,14 +105,9 @@ namespace TestSmells.GeneralFixture
                     var usedFields = pair.Value;
                     foreach (var usedField in usedFields)
                     {
-                        foreach (var fieldTuple in initFields)
+                        foreach (var fieldTuple in initFields.Where(t => TestUtils.SymbolEquals(t.Item1, usedField)))
                         {
-                            var field = fieldTuple.Item1;
-                            if (SymbolEqualityComparer.Default.Equals(field, usedField))
-                            {
-                                unusedFields.Remove(fieldTuple);
-                            }
-
+                            unusedFields.Remove(fieldTuple);
                         }
                     }
 
@@ -136,43 +132,38 @@ namespace TestSmells.GeneralFixture
             return (OperationAnalysisContext context) =>
             {
                 var method = (IMethodBodyOperation)context.Operation;
-                var descendants = method.Descendants();
 
                 var methodSymbol = context.ContainingSymbol;
-                if (SymbolEqualityComparer.Default.Equals(methodSymbol, testInitMethod))
+                if (TestUtils.SymbolEquals(methodSymbol, testInitMethod))
                 {
-                    //find all fields that are assigned in the init method\
-                    foreach (var operation in descendants)
+                    //find all fields that are assigned in the init method
+                    var fieldAssignments = method.Descendants()
+                            .Where(o => o.Kind == OperationKind.SimpleAssignment)
+                            .Cast<ISimpleAssignmentOperation>()
+                            .Where(a => a.Target.Kind == OperationKind.FieldReference);
+                    foreach (var assignment in fieldAssignments)
                     {
-                        if (operation.Kind == OperationKind.SimpleAssignment)
-                        {
-                            var assignment = (ISimpleAssignmentOperation)operation;
-                            if (assignment.Target.Kind == OperationKind.FieldReference)
-                            {
-                                var targetField = (IFieldReferenceOperation)assignment.Target;
-                                var fieldSymbol = targetField.Field;
-                                initFields.Add(new Tuple<IFieldSymbol, Location>(fieldSymbol, assignment.Syntax.GetLocation()));
-                            }
-                        }
+                        var targetField = (IFieldReferenceOperation)assignment.Target;
+                        var fieldSymbol = targetField.Field;
+                        initFields.Add(new Tuple<IFieldSymbol, Location>(fieldSymbol, assignment.Syntax.GetLocation()));
                     }
                     return;
 
                 }
                 foreach (var testMethod in testMethods)
                 {
-                    if (SymbolEqualityComparer.Default.Equals(methodSymbol, testMethod))
+                    if (TestUtils.SymbolEquals(methodSymbol, testMethod))
                     {
                         var name = testMethod.Name;
                         var used_fields = new List<IFieldSymbol>();
-                        //find all fields that are assigned in the init method\
-                        foreach (var operation in descendants)
+                        //find all fields that are assigned in the init method
+                        var fieldReferences = method.Descendants()
+                                .Where(o => o.Kind == OperationKind.FieldReference)
+                                .Cast<IFieldReferenceOperation>();
+                        foreach (var fieldRef in fieldReferences)
                         {
-                            if (operation.Kind == OperationKind.FieldReference)
-                            {
-                                var fieldRef = (IFieldReferenceOperation)operation;
-                                var fieldSymbol = fieldRef.Field;
-                                used_fields.Add(fieldSymbol);
-                            }
+                            var fieldSymbol = fieldRef.Field;
+                            used_fields.Add(fieldSymbol);
                         }
                         usedFieldsPerTest.TryAdd(name, used_fields);
                         return;

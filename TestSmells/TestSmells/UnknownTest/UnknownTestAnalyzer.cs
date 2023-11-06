@@ -75,7 +75,7 @@ namespace TestSmells.UnknownTest
                 var invocation = (IInvocationOperation)context.Operation;
 
                 var calledMethod = invocation.TargetMethod;
-                if (TestUtils.MethodIsInList(calledMethod, assertionMethods)) 
+                if (TestUtils.MethodIsInList(calledMethod, assertionMethods)||calledMethod.Name.ToLower().Contains("assert"))
                 {
                     methodBag.Add(calledMethod);
                 }

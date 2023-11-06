@@ -54,22 +54,23 @@ namespace TestSmells.MagicNumber
         private async Task<Document> ExtractConstant(Document document, ArgumentSyntax argument, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            var semanticModel = await document.GetSemanticModelAsync();
 
 
             var argumentList = (ArgumentListSyntax)argument.Parent;
             var argumentValue = argument.Expression;
             var invocation = (InvocationExpressionSyntax)argumentList.Parent;
 
+
+            var semanticModel = await document.GetSemanticModelAsync();
             var parameterName = ((IArgumentOperation)semanticModel.GetOperation(argument, cancellationToken)).Parameter.Name;
+            var typeInfo = semanticModel.GetTypeInfo(argumentValue).Type;
 
 
 
             var varname = Identifier(parameterName).WithAdditionalAnnotations(RenameAnnotation.Create());
-            var typeInfo = semanticModel.GetTypeInfo(argumentValue).Type;
-
             var type = SyntaxGenerator.GetGenerator(document).TypeExpression(typeInfo);
-            LocalDeclarationStatementSyntax localDeclaration = (LocalDeclarationStatementSyntax)SyntaxGenerator.GetGenerator(document).LocalDeclarationStatement(typeInfo, "constant_name", argumentValue, true);
+            var localDeclaration = (LocalDeclarationStatementSyntax)SyntaxGenerator.GetGenerator(document).LocalDeclarationStatement(typeInfo, "constant_name", argumentValue, true);
+
             foreach (var token in localDeclaration.DescendantTokens())
             {
                 if (token.Text == "constant_name")

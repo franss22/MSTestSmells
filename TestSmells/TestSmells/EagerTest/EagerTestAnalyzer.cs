@@ -73,114 +73,114 @@ namespace TestSmells.EagerTest
 
         }
 
+
+        private static (IOperation[], IInvocationOperation[]) GetAssertionsAndAssignments(IBlockOperation blockOperation, IMethodSymbol[] relevantAssertions)
+        {
+            var assignments = new List<IOperation>();
+            var assertions = new List<IInvocationOperation>();
+            foreach (var operation in blockOperation.Descendants())
+            {
+                if ((operation.Kind == OperationKind.SimpleAssignment) || (operation.Kind == OperationKind.VariableDeclarator))
+                {
+                    assignments.Add(operation);
+                    continue;
+                }
+
+                if (operation.Kind != OperationKind.Invocation) { continue; }
+                var invocationOperation = (IInvocationOperation)operation;
+                if (TestUtils.MethodIsInList(invocationOperation.TargetMethod, relevantAssertions))
+                {
+                    assertions.Add(invocationOperation);
+                }
+
+            }
+            return (assignments.ToArray(), assertions.ToArray());
+        }
+
+        private static void CheckAndAddInvocation(IOperation op, ref HashSet<string> calledMethods, ref List<IInvocationOperation> invocations)
+        {
+            if (op.Kind == OperationKind.Invocation)
+            {
+                var invocationArg = (IInvocationOperation)op;
+                calledMethods.Add(invocationArg.TargetMethod.Name);
+                invocations.Add(invocationArg);
+            }
+        }
+
+        private static void CheckAndAddFromAssignment(IOperation operation, ILocalReferenceOperation referenceArg, ref HashSet<string> calledMethods, ref List<IInvocationOperation> invocations)
+        {
+            if (operation.Kind == OperationKind.SimpleAssignment)
+            {
+                var assign = (ISimpleAssignmentOperation)operation;
+                var target = (ILocalReferenceOperation)assign.Target;
+                if (TestUtils.SymbolEquals(target.Local, referenceArg.Local))
+                {
+                    foreach (var op in assign.Value.DescendantsAndSelf())
+                    {
+                        CheckAndAddInvocation(op, ref calledMethods, ref invocations);
+                    }
+                }
+            }
+            if (operation.Kind == OperationKind.VariableDeclarator)
+            {
+                var declaration = (IVariableDeclaratorOperation)operation;
+                if (TestUtils.SymbolEquals(declaration.Symbol, referenceArg.Local))
+                {
+                    foreach (var op in declaration.Initializer.Value.DescendantsAndSelf())
+                    {
+                        CheckAndAddInvocation(op, ref calledMethods, ref invocations);
+                    }
+                }
+            }
+        }
+
         private static Action<OperationBlockAnalysisContext> AnalyzeMethodOperations(IMethodSymbol[] relevantAssertions)
         {
             return (OperationBlockAnalysisContext context) =>
             {
-
-                var fileOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(context.FilterTree);
-                fileOptions.TryGetValue("dotnet_diagnostic.MysteryGuest.IgnoredFiles", out var DifferentMethodsThresholdOpt);
-                int differentMethodsThreshold = Int32.TryParse(DifferentMethodsThresholdOpt, out var tempVal) ? tempVal : 1;
-
-                var assignments = new List<IOperation>();
-                var assertions = new List<IInvocationOperation>();
+                
 
                 var blockOperation = TestUtils.GetBlockOperation(context);
                 if (blockOperation is null) { return; }
+                (var assignments, var assertions) = GetAssertionsAndAssignments(blockOperation, relevantAssertions);
 
-                foreach (var operation in blockOperation.Descendants())
+                if (assertions.Count() <= 1) { return; }
+
+  
+                var calledMethods = new HashSet<string>();
+                var invocations = new List<IInvocationOperation>();
+
+                foreach (var assert in assertions)
                 {
-                    if ((operation.Kind == OperationKind.SimpleAssignment) || (operation.Kind == OperationKind.VariableDeclarator))
-                    { 
-                        assignments.Add(operation);
-                        continue;
-                    }
+                    var argValue = GetAssertionValueArgument(assert);
+                    if (argValue is null) { continue; }
 
-                    if (operation.Kind != OperationKind.Invocation) { continue; }
-                    var invocationOperation = (IInvocationOperation)operation;
-                    if (TestUtils.MethodIsInList(invocationOperation.TargetMethod, relevantAssertions))
+                    // If the value argument is an invocation, it gets added imediately
+                    CheckAndAddInvocation(argValue, ref calledMethods, ref invocations);
+
+                    // If it's a reference to a value, we check which invocations are involved in that value
+                    if (argValue.Kind == OperationKind.LocalReference)
                     {
-                        assertions.Add(invocationOperation);
+                        var referenceArg = (ILocalReferenceOperation)argValue;
+                        foreach (IOperation operation in assignments)
+                        {
+                            //We check each assignment to see if they are related to the value argument
+                            CheckAndAddFromAssignment(operation, referenceArg, ref calledMethods, ref invocations);
+                        }
                     }
-
                 }
-                if (assertions.Count > 1)
+
+                if (calledMethods.Count > 1)
                 {
-                    var calledMethods = new List<IMethodSymbol>();
-                    var invocations = new List<IInvocationOperation>();
-                    //var relatedAssertions = new List<IInvocationOperation>();
-                    foreach (var assert in assertions)
-                    {
-                        var argValue = GetAssertionValueArgument(assert);
-                        if (argValue is null) { continue; }
+                    var firstLocation = assertions.First().Syntax.GetLocation();
+                    var testLocation = context.OwningSymbol.Locations.First();
 
-                        if (argValue.Kind == OperationKind.Invocation)
-                        {
-                            var invocationArg = (IInvocationOperation)argValue;
-                            calledMethods.Add(invocationArg.TargetMethod);
-                            invocations.Add(invocationArg);
-                        }
-
-                        if (argValue.Kind == OperationKind.LocalReference)
-                        {
-                            var referenceArg = (ILocalReferenceOperation)argValue;
-                            foreach (IOperation operation in assignments)
-                            {
-                                if (operation.Kind == OperationKind.SimpleAssignment)
-                                {
-                                    var assign = (ISimpleAssignmentOperation)operation;
-                                    var target = (ILocalReferenceOperation)assign.Target;
-                                    if (SymbolEqualityComparer.Default.Equals(target.Local, referenceArg.Local))
-                                    {
-                                        foreach (var op in assign.Value.DescendantsAndSelf())
-                                        {
-                                            if (op.Kind == OperationKind.Invocation)
-                                            {
-                                                var invocation = (IInvocationOperation)op;
-                                                calledMethods.Add(invocation.TargetMethod);
-                                                invocations.Add(invocation);
-                                            }
-                                        }
-                                    }
-                                }
-                                if (operation.Kind == OperationKind.VariableDeclarator)
-                                {
-                                    var declaration = (IVariableDeclaratorOperation)operation;
-                                    if (SymbolEqualityComparer.Default.Equals(declaration.Symbol, referenceArg.Local))
-                                    {
-                                        var init = declaration.Initializer;
-                                        foreach (var op in init.Value.DescendantsAndSelf())
-                                        {
-                                            if (op.Kind == OperationKind.Invocation)
-                                            {
-                                                var invocation = (IInvocationOperation)op;
-                                                calledMethods.Add(invocation.TargetMethod);
-                                                invocations.Add(invocation);
-
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
+                    var secondaryLocations = new List<Location>(from o in assertions select o.Syntax.GetLocation());
+                    secondaryLocations.Insert(0, testLocation);
 
 
-                    var methodNamesSet = new HashSet<string>(from m in calledMethods select m.Name);
-                    if (methodNamesSet.Count>1)
-                    {
-                        var firstLocation = assertions.First().Syntax.GetLocation();
-                        var testLocation = context.OwningSymbol.Locations.First();
-
-                        var secondaryLocations = new List<Location>(from o in assertions select o.Syntax.GetLocation());
-                        secondaryLocations.Insert(0, testLocation);
-
-
-                        var diagnostic = Diagnostic.Create(Rule, firstLocation, secondaryLocations, context.OwningSymbol.Name);
-                        context.ReportDiagnostic(diagnostic);
-                    }
-
+                    var diagnostic = Diagnostic.Create(Rule, firstLocation, secondaryLocations, context.OwningSymbol.Name);
+                    context.ReportDiagnostic(diagnostic);
                 }
             };
 
