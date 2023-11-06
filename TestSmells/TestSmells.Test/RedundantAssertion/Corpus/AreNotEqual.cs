@@ -10,7 +10,7 @@ namespace Corpus
         public void TestMethod1()
         {
             var a = new List<int>();
-            Assert.AreEqual(a, a);
+            Assert.AreNotEqual(a, a);
         }
     }
 }

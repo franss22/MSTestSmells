@@ -161,7 +161,7 @@ namespace TestSmells.EagerTest
                     // If it's a reference to a value, we check which invocations are involved in that value
                     if (argValue.Kind == OperationKind.LocalReference)
                     {
-                        var referenceArg = (ILocalReferenceOperation)argValue;
+                        var referenceArg = (ILocalReferenceOperation)argValue;//bug, sometimes tries to cast from IPropertyReferenceOperation
                         foreach (IOperation operation in assignments)
                         {
                             //We check each assignment to see if they are related to the value argument
@@ -178,6 +178,7 @@ namespace TestSmells.EagerTest
                     var secondaryLocations = new List<Location>(from o in assertions select o.Syntax.GetLocation());
                     secondaryLocations.Insert(0, testLocation);
 
+                    //throw new Exception("TestException");
 
                     var diagnostic = Diagnostic.Create(Rule, firstLocation, secondaryLocations, context.OwningSymbol.Name);
                     context.ReportDiagnostic(diagnostic);

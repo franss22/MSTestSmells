@@ -73,8 +73,36 @@ namespace TestSmells.Console
 
         }
 
+
+        private static IEnumerable<INamedTypeSymbol> GetTestClassSymbols(INamespaceSymbol Namespace, INamedTypeSymbol testClassAttr)
+        {
+            var stack = new Stack<INamespaceSymbol>();
+            stack.Push(Namespace);
+
+            while (stack.Count > 0)
+            {
+                var @namespace = stack.Pop();
+
+                foreach (var member in @namespace.GetMembers())
+                {
+                    if (member is INamespaceSymbol memberAsNamespace)
+                    {
+                        stack.Push(memberAsNamespace);
+                    }
+                    else if (member is INamedTypeSymbol memberAsNamedTypeSymbol)
+                    {
+                        if (TestUtils.AttributeIsInSymbol(testClassAttr, memberAsNamedTypeSymbol))
+                        {
+                            yield return memberAsNamedTypeSymbol;
+                        }
+                    }
+                }
+            }
+        }
+
+
         //const string slnPath = @"C:\Repos\TestSmellsMemoria\TestSmells.sln";
-        const string slnPath = @"C:\Users\frano\source\repos\TestProject1\TestProject1.sln";
+        //const string slnPath = @"C:\Users\frano\source\repos\TestProject1\TestProject1.sln";
 
         static async Task Main(string[] args)
         {
@@ -86,7 +114,16 @@ namespace TestSmells.Console
         {
             DiagnosticAnalyzer[] a =
             {
+                //AssertionRoulette
+                //ConditionalTest
+                //EmptyTest
+                //ExceptionHandling
+                //IgnoredTest
+                //MagicNumber
+                //RedundantAssertion
+                //SleepyTest
                 new Compendium.AnalyzerCompendium(),
+
                 new DuplicateAssert.DuplicateAssertAnalyzer(),
                 new EagerTest.EagerTestAnalyzer(),
                 new GeneralFixture.GeneralFixtureAnalyzer(),
@@ -137,14 +174,11 @@ namespace TestSmells.Console
                     .Select(p => p.GetCompilationAsync()));
 
                 System.Console.WriteLine("Analyzing Solution");
-                foreach (var compilation in compilations.Where(c => c != null))
-                {
-                    var analyzerResults = await compilation.WithAnalyzers(TestSmellAnalyzers()).GetAnalyzerDiagnosticsAsync();
-                    var relevantResults = analyzerResults.Where(d => d.Severity != DiagnosticSeverity.Hidden);
 
-                    System.Console.WriteLine($"{compilation.AssemblyName}: {relevantResults.Count()} diagnostics ({analyzerResults.Count()-relevantResults.Count()} hidden)");
-                    diagnostics.AddRange(relevantResults);
-                }
+                var analysis = compilations.Where(c => c != null).Select(c => AnalyzeCompilation(c)).ToArray();
+
+                var results = (await Task.WhenAll(analysis)).SelectMany(x => x).ToArray();
+                diagnostics.AddRange(results);
 
 
                 var CSVDiagnostics = from d in diagnostics select DiagnosticToCSV(d);
@@ -156,6 +190,37 @@ namespace TestSmells.Console
             Environment.Exit(0);
         }
 
+        private static async Task<Diagnostic[]> AnalyzeCompilation(Compilation compilation)
+        {
+            var testClassAttr = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
+            var testMethodAttr = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
+            if (!(testClassAttr is null) && !(testMethodAttr is null))
+            {
+                var analyzerTask = compilation.WithAnalyzers(TestSmellAnalyzers()).GetAnalyzerDiagnosticsAsync();
 
+                var testClasses = GetTestClassSymbols(compilation.SourceModule.GlobalNamespace, testClassAttr);
+                var testClassAmount = testClasses.Count();
+                var testMethodAmount = 0;
+
+                foreach (var testClass in testClasses)
+                {
+                    var testMethods = testClass.GetMembers().Where(t => TestUtils.AttributeIsInSymbol(testMethodAttr, t));
+                    testMethodAmount += testMethods.Count();
+                }
+
+                var analyzerResults = await analyzerTask;
+                var relevantResults = analyzerResults.Where(d => d.Severity != DiagnosticSeverity.Hidden);
+
+                System.Console.WriteLine($"{compilation.AssemblyName}: {testClassAmount} test classes, {testMethodAmount} test methods, {relevantResults.Count()} diagnostics ({analyzerResults.Count() - relevantResults.Count()} hidden)");
+
+                return relevantResults.ToArray();
+
+            }
+            else
+            {
+                System.Console.WriteLine($"{compilation.AssemblyName}: Project has no tests");
+                return new Diagnostic[0];
+            }
+        }
     }
 }
