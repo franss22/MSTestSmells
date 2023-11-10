@@ -8,8 +8,7 @@ using System.Linq;
 
 namespace TestSmells.MysteryGuest
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class MysteryGuestAnalyzer : DiagnosticAnalyzer
+    public class MysteryGuestAnalyzer
     {
         public const string DiagnosticId = "MysteryGuest";
 
@@ -19,9 +18,7 @@ namespace TestSmells.MysteryGuest
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.AnalyzerDescription), Resources.ResourceManager, typeof(Resources));
         private const string Category = "Test Smells";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
-
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
+        internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
 
         private static readonly string[] FileMethods =
@@ -74,51 +71,43 @@ namespace TestSmells.MysteryGuest
         };
 
 
-
-
-        public override void Initialize(AnalysisContext context)
+        public struct FileSymbols
         {
-            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-            context.EnableConcurrentExecution();
+            public readonly IMethodSymbol[] WriteMethods;
+            public readonly IMethodSymbol[] ReadMethods;
 
-            context.RegisterCompilationStartAction(GetClassesFromCompilation);
-        }
+            public readonly INamedTypeSymbol FileClass;
+            public readonly INamedTypeSymbol FileStreamClass;
 
-        private void GetClassesFromCompilation(CompilationStartAnalysisContext context)
-        {
-            // Get the attribute object from the compilation
-            var testClassAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
-            if (testClassAttr is null) { return; }
-            var testMethodAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
-            if (testMethodAttr is null) { return; }
+            public FileSymbols(Compilation compilation)
+            {
+                var fileClass = compilation.GetTypeByMetadataName("System.IO.File");
+                var fileReadMethods = GetMethods(compilation, fileClass, FileMethods);
 
-            var fileClass = context.Compilation.GetTypeByMetadataName("System.IO.File");
-            var fileReadMethods = GetFileReadMethods(context.Compilation, fileClass, FileMethods);
+                var fileStreamClass = compilation.GetTypeByMetadataName("System.IO.FileStream");
+                var fileStreamReadMethods = GetMethods(compilation, fileStreamClass, FileStreamMethods);
 
-            var fileStreamClass = context.Compilation.GetTypeByMetadataName("System.IO.FileStream");
-            var fileStreamReadMethods = GetFileReadMethods(context.Compilation, fileStreamClass, FileStreamMethods);
+                var readMethods = fileReadMethods.Concat(fileStreamReadMethods).ToArray();
 
-            var readMethods = fileReadMethods.Concat(fileStreamReadMethods).ToArray();
-            if (readMethods.Length == 0) return;
-
-            var fileWriteMethods = GetFileReadMethods(context.Compilation, fileClass, FileMethodsWrite);
-            var fileStreamWriteMethods = GetFileReadMethods(context.Compilation, fileStreamClass, FileStreamMethodsWrite);
-            var writeMethods = fileWriteMethods.Concat(fileStreamWriteMethods).ToArray();
-            if (writeMethods.Length == 0) return;
+                var fileWriteMethods = GetMethods(compilation, fileClass, FileMethodsWrite);
+                var fileStreamWriteMethods = GetMethods(compilation, fileStreamClass, FileStreamMethodsWrite);
+                var writeMethods = fileWriteMethods.Concat(fileStreamWriteMethods).ToArray();
 
 
+                WriteMethods = writeMethods;
+                ReadMethods = readMethods;
+                FileClass = fileClass;
+                FileStreamClass = fileStreamClass;
+            }
 
-            var analyzeMethod = FilterMethods(testClassAttr, testMethodAttr, readMethods, writeMethods, fileClass, fileStreamClass);
-
-
-
-            context.RegisterSymbolStartAction(analyzeMethod, SymbolKind.Method);
-
+            public bool Error()
+            {
+                return FileClass is null || FileStreamClass is null || WriteMethods.Length == 0 || ReadMethods.Length == 0;
+            }
         }
 
 
-
-        private IMethodSymbol[] GetFileReadMethods(Compilation compilation, INamedTypeSymbol fileClass, string[] methodNames)
+        private static IMethodSymbol[] GetMethods(Compilation compilation, INamedTypeSymbol fileClass, string[] methodNames)
         {
             var methods = new List<IMethodSymbol>();
             while (fileClass != null)
@@ -137,30 +126,20 @@ namespace TestSmells.MysteryGuest
         }
 
 
-        private Action<SymbolStartAnalysisContext> FilterMethods(
-            INamedTypeSymbol testClassAttr, 
-            INamedTypeSymbol testMethodAttr, 
-            IMethodSymbol[] readMethods, 
-            IMethodSymbol[] writeMethods,
-            INamedTypeSymbol fileClass,
-            INamedTypeSymbol fileStreamClass)
+        internal static Action<OperationBlockAnalysisContext> AnalyzeMethodOperations(
+            FileSymbols fileSymbols)
         {
-            return (SymbolStartAnalysisContext context) =>
-            {
-                if (!TestUtils.TestMethodInTestClass(context, testClassAttr, testMethodAttr)) { return; }
-                var operationBlockAnalisis = AnalyzeMethodOperations(readMethods, writeMethods, fileClass, fileStreamClass);
-                context.RegisterOperationBlockAction(operationBlockAnalisis);
-            };
-        }
+            if (fileSymbols.Error()) return c => { };
 
-        private static Action<OperationBlockAnalysisContext> AnalyzeMethodOperations(
-            IMethodSymbol[] fileReadMethods, 
-            IMethodSymbol[] fileWriteMethods,
-            INamedTypeSymbol fileClass,
-            INamedTypeSymbol fileStreamClass)
-        {
+
+            IMethodSymbol[] readMethods = fileSymbols.ReadMethods;
+            IMethodSymbol[] writeMethods = fileSymbols.WriteMethods;
+            INamedTypeSymbol fileClass = fileSymbols.FileClass;
+            INamedTypeSymbol fileStreamClass = fileSymbols.FileStreamClass;
+
             return (OperationBlockAnalysisContext context) =>
             {
+
                 var fileOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(context.FilterTree);
                 fileOptions.TryGetValue("dotnet_diagnostic.MysteryGuest.IgnoredFiles", out var ignoredFiles);
                 var ignoredFilesList = new List<string>();
@@ -174,17 +153,16 @@ namespace TestSmells.MysteryGuest
                 var blockOperation = TestUtils.GetBlockOperation(context);
                 if (blockOperation == null) { return; }
 
-                var descendants = blockOperation.Descendants();
 
                 var readOperations = new List<IInvocationOperation>();
                 var writeOperations = new List<IInvocationOperation>();
-                foreach (var operation in descendants)
+                foreach (var operation in blockOperation.Descendants())
                 {
                     if (operation is ILiteralOperation literal) 
                     {
                         if (literal.Type != null && literal.Type.SpecialType == SpecialType.System_String && literal.ConstantValue.HasValue)
                         {
-                            if (ContainsStringFromList(literal.ConstantValue.Value.ToString(), ignoredFilesList))
+                            if (ignoredFilesList.Any(f => literal.ConstantValue.Value.ToString().Contains(f)))
                             {
                                 return;
                             }
@@ -203,11 +181,11 @@ namespace TestSmells.MysteryGuest
                     }
 
 
-                    if (MethodIsInList(invocationOperation.TargetMethod.OriginalDefinition, fileReadMethods))
+                    if (MethodIsInList(invocationOperation.TargetMethod.OriginalDefinition, readMethods))
                     {
                         readOperations.Add(invocationOperation);
                     }
-                    if (MethodIsInList(invocationOperation.TargetMethod.OriginalDefinition, fileWriteMethods))
+                    if (MethodIsInList(invocationOperation.TargetMethod.OriginalDefinition, writeMethods))
                     {
                         writeOperations.Add(invocationOperation);
                     }
@@ -226,21 +204,12 @@ namespace TestSmells.MysteryGuest
                     {
                         continue;
                     }
-                    var diagnostic = Diagnostic.Create(Rule, readOperation.Syntax.GetLocation(), context.OwningSymbol.Name, readOperation.TargetMethod.Name);
+                    var diagnostic = Diagnostic.Create(Rule, readOperation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.OwningSymbol.Name, readOperation.TargetMethod.Name);
                     context.ReportDiagnostic(diagnostic);
                 }
                 
 
             };
-        }
-
-        private static bool ContainsStringFromList(string url, IEnumerable<string> stringList)
-        {
-            foreach (var item in stringList)
-            {
-                if (url.Contains(item)) return true;
-            }
-            return false;
         }
 
         private static bool MethodIsInList(IMethodSymbol symbol, ISymbol[] relevantAssertions)

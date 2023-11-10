@@ -25,7 +25,7 @@ namespace TestSmells.Compendium.ExceptionHandling
             return (context) =>
             {
                 var operation = context.Operation;
-                var diagnostic = Diagnostic.Create(Rule, operation.Syntax.GetLocation(), context.ContainingSymbol.Name, description);
+                var diagnostic = Diagnostic.Create(Rule, operation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.ContainingSymbol.Name, description);
                 context.ReportDiagnostic(diagnostic);
             };
         }

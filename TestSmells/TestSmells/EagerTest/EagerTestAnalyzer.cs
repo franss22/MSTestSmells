@@ -112,7 +112,14 @@ namespace TestSmells.EagerTest
             if (operation.Kind == OperationKind.SimpleAssignment)
             {
                 var assign = (ISimpleAssignmentOperation)operation;
-                var target = (ILocalReferenceOperation)assign.Target;
+                ILocalReferenceOperation target;
+                if (assign.Target.Kind == OperationKind.LocalReference)
+                {
+                    target = (ILocalReferenceOperation)assign.Target;
+                }
+                else return;
+
+
                 if (TestUtils.SymbolEquals(target.Local, referenceArg.Local))
                 {
                     foreach (var op in assign.Value.DescendantsAndSelf())
@@ -161,7 +168,8 @@ namespace TestSmells.EagerTest
                     // If it's a reference to a value, we check which invocations are involved in that value
                     if (argValue.Kind == OperationKind.LocalReference)
                     {
-                        var referenceArg = (ILocalReferenceOperation)argValue;//bug, sometimes tries to cast from IPropertyReferenceOperation
+                        //throw new Exception("TestException");
+                        var referenceArg = (ILocalReferenceOperation)argValue;
                         foreach (IOperation operation in assignments)
                         {
                             //We check each assignment to see if they are related to the value argument
@@ -178,9 +186,9 @@ namespace TestSmells.EagerTest
                     var secondaryLocations = new List<Location>(from o in assertions select o.Syntax.GetLocation());
                     secondaryLocations.Insert(0, testLocation);
 
-                    //throw new Exception("TestException");
+                    
 
-                    var diagnostic = Diagnostic.Create(Rule, firstLocation, secondaryLocations, context.OwningSymbol.Name);
+                    var diagnostic = Diagnostic.Create(Rule, firstLocation, secondaryLocations, properties: TestUtils.MethodNameProperty(context), context.OwningSymbol.Name);
                     context.ReportDiagnostic(diagnostic);
                 }
             };

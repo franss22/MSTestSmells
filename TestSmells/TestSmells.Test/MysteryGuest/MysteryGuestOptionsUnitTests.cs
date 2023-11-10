@@ -4,7 +4,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 using System.Threading.Tasks;
-using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.MysteryGuest.MysteryGuestAnalyzer>;
+using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.Compendium.AnalyzerCompendium>;
+
 //using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
 //    TestSmells.MagicNumber.MagicNumberAnalyzer,
 //    TestSmells.MagicNumber.MagicNumberCodeFixProvider>;
@@ -18,7 +19,8 @@ namespace TestSmells.Test.MysteryGuest
     {
 
         private readonly ReferenceAssemblies UnitTestingAssembly = TestSmellReferenceAssembly.Assemblies();
-        
+
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("MysteryGuest");
 
 
 
@@ -48,12 +50,13 @@ namespace TestSmells.Test.MysteryGuest
                 ReferenceAssemblies = UnitTestingAssembly,
             };
 
-            (string filename, string content) editorconfig = ("/.editorconfig", 
-                @"root = true
+            var ignoredFiles = "\ndotnet_diagnostic.MysteryGuest.IgnoredFiles = C:\\Program Files\\AMD\\atikmdag_dce.log, C:\\Program Files\\AMD\\atikmdag_dceb.log";
 
-[*.cs]
-
-dotnet_diagnostic.MysteryGuest.IgnoredFiles = C:\Program Files\AMD\atikmdag_dce.log, C:\Program Files\AMD\atikmdag_dceb.log");
+            (string filename, string content) editorconfig = 
+                (
+                ExcludeOtherCompendiumDiagnostics.filename, 
+                ExcludeOtherCompendiumDiagnostics.content+ignoredFiles
+                );
 
             test.TestState.AnalyzerConfigFiles.Add(editorconfig);
             await test.RunAsync();

@@ -35,7 +35,8 @@ namespace TestSmells.Compendium.IgnoredTest
                 {
                     if (TestUtils.SymbolEquals(attr.AttributeClass, ignoreAttr))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(Rule, attr.ApplicationSyntaxReference.GetSyntax().GetLocation(), methodSymbol.Name));
+                        var diagnostic = Diagnostic.Create(Rule, attr.ApplicationSyntaxReference.GetSyntax().GetLocation(), properties: TestUtils.MethodNameProperty(context), methodSymbol.Name);
+                        context.ReportDiagnostic(diagnostic);
                     }
                 }
             };

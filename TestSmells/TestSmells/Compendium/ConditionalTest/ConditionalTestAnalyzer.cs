@@ -23,7 +23,7 @@ namespace TestSmells.Compendium.ConditionalTest
         {
             return (context) =>
             {
-                var diagnostic = Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), context.ContainingSymbol.Name, controlType);
+                var diagnostic = Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.ContainingSymbol.Name, controlType);
                 context.ReportDiagnostic(diagnostic);
             };
         }

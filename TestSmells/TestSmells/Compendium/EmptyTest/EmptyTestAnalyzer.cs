@@ -26,7 +26,7 @@ namespace TestSmells.Compendium.EmptyTest
             if (body.BlockBody.Descendants().Count() == 0)//if the method body has no operations, it is empty
             {
                 var methodSymbol = context.ContainingSymbol;
-                var diagnostic = Diagnostic.Create(Rule, methodSymbol.Locations.First(), methodSymbol.Name);
+                var diagnostic = Diagnostic.Create(Rule, methodSymbol.Locations.First(), properties: TestUtils.MethodNameProperty(context), methodSymbol.Name);
                 context.ReportDiagnostic(diagnostic);
             }
         }

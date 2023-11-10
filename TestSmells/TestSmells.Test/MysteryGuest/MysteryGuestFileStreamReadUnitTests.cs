@@ -4,7 +4,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 using System.Threading.Tasks;
-using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.MysteryGuest.MysteryGuestAnalyzer>;
+using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.Compendium.AnalyzerCompendium>;
+
 //using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
 //    TestSmells.MagicNumber.MagicNumberAnalyzer,
 //    TestSmells.MagicNumber.MagicNumberCodeFixProvider>;
@@ -18,7 +19,8 @@ namespace TestSmells.Test.MysteryGuest
     {
 
         private readonly ReferenceAssemblies UnitTestingAssembly = TestSmellReferenceAssembly.Assemblies();
-        
+
+        private readonly (string filename, string content) ExcludeOtherCompendiumDiagnostics = TestOptions.EnableSingleDiagnosticForCompendium("MysteryGuest");
 
 
 
@@ -38,14 +40,16 @@ namespace TestSmells.Test.MysteryGuest
         {
             var testFile = @"BeginRead.cs";
 
-            var diagnostic = VerifyCS.Diagnostic().WithSpan(17, 24, 17, 64).WithArguments("TestMethod");
+            var diagnostic = VerifyCS.Diagnostic("MysteryGuest").WithSpan(17, 24, 17, 64).WithArguments("TestMethod");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { diagnostic },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -53,14 +57,16 @@ namespace TestSmells.Test.MysteryGuest
         {
             var testFile = @"EndRead.cs";
 
-            var diagnostic = VerifyCS.Diagnostic().WithSpan(16, 24, 16, 47).WithArguments("TestMethod");
+            var diagnostic = VerifyCS.Diagnostic("MysteryGuest").WithSpan(16, 24, 16, 47).WithArguments("TestMethod");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { diagnostic },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -68,14 +74,16 @@ namespace TestSmells.Test.MysteryGuest
         {
             var testFile = @"Read.cs";
 
-            var diagnostic = VerifyCS.Diagnostic().WithSpan(16, 24, 16, 44).WithArguments("TestMethod");
+            var diagnostic = VerifyCS.Diagnostic("MysteryGuest").WithSpan(16, 24, 16, 44).WithArguments("TestMethod");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { diagnostic },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -83,14 +91,16 @@ namespace TestSmells.Test.MysteryGuest
         {
             var testFile = @"ReadAsync.cs";
 
-            var diagnostic = VerifyCS.Diagnostic().WithSpan(16, 30, 16, 55).WithArguments("TestMethod");
+            var diagnostic = VerifyCS.Diagnostic("MysteryGuest").WithSpan(16, 30, 16, 55).WithArguments("TestMethod");
 
-            await new VerifyCS.Test
+            var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { diagnostic },
                 ReferenceAssemblies = UnitTestingAssembly
-            }.RunAsync();
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
         }
 
         [TestMethod]
@@ -98,7 +108,7 @@ namespace TestSmells.Test.MysteryGuest
         {
             var testFile = @"ReadByte.cs";
 
-            var diagnostic = VerifyCS.Diagnostic().WithSpan(15, 24, 15, 39).WithArguments("TestMethod");
+            var diagnostic = VerifyCS.Diagnostic("MysteryGuest").WithSpan(15, 24, 15, 39).WithArguments("TestMethod");
 
             await new VerifyCS.Test
             {

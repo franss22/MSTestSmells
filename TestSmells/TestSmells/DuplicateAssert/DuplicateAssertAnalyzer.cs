@@ -154,7 +154,8 @@ namespace TestSmells.DuplicateAssert
                     var locations = new List<Location>(from o in assertionGroup select o.Syntax.GetLocation());
                     var diagnosticLocation = locations.First();
                     locations.Insert(0, testLocation);
-                    var diagnostic = Diagnostic.Create(Rule, diagnosticLocation, locations, context.OwningSymbol.Name);
+
+                    var diagnostic = Diagnostic.Create(Rule, diagnosticLocation, locations, properties: TestUtils.MethodNameProperty(context), context.OwningSymbol.Name);
                     context.ReportDiagnostic(diagnostic);
 
                 }

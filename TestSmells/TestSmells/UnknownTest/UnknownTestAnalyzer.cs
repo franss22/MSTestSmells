@@ -64,7 +64,9 @@ namespace TestSmells.UnknownTest
             return (SymbolAnalysisContext context) =>
             {
                 if (methodBag.Count != 0) { return; }
-                context.ReportDiagnostic(Diagnostic.Create(Rule, context.Symbol.Locations[0], context.Symbol.Name));
+
+                var diagnostic = Diagnostic.Create(Rule, context.Symbol.Locations[0], properties: TestUtils.MethodNameProperty(context), context.Symbol.Name);
+                context.ReportDiagnostic(diagnostic);
             };
         }
 

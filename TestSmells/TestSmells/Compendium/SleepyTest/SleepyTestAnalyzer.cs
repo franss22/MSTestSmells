@@ -31,7 +31,7 @@ namespace TestSmells.Compendium.SleepyTest
                 var calledMethod = invocation.TargetMethod;
                 if (TestUtils.MethodIsInList(calledMethod, threadSleep))
                 {
-                    var diagnostic = Diagnostic.Create(Rule, invocation.Syntax.GetLocation(), context.ContainingSymbol.Name);
+                    var diagnostic = Diagnostic.Create(Rule, invocation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.ContainingSymbol.Name);
                     context.ReportDiagnostic(diagnostic);
                 }
             };

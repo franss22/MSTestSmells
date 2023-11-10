@@ -63,7 +63,8 @@ namespace TestSmells.Compendium.RedundantAssertion
                 var relevantArguments = assertInvocation.Arguments.Where(arg => ArgNames.Contains(arg.Parameter.Name)).ToArray();
                 if (relevantArguments.Count() == 2 && AreSimilarArguments(relevantArguments[0], relevantArguments[1]))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule, assertInvocation.Syntax.GetLocation(), context.OwningSymbol.Name, assertInvocation.TargetMethod.Name));
+                    var diagnostic = Diagnostic.Create(Rule, assertInvocation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.OwningSymbol.Name, assertInvocation.TargetMethod.Name);
+                    context.ReportDiagnostic(diagnostic);
                 }
             }
         }

@@ -15,6 +15,7 @@ using TestSmells.Compendium.IgnoredTest;
 using TestSmells.Compendium.AssertionRoulette;
 using TestSmells.Compendium.RedundantAssertion;
 using TestSmells.Compendium.SleepyTest;
+using TestSmells.MysteryGuest;
 
 namespace TestSmells.Compendium
 {
@@ -26,7 +27,6 @@ namespace TestSmells.Compendium
 
         private ImmutableArray<DiagnosticDescriptor> ListOfDiagnostics()
         {
-
             DiagnosticDescriptor[] Rules =
             {
                 EmptyTestAnalyzer.Rule,
@@ -37,6 +37,7 @@ namespace TestSmells.Compendium
                 RedundantAssertionAnalyzer.Rule,
                 AssertionRouletteAnalyzer.Rule,
                 SleepyTestAnalyzer.Rule,
+                MysteryGuestAnalyzer.Rule,
             };
             return ImmutableArray.Create(Rules);
         }
@@ -69,7 +70,7 @@ namespace TestSmells.Compendium
             var allAssertionMethods = TestUtils.GetAssertionMethodSymbols(context.Compilation);
             var magicNumberAssertions = MagicNumberAnalyzer.RelevantAssertions(context.Compilation);
             var redundantAssertionAssertions = RedundantAssertionAnalyzer.RelevantAssertions(context.Compilation);
-
+            var fileSymbols = new MysteryGuestAnalyzer.FileSymbols(context.Compilation);
 
             // We register a Symbol Start Action to filter all test classes and their test methods
             context.RegisterSymbolStartAction((ctx) =>
@@ -93,6 +94,8 @@ namespace TestSmells.Compendium
 
                 //Sleepy Test
                 ctx.RegisterOperationAction(SleepyTestAnalyzer.AnalyzeInvocation(threadSleep), OperationKind.Invocation);
+
+                ctx.RegisterOperationBlockAction(MysteryGuestAnalyzer.AnalyzeMethodOperations(fileSymbols));
 
 
                 //Assertion Roulette

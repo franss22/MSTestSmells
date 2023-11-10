@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace TestSmells.GeneralFixture
 {
@@ -113,7 +114,7 @@ namespace TestSmells.GeneralFixture
 
                     foreach (var (symbol, location) in unusedFields)
                     {
-                        var diagnostic = Diagnostic.Create(Rule, location, symbol.Name, testMethodName);
+                        var diagnostic = Diagnostic.Create(Rule, location, properties: TestUtils.MethodNameProperty(context), symbol.Name, testMethodName);
                         context.ReportDiagnostic(diagnostic);
                     }
                     
@@ -134,6 +135,7 @@ namespace TestSmells.GeneralFixture
                 var method = (IMethodBodyOperation)context.Operation;
 
                 var methodSymbol = context.ContainingSymbol;
+                //find all defined fields in the init method
                 if (TestUtils.SymbolEquals(methodSymbol, testInitMethod))
                 {
                     //find all fields that are assigned in the init method
@@ -150,26 +152,23 @@ namespace TestSmells.GeneralFixture
                     return;
 
                 }
-                foreach (var testMethod in testMethods)
+                //find all fields used in a test method
+                else if (testMethods.Any(ms => TestUtils.SymbolEquals(methodSymbol, ms)))
                 {
-                    if (TestUtils.SymbolEquals(methodSymbol, testMethod))
+                    var name = methodSymbol.Name;
+                    var used_fields = new List<IFieldSymbol>();
+                    //find all fields that are assigned in the init method
+                    var fieldReferences = method.Descendants()
+                            .Where(o => o.Kind == OperationKind.FieldReference)
+                            .Cast<IFieldReferenceOperation>();
+                    foreach (var fieldRef in fieldReferences)
                     {
-                        var name = testMethod.Name;
-                        var used_fields = new List<IFieldSymbol>();
-                        //find all fields that are assigned in the init method
-                        var fieldReferences = method.Descendants()
-                                .Where(o => o.Kind == OperationKind.FieldReference)
-                                .Cast<IFieldReferenceOperation>();
-                        foreach (var fieldRef in fieldReferences)
-                        {
-                            var fieldSymbol = fieldRef.Field;
-                            used_fields.Add(fieldSymbol);
-                        }
-                        usedFieldsPerTest.TryAdd(name, used_fields);
-                        return;
+                        var fieldSymbol = fieldRef.Field;
+                        used_fields.Add(fieldSymbol);
                     }
+                    usedFieldsPerTest.TryAdd(name, used_fields);
+                    return;
                 }
-
 
             };
         }

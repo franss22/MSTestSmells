@@ -47,12 +47,12 @@ namespace TestSmells.Compendium.MagicNumber
 
                 if (ArgumentIsNumericLiteral(expectedArg))
                 {
-                    var diagnosticExpected = Diagnostic.Create(Rule, expectedArg.GetLocation(), targetMethod.Name, expectedArg.ToString());
+                    var diagnosticExpected = Diagnostic.Create(Rule, expectedArg.GetLocation(), properties: TestUtils.MethodNameProperty(context), targetMethod.Name, expectedArg.ToString());
                     context.ReportDiagnostic(diagnosticExpected);
                 }
                 if (ArgumentIsNumericLiteral(actualArg))
                 {
-                    var diagnosticActual = Diagnostic.Create(Rule, actualArg.GetLocation(), targetMethod.Name, actualArg.ToString());
+                    var diagnosticActual = Diagnostic.Create(Rule, actualArg.GetLocation(), properties: TestUtils.MethodNameProperty(context), targetMethod.Name, actualArg.ToString());
                     context.ReportDiagnostic(diagnosticActual);
                 }
             };

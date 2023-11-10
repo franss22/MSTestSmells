@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace TestSmells
@@ -108,6 +109,21 @@ namespace TestSmells
         public static bool SymbolEquals(ISymbol s1, ISymbol s2)
         {
             return SymbolEqualityComparer.Default.Equals(s1, s2);
+        }
+
+        public static ImmutableDictionary<string, string> MethodNameProperty(SymbolAnalysisContext context)
+        {
+            return new Dictionary<string, string> { { "MethodName", context.Symbol.ToString() } }.ToImmutableDictionary();
+        }
+
+        public static ImmutableDictionary<string, string> MethodNameProperty(OperationBlockAnalysisContext context)
+        {
+            return new Dictionary<string, string> { { "MethodName", context.OwningSymbol.ToString() } }.ToImmutableDictionary();
+        }
+
+        public static ImmutableDictionary<string, string> MethodNameProperty(OperationAnalysisContext context)
+        {
+            return new Dictionary<string, string> { { "MethodName", context.ContainingSymbol.ToString() } }.ToImmutableDictionary();
         }
 
     }

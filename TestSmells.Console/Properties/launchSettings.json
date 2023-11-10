@@ -10,7 +10,11 @@
     },
     "Analyze TestSmells": {
       "commandName": "Project",
-      "commandLineArgs": "-s C:\\Repos\\TestSmellsMemoria\\TestSmells.sln\r\n-o Analisis.csv"
+      "commandLineArgs": "-s C:\\Repos\\TestSmellsMemoria\\TestSmells.sln\r\n-o Analisis.csv\r\n-m Methods.csv"
+    },
+    "Analyze Testsmells with Config": {
+      "commandName": "Project",
+      "commandLineArgs": "-s C:\\Repos\\TestSmellsMemoria\\TestSmells.sln\r\n-o Analisis.csv\r\n-m Methods.csv\r\n-c .config"
     }
   }
 }

@@ -34,7 +34,8 @@ namespace TestSmells.Compendium.AssertionRoulette
                 var invocationSyntax = assert.Syntax;
                 if (invocationSyntax.IsKind(SyntaxKind.InvocationExpression))
                 {
-                    var diagnostic = Diagnostic.Create(Rule, invocationSyntax.GetLocation(), assert.TargetMethod.Name);
+                    var diagnostic = Diagnostic.Create(Rule, invocationSyntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), assert.TargetMethod.Name);
+
                     context.ReportDiagnostic(diagnostic);
                 }
             }

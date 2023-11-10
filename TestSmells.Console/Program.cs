@@ -5,62 +5,14 @@ using Microsoft.CodeAnalysis.MSBuild;
 using System.Collections.Immutable;
 using CommandLine;
 using System.IO;
+using System.Collections.Concurrent;
+using System.Linq;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Options;
 
 namespace TestSmells.Console
 {
-    internal class Printer
-    {
-        private TextWriter WriteOut;
-
-        public Printer(string? outputPath = null)
-        {
-            if (outputPath == null) 
-            {
-                WriteOut = System.Console.Out;
-            }
-            else
-            {
-                try
-                {
-                    if (File.Exists(outputPath))
-                    {
-                        File.Delete(outputPath);
-                    }
-                    FileStream fs = File.Create(outputPath);
-                    var writer = new StreamWriter(fs);
-                    //writer.AutoFlush = true;
-                    WriteOut = writer;
-                    System.Console.WriteLine($"Writing to {Path.GetFullPath(outputPath)}");
-                }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine(ex.Message);
-                    Environment.Exit(1);
-                }
-            }
-        }
-
-
-        public void Print(IEnumerable<object> values)
-        {
-            foreach (var value in values)
-            {
-                WriteOut.WriteLine(value);
-            }
-            WriteOut.Flush();
-        }
-
-        public void Print(string value)
-        {
-
-            WriteOut.WriteLine(value);
-            WriteOut.Flush();
-        }
-
-
-
-    }
-
+    
     internal static class Program
     {
         private class Options
@@ -68,8 +20,15 @@ namespace TestSmells.Console
             [Option('s', "solution", Required = true, HelpText = "Absolute path to solution to be analyzed.")]
             public string Solution { get; set; }
 
-            [Option('o', "output", Required = false, Default = null, HelpText = "File path for csv output. If left empty, results are printed in stdout")]
+            [Option('o', "output", Required = false, Default = null, HelpText = "File path for diagnostic csv output. If left empty, results are printed in stdout")]
             public string? Output { get; set; }
+
+            [Option('m', "method_output", Required = false, Default = null, HelpText = "File path for method csv output. If left empty, results are not printed")]
+            public string? OutputMethods { get; set;}
+
+            [Option('c', "config", Required = false, Default = null, HelpText = "File path for global editorconfig file")]
+            public string? Config { get; set; }
+
 
         }
 
@@ -101,16 +60,33 @@ namespace TestSmells.Console
         }
 
 
-        //const string slnPath = @"C:\Repos\TestSmellsMemoria\TestSmells.sln";
-        //const string slnPath = @"C:\Users\frano\source\repos\TestProject1\TestProject1.sln";
+        public struct ProjectSummary
+        {
+            public int FoundSmells { get; }
+            public int HiddenSmells { get; }
+            public int TestClasses { get; }
+            public int TestMethods { get; }
+            public string Message { get; }
 
-        static async Task Main(string[] args)
+            public ProjectSummary(int foundSmells, int hiddenSmells, int testClasses, int testMethods, string message)
+            {
+                FoundSmells = foundSmells;
+                HiddenSmells = hiddenSmells;
+                TestClasses = testClasses;
+                TestMethods = testMethods;
+                Message = message;
+            }
+
+            public override string ToString() => Message;
+        }
+
+        public static async Task Main(string[] args)
         {
             var result = await Parser.Default.ParseArguments<Options>(args)
                 .WithParsedAsync(RunOptions);
         }
 
-        static ImmutableArray<DiagnosticAnalyzer> TestSmellAnalyzers()
+        private static ImmutableArray<DiagnosticAnalyzer> TestSmellAnalyzers()
         {
             DiagnosticAnalyzer[] a =
             {
@@ -133,6 +109,10 @@ namespace TestSmells.Console
             return ImmutableArray.Create(a);
         }
 
+         private static string[] SupportedDagnosticsIds(ImmutableArray<DiagnosticAnalyzer> analyzers)
+        {
+            return analyzers.SelectMany(a => a.SupportedDiagnostics).Select(d => d.Id).Order().ToArray();
+        }
 
         static string DiagnosticToCSV(Diagnostic d)
         {
@@ -156,9 +136,12 @@ namespace TestSmells.Console
 
         private static async Task RunOptions(Options options)
         {
-            var printer = new Printer(options.Output);
             var diagnostics = new List<Diagnostic>();
 
+            var projectSummaries = new ConcurrentBag<ProjectSummary>();
+
+            var analyzers = TestSmellAnalyzers();
+            var analyzerIds = SupportedDagnosticsIds(analyzers);
 
             System.Console.WriteLine("Loading analyzers");
 
@@ -166,60 +149,167 @@ namespace TestSmells.Console
             using (var workspace = MSBuildWorkspace.Create())
             {
                 System.Console.WriteLine("Loading solution");
-
                 var solution = await TryOpenSolutionAsync(workspace, options.Solution);
 
+                string? editorConfig = GetOptionalEditorConfig(options);
+                if (editorConfig != null)
+                {
+
+                    var configFile = SourceText.From(editorConfig);
+
+                    foreach (var projectId in solution.ProjectIds)
+                    {
+                        DocumentId documentId = DocumentId.CreateNewId(projectId, ".editorconfig_console");
+                        solution = solution.AddAnalyzerConfigDocument(documentId, ".editorconfig", configFile, filePath: "/.editorconfig");
+                    }
+
+                }
+                //workspace.TryApplyChanges(solution);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 System.Console.WriteLine("Compiling Solution");
-                var compilations = await Task.WhenAll(solution.Projects
-                    .Select(p => p.GetCompilationAsync()));
+                var compilations = await Task.WhenAll(solution.Projects.Select(p => p.GetCompilationAsync()));
 
                 System.Console.WriteLine("Analyzing Solution");
-
-                var analysis = compilations.Where(c => c != null).Select(c => AnalyzeCompilation(c)).ToArray();
-
-                var results = (await Task.WhenAll(analysis)).SelectMany(x => x).ToArray();
-                diagnostics.AddRange(results);
-
-
-                var CSVDiagnostics = from d in diagnostics select DiagnosticToCSV(d);
-
-                printer.Print("File Path, Start Line, Start Character, Severity, ID, Message");
-                printer.Print(CSVDiagnostics);
-
+                var analysis = compilations.Where(c => c != null).Select(c => ProcessCompilation(c, analyzers, projectSummaries)).ToArray();
+                diagnostics = (await Task.WhenAll(analysis)).SelectMany(x => x).ToList();
             }
+
+            var sortedSummaries = projectSummaries.OrderByDescending(s => s.FoundSmells).ThenByDescending(s => s.HiddenSmells);
+
+            var totalTestClasses = sortedSummaries.Select(s => s.TestClasses).Sum();
+            var totalTestMethods = sortedSummaries.Select(s => s.TestMethods).Sum();
+            var totalFoundSmells = sortedSummaries.Select(s => s.FoundSmells).Sum();
+            var totalHiddenSmells = sortedSummaries.Select(s => s.HiddenSmells).Sum();
+
+            foreach (var summary in sortedSummaries)
+            {
+                System.Console.WriteLine(summary.ToString());
+            }
+            System.Console.WriteLine($"Solution Summary: {totalTestClasses} test classes, {totalTestMethods} test methods, {totalFoundSmells} diagnostics ({totalHiddenSmells} hidden)");
+
+
+            System.Console.WriteLine($"Printing diagnostic details to {options.Output ?? "console"}");
+            var diagnosticPrinter = new Printer(options.Output);
+            var CSVDiagnostics = from d in diagnostics select DiagnosticToCSV(d);
+            diagnosticPrinter.Print("File Path, Start Line, Start Character, Severity, ID, Message");
+            diagnosticPrinter.Print(CSVDiagnostics);
+
+            SaveMethodSummary(options, diagnostics, analyzerIds);
+
             Environment.Exit(0);
         }
 
-        private static async Task<Diagnostic[]> AnalyzeCompilation(Compilation compilation)
+        private static string? GetOptionalEditorConfig(Options options)
+        {
+            if (options.Config is not null)
+            {
+                try
+                {
+                    return File.ReadAllText(options.Config);
+                }
+                catch (FileNotFoundException fnf)
+                {
+                    System.Console.WriteLine(fnf.Message);
+                    Environment.Exit(0);
+                }
+            }
+            return null;
+        }
+
+        private static void SaveMethodSummary(Options options, List<Diagnostic> diagnostics, string[] analyzerIds)
+        {
+            if (options.OutputMethods is not null)
+            {
+                System.Console.WriteLine($"Printing method summary details to {options.OutputMethods}");
+
+                var methodPrinter = new Printer(options.OutputMethods);
+                var idCounter = () => analyzerIds.ToDictionary(id => id, id => 0);
+
+                (string method, string id)[] methodDiagnostics = diagnostics
+                    .Select(d => (d.Properties.TryGetValue("MethodName", out var value) ? (value ?? "None") : "None", d.Id)).ToArray();
+
+                var methodCounter = methodDiagnostics.Select(d => (d.method)).ToHashSet().ToDictionary(m => m, m => idCounter());
+                
+                foreach (var md in methodDiagnostics)
+                {
+                    methodCounter[md.method][md.id]++;
+                }
+
+                List<string> lines = new List<string> {$"Method, {string.Join(", ", analyzerIds)}, Total diagnostics" };
+
+                foreach ((var method, var diagnosticAmounts) in methodCounter)
+                {
+                    var orderedAmount = diagnosticAmounts.OrderBy(p => p.Key).Select(p => p.Value);
+                    lines.Add($"{method}, {string.Join(", ", orderedAmount)}, {orderedAmount.Sum()}");
+                }
+
+                methodPrinter.Print(lines.ToArray());
+
+            }
+        }
+
+        private static async Task<Diagnostic[]> ProcessCompilation(
+            Compilation compilation,
+            ImmutableArray<DiagnosticAnalyzer> analyzers,
+            ConcurrentBag<ProjectSummary> projectSummariesBag)
         {
             var testClassAttr = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
             var testMethodAttr = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
-            if (!(testClassAttr is null) && !(testMethodAttr is null))
+            if ((testClassAttr is not null) && (testMethodAttr is not null))
             {
-                var analyzerTask = compilation.WithAnalyzers(TestSmellAnalyzers()).GetAnalyzerDiagnosticsAsync();
 
-                var testClasses = GetTestClassSymbols(compilation.SourceModule.GlobalNamespace, testClassAttr);
-                var testClassAmount = testClasses.Count();
-                var testMethodAmount = 0;
+                var analyzerTask = compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
 
-                foreach (var testClass in testClasses)
-                {
-                    var testMethods = testClass.GetMembers().Where(t => TestUtils.AttributeIsInSymbol(testMethodAttr, t));
-                    testMethodAmount += testMethods.Count();
-                }
+                int testClassAmount, testMethodAmount;
+                CountTests(compilation, testClassAttr, testMethodAttr, out testClassAmount, out testMethodAmount);
 
                 var analyzerResults = await analyzerTask;
                 var relevantResults = analyzerResults.Where(d => d.Severity != DiagnosticSeverity.Hidden);
 
-                System.Console.WriteLine($"{compilation.AssemblyName}: {testClassAmount} test classes, {testMethodAmount} test methods, {relevantResults.Count()} diagnostics ({analyzerResults.Count() - relevantResults.Count()} hidden)");
+
+                var foundSmells = relevantResults.Count();
+                var hiddenSmells = analyzerResults.Count() - relevantResults.Count();
+
+                var projectSummary = new ProjectSummary(foundSmells, hiddenSmells, testClassAmount, testMethodAmount, 
+                    $"\t{compilation.AssemblyName}: {testClassAmount} test classes, {testMethodAmount} test methods, {foundSmells} diagnostics ({hiddenSmells} hidden)");
+
+                projectSummariesBag.Add(projectSummary);
+
 
                 return relevantResults.ToArray();
 
             }
             else
             {
-                System.Console.WriteLine($"{compilation.AssemblyName}: Project has no tests");
-                return new Diagnostic[0];
+                var projectSummary = new ProjectSummary(0, 0, 0, 0, $"\t{compilation.AssemblyName}: Project has no tests");
+                projectSummariesBag.Add(projectSummary);
+
+                return Array.Empty<Diagnostic>();
+            }
+        }
+
+        private static void CountTests(Compilation compilation, INamedTypeSymbol? testClassAttr, INamedTypeSymbol? testMethodAttr, out int testClassAmount, out int testMethodAmount)
+        {
+            var testClasses = GetTestClassSymbols(compilation.SourceModule.GlobalNamespace, testClassAttr);
+            testClassAmount = testClasses.Count();
+            testMethodAmount = 0;
+            foreach (var testClass in testClasses)
+            {
+                var testMethods = testClass.GetMembers().Where(t => TestUtils.AttributeIsInSymbol(testMethodAttr, t));
+                testMethodAmount += testMethods.Count();
             }
         }
     }
