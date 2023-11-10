@@ -35,7 +35,7 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Update="MysteryGuest\Resources.Designer.cs">
+    <Compile Update="Compendium\MysteryGuest\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -98,7 +98,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="MysteryGuest\Resources.resx">
+    <EmbeddedResource Update="Compendium\MysteryGuest\Resources.resx">
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>

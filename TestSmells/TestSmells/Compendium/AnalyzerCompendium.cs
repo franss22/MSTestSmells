@@ -15,7 +15,7 @@ using TestSmells.Compendium.IgnoredTest;
 using TestSmells.Compendium.AssertionRoulette;
 using TestSmells.Compendium.RedundantAssertion;
 using TestSmells.Compendium.SleepyTest;
-using TestSmells.MysteryGuest;
+using TestSmells.Compendium.MysteryGuest;
 
 namespace TestSmells.Compendium
 {
