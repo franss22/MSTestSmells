@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace TestSmells.MysteryGuest
+namespace TestSmells.Compendium.MysteryGuest
 {
     public class MysteryGuestAnalyzer
     {
@@ -34,7 +34,7 @@ namespace TestSmells.MysteryGuest
             "OpenRead"
         };
 
-        private static readonly string[] FileMethodsWrite = 
+        private static readonly string[] FileMethodsWrite =
         {
             "AppendAllLines",
             "AppendAllLinesAsync",
@@ -61,7 +61,7 @@ namespace TestSmells.MysteryGuest
             "ReadByte",
         };
 
-        private static readonly string[] FileStreamMethodsWrite = 
+        private static readonly string[] FileStreamMethodsWrite =
         {
             "BeginWrite",
             "EndWrite",
@@ -137,7 +137,7 @@ namespace TestSmells.MysteryGuest
             INamedTypeSymbol fileClass = fileSymbols.FileClass;
             INamedTypeSymbol fileStreamClass = fileSymbols.FileStreamClass;
 
-            return (OperationBlockAnalysisContext context) =>
+            return (context) =>
             {
 
                 var fileOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(context.FilterTree);
@@ -158,7 +158,7 @@ namespace TestSmells.MysteryGuest
                 var writeOperations = new List<IInvocationOperation>();
                 foreach (var operation in blockOperation.Descendants())
                 {
-                    if (operation is ILiteralOperation literal) 
+                    if (operation is ILiteralOperation literal)
                     {
                         if (literal.Type != null && literal.Type.SpecialType == SpecialType.System_String && literal.ConstantValue.HasValue)
                         {
@@ -167,7 +167,7 @@ namespace TestSmells.MysteryGuest
                                 return;
                             }
                         }
-                        
+
                     }
                     if (operation.Kind != OperationKind.Invocation) { continue; }
                     var invocationOperation = (IInvocationOperation)operation;
@@ -191,7 +191,7 @@ namespace TestSmells.MysteryGuest
                     }
                 }
 
-                if(writeOperations.Count > 0) { return; }
+                if (writeOperations.Count > 0) { return; }
                 foreach (var readOperation in readOperations)
                 {
                     var args = readOperation.Arguments;
@@ -200,14 +200,14 @@ namespace TestSmells.MysteryGuest
                     {
                         var val = argument.Value;
                     }
-                    if ( isIgnored)
+                    if (isIgnored)
                     {
                         continue;
                     }
                     var diagnostic = Diagnostic.Create(Rule, readOperation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.OwningSymbol.Name, readOperation.TargetMethod.Name);
                     context.ReportDiagnostic(diagnostic);
                 }
-                
+
 
             };
         }
