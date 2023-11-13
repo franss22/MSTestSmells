@@ -26,8 +26,8 @@ namespace TestSmells.Console
             [Option('m', "method_output", Required = false, Default = null, HelpText = "File path for method csv output. If left empty, results are not printed")]
             public string? OutputMethods { get; set;}
 
-            [Option('c', "config", Required = false, Default = null, HelpText = "File path for global editorconfig file")]
-            public string? Config { get; set; }
+            //[Option('c', "config", Required = false, Default = null, HelpText = "File path for global editorconfig file")]
+            //public string? Config { get; set; }
 
 
         }
@@ -60,7 +60,7 @@ namespace TestSmells.Console
         }
 
 
-        public struct ProjectSummary
+        public readonly struct ProjectSummary
         {
             public int FoundSmells { get; }
             public int HiddenSmells { get; }
@@ -77,7 +77,7 @@ namespace TestSmells.Console
                 Message = message;
             }
 
-            public override string ToString() => Message;
+            public override readonly string ToString() { return Message; }
         }
 
         public static async Task Main(string[] args)
@@ -103,7 +103,6 @@ namespace TestSmells.Console
                 new DuplicateAssert.DuplicateAssertAnalyzer(),
                 new EagerTest.EagerTestAnalyzer(),
                 new GeneralFixture.GeneralFixtureAnalyzer(),
-                new MysteryGuest.MysteryGuestAnalyzer(),
                 new UnknownTest.UnknownTestAnalyzer(),
             };
             return ImmutableArray.Create(a);
@@ -151,32 +150,21 @@ namespace TestSmells.Console
                 System.Console.WriteLine("Loading solution");
                 var solution = await TryOpenSolutionAsync(workspace, options.Solution);
 
-                string? editorConfig = GetOptionalEditorConfig(options);
-                if (editorConfig != null)
-                {
+                //string? editorConfig = GetOptionalEditorConfig(options);
+                //if (editorConfig != null)
+                //{
 
-                    var configFile = SourceText.From(editorConfig);
+                //    var configSource = SourceText.From(editorConfig);
 
-                    foreach (var projectId in solution.ProjectIds)
-                    {
-                        DocumentId documentId = DocumentId.CreateNewId(projectId, ".editorconfig_console");
-                        solution = solution.AddAnalyzerConfigDocument(documentId, ".editorconfig", configFile, filePath: "/.editorconfig");
-                    }
+                //    foreach (var projectId in solution.ProjectIds)
+                //    {
+                //        DocumentId documentId = DocumentId.CreateNewId(projectId, ".editorconfig_console");
+                //        solution = solution.AddAnalyzerConfigDocument(documentId, ".editorconfig", configSource, filePath: "/.editorconfig");
+                //    }
 
-                }
+                //}   
+
                 //workspace.TryApplyChanges(solution);
-
-
-
-
-
-
-
-
-
-
-
-
 
 
                 System.Console.WriteLine("Compiling Solution");
@@ -212,22 +200,22 @@ namespace TestSmells.Console
             Environment.Exit(0);
         }
 
-        private static string? GetOptionalEditorConfig(Options options)
-        {
-            if (options.Config is not null)
-            {
-                try
-                {
-                    return File.ReadAllText(options.Config);
-                }
-                catch (FileNotFoundException fnf)
-                {
-                    System.Console.WriteLine(fnf.Message);
-                    Environment.Exit(0);
-                }
-            }
-            return null;
-        }
+        //private static string? GetOptionalEditorConfig(Options options)
+        //{
+        //    if (options.Config is not null)
+        //    {
+        //        try
+        //        {
+        //            return File.ReadAllText(options.Config);
+        //        }
+        //        catch (FileNotFoundException fnf)
+        //        {
+        //            System.Console.WriteLine(fnf.Message);
+        //            Environment.Exit(0);
+        //        }
+        //    }
+        //    return null;
+        //}
 
         private static void SaveMethodSummary(Options options, List<Diagnostic> diagnostics, string[] analyzerIds)
         {
@@ -236,19 +224,19 @@ namespace TestSmells.Console
                 System.Console.WriteLine($"Printing method summary details to {options.OutputMethods}");
 
                 var methodPrinter = new Printer(options.OutputMethods);
-                var idCounter = () => analyzerIds.ToDictionary(id => id, id => 0);
+                Dictionary<string, int> idCounter() => analyzerIds.ToDictionary(id => id, id => 0);
 
                 (string method, string id)[] methodDiagnostics = diagnostics
                     .Select(d => (d.Properties.TryGetValue("MethodName", out var value) ? (value ?? "None") : "None", d.Id)).ToArray();
 
                 var methodCounter = methodDiagnostics.Select(d => (d.method)).ToHashSet().ToDictionary(m => m, m => idCounter());
                 
-                foreach (var md in methodDiagnostics)
+                foreach (var (method, id) in methodDiagnostics)
                 {
-                    methodCounter[md.method][md.id]++;
+                    methodCounter[method][id]++;
                 }
 
-                List<string> lines = new List<string> {$"Method, {string.Join(", ", analyzerIds)}, Total diagnostics" };
+                List<string> lines = new() { $"Method, {string.Join(", ", analyzerIds)}, Total diagnostics" };
 
                 foreach ((var method, var diagnosticAmounts) in methodCounter)
                 {
@@ -273,15 +261,14 @@ namespace TestSmells.Console
 
                 var analyzerTask = compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
 
-                int testClassAmount, testMethodAmount;
-                CountTests(compilation, testClassAttr, testMethodAttr, out testClassAmount, out testMethodAmount);
+                CountTests(compilation, testClassAttr, testMethodAttr, out int testClassAmount, out int testMethodAmount);
 
                 var analyzerResults = await analyzerTask;
                 var relevantResults = analyzerResults.Where(d => d.Severity != DiagnosticSeverity.Hidden);
 
 
                 var foundSmells = relevantResults.Count();
-                var hiddenSmells = analyzerResults.Count() - relevantResults.Count();
+                var hiddenSmells = analyzerResults.Length - relevantResults.Count();
 
                 var projectSummary = new ProjectSummary(foundSmells, hiddenSmells, testClassAmount, testMethodAmount, 
                     $"\t{compilation.AssemblyName}: {testClassAmount} test classes, {testMethodAmount} test methods, {foundSmells} diagnostics ({hiddenSmells} hidden)");

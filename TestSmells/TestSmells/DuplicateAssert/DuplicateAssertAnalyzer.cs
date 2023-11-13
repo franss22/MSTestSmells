@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -24,44 +25,7 @@ namespace TestSmells.DuplicateAssert
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
 
-        private static readonly string[] RelevantAssertionsNames = {
-            //Assert
-            "AreEqual",
-            "AreNotEqual",
-            "AreNotSame",
-            "AreSame",
-            "IsFalse",
-            "IsInstanceOfType",
-            "IsNotInstanceOfType",
-            "IsNotNull",
-            "IsNull",
-            "IsTrue",
-            "ThrowsException",
-            "ThrowsExceptionAsync",
-            "Fail",
-            "Inconclusive",
-            //CollectionAssert
-            "AllItemsAreInstancesOfType",
-            "AllItemsAreNotNull",
-            "AllItemsAreUnique",
-            "AreEqual",
-            "AreEquivalent",
-            "AreNotEqual",
-            "AreNotEquivalent",
-            "Contains",
-            "DoesNotContain",
-            "IsNotSubsetOf",
-            "IsSubsetOf",
-            //StringAssert
-            "Contains",//edge (String, String)
-            "DoesNotMatch",
-            "EndsWith",//edge (String, String)
-            "Matches",
-            "StartsWith",//edge (String, String)
-
-        };
-
-
+       
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -87,18 +51,74 @@ namespace TestSmells.DuplicateAssert
 
         }
 
-        private static Action<SymbolStartAnalysisContext> AnalyzeMethodSymbol(INamedTypeSymbol testClassAttr, INamedTypeSymbol testMethodAttr, IMethodSymbol[] relevantAssertions)
+        private static Action<SymbolStartAnalysisContext> AnalyzeMethodSymbol(INamedTypeSymbol testClassAttr, INamedTypeSymbol testMethodAttr, IMethodSymbol[] assertionMethods)
         {
             return (SymbolStartAnalysisContext context) =>
             {
                 if (!TestUtils.TestMethodInTestClass(context, testClassAttr, testMethodAttr)) { return; }
 
-                var operationBlockAnalisis = AnalyzeMethodOperations(relevantAssertions);
-                context.RegisterOperationBlockAction(operationBlockAnalisis);
+                var methodBag = new ConcurrentBag<IInvocationOperation>();
+                context.RegisterOperationAction(AnalyzeInvocations(assertionMethods, methodBag), OperationKind.Invocation);
+                context.RegisterSymbolEndAction(CheckBag(methodBag));
 
             };
 
 
+        }
+
+        private static Action<SymbolAnalysisContext> CheckBag(ConcurrentBag<IInvocationOperation> assertionBag)
+        {
+            return (SymbolAnalysisContext context) =>
+            {
+                if (assertionBag.Count == 0) return;
+
+                var assertions = assertionBag.OrderBy(a=> a.Syntax.GetLocation().ToString()).ToArray();
+
+                var similarInvocations = new List<List<IInvocationOperation>>
+                {
+                    new List<IInvocationOperation> { assertions.First() }
+                };
+
+                foreach (var assert in assertions.Skip(1))
+                {
+                    var duplicateList = similarInvocations.FirstOrDefault(group => AreSimilarInvocations(assert, group.First()));
+                    if (duplicateList != null)
+                    {
+                        duplicateList.Add(assert);
+                    }
+                    else 
+                    {
+                        similarInvocations.Add(new List<IInvocationOperation> { assert });
+                    }
+                }
+
+                if (similarInvocations.Count == assertions.Count()) { return; }
+                foreach (var assertionGroup in similarInvocations)
+                {
+                    var testLocation = context.Symbol.Locations.First();
+
+                    var locations = new List<Location>(from o in assertionGroup select o.Syntax.GetLocation());
+                    var diagnosticLocation = locations.First();
+                    locations.Insert(0, testLocation);
+
+                    var diagnostic = Diagnostic.Create(Rule, diagnosticLocation, locations, properties: TestUtils.MethodNameProperty(context), context.Symbol.Name);
+                    context.ReportDiagnostic(diagnostic);
+
+                }
+
+            };
+        }
+
+        private static Action<OperationAnalysisContext> AnalyzeInvocations(IMethodSymbol[] assertionMethods, ConcurrentBag<IInvocationOperation> methodBag)
+        {
+            return (OperationAnalysisContext context) =>
+            {
+                var operation = (IInvocationOperation)context.Operation;
+                if (TestUtils.MethodIsInList(operation.TargetMethod, assertionMethods))
+                {
+                    methodBag.Add(operation);
+                }
+            };
         }
 
         private static Action<OperationBlockAnalysisContext> AnalyzeMethodOperations(IMethodSymbol[] relevantAssertions)
@@ -146,19 +166,7 @@ namespace TestSmells.DuplicateAssert
                     }
                 }
 
-                if (duplications.Count == assertions.Count) { return; }
-                foreach (var assertionGroup in duplications)
-                {
-                    var testLocation = context.OwningSymbol.Locations.First();
 
-                    var locations = new List<Location>(from o in assertionGroup select o.Syntax.GetLocation());
-                    var diagnosticLocation = locations.First();
-                    locations.Insert(0, testLocation);
-
-                    var diagnostic = Diagnostic.Create(Rule, diagnosticLocation, locations, properties: TestUtils.MethodNameProperty(context), context.OwningSymbol.Name);
-                    context.ReportDiagnostic(diagnostic);
-
-                }
 
 
             };

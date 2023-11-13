@@ -71,7 +71,7 @@ namespace TestSmells.Compendium.MysteryGuest
         };
 
 
-        public struct FileSymbols
+        public readonly struct FileSymbols
         {
             public readonly IMethodSymbol[] WriteMethods;
             public readonly IMethodSymbol[] ReadMethods;
@@ -82,15 +82,15 @@ namespace TestSmells.Compendium.MysteryGuest
             public FileSymbols(Compilation compilation)
             {
                 var fileClass = compilation.GetTypeByMetadataName("System.IO.File");
-                var fileReadMethods = GetMethods(compilation, fileClass, FileMethods);
+                var fileReadMethods = GetMethods(fileClass, FileMethods);
 
                 var fileStreamClass = compilation.GetTypeByMetadataName("System.IO.FileStream");
-                var fileStreamReadMethods = GetMethods(compilation, fileStreamClass, FileStreamMethods);
+                var fileStreamReadMethods = GetMethods(fileStreamClass, FileStreamMethods);
 
                 var readMethods = fileReadMethods.Concat(fileStreamReadMethods).ToArray();
 
-                var fileWriteMethods = GetMethods(compilation, fileClass, FileMethodsWrite);
-                var fileStreamWriteMethods = GetMethods(compilation, fileStreamClass, FileStreamMethodsWrite);
+                var fileWriteMethods = GetMethods(fileClass, FileMethodsWrite);
+                var fileStreamWriteMethods = GetMethods(fileStreamClass, FileStreamMethodsWrite);
                 var writeMethods = fileWriteMethods.Concat(fileStreamWriteMethods).ToArray();
 
 
@@ -107,7 +107,7 @@ namespace TestSmells.Compendium.MysteryGuest
         }
 
 
-        private static IMethodSymbol[] GetMethods(Compilation compilation, INamedTypeSymbol fileClass, string[] methodNames)
+        private static IMethodSymbol[] GetMethods(INamedTypeSymbol fileClass, string[] methodNames)
         {
             var methods = new List<IMethodSymbol>();
             while (fileClass != null)

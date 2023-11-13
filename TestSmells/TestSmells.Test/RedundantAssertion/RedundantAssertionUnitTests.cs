@@ -102,7 +102,7 @@ namespace TestSmells.Test.RedundantAssertion
         public async Task AreNotEqual()
         {
             var testFile = @"AreNotEqual.cs";
-            var expected = VerifyCS.Diagnostic("RedundantAssertion").WithSpan(13, 13, 13, 34).WithArguments("TestMethod1", "AreEqual"); var test = new VerifyCS.Test
+            var expected = VerifyCS.Diagnostic("RedundantAssertion").WithSpan(13, 13, 13, 37).WithArguments("TestMethod1", "AreNotEqual"); var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
                 ExpectedDiagnostics = { expected },

@@ -1,12 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="AssertionRoulette\Corpus\**" />
     <Compile Remove="AssertionRoulette\OldCorpus\**" />
@@ -14,35 +11,43 @@
     <Compile Remove="DuplicateAssert\Corpus\**" />
     <Compile Remove="EagerTest\Corpus\**" />
     <Compile Remove="EmptyTest\Corpus\**" />
+    <Compile Remove="ExceptionHandling\Corpus\**" />
     <Compile Remove="GeneralFixture\Corpus\**" />
     <Compile Remove="IgnoredTest\Corpus\**" />
     <Compile Remove="MagicNumber\Corpus\**" />
     <Compile Remove="MysteryGuest\Corpus\**" />
     <Compile Remove="RedundantAssertion\Corpus\**" />
+    <Compile Remove="SleepyTest\Corpus\**" />
+    <Compile Remove="UnknownTest\Corpus\**" />
     <EmbeddedResource Remove="AssertionRoulette\Corpus\**" />
     <EmbeddedResource Remove="AssertionRoulette\OldCorpus\**" />
     <EmbeddedResource Remove="ConditionalTest\Corpus\**" />
     <EmbeddedResource Remove="DuplicateAssert\Corpus\**" />
     <EmbeddedResource Remove="EagerTest\Corpus\**" />
     <EmbeddedResource Remove="EmptyTest\Corpus\**" />
+    <EmbeddedResource Remove="ExceptionHandling\Corpus\**" />
     <EmbeddedResource Remove="GeneralFixture\Corpus\**" />
     <EmbeddedResource Remove="IgnoredTest\Corpus\**" />
     <EmbeddedResource Remove="MagicNumber\Corpus\**" />
     <EmbeddedResource Remove="MysteryGuest\Corpus\**" />
     <EmbeddedResource Remove="RedundantAssertion\Corpus\**" />
+    <EmbeddedResource Remove="SleepyTest\Corpus\**" />
+    <EmbeddedResource Remove="UnknownTest\Corpus\**" />
     <None Remove="AssertionRoulette\Corpus\**" />
     <None Remove="AssertionRoulette\OldCorpus\**" />
     <None Remove="ConditionalTest\Corpus\**" />
     <None Remove="DuplicateAssert\Corpus\**" />
     <None Remove="EagerTest\Corpus\**" />
     <None Remove="EmptyTest\Corpus\**" />
+    <None Remove="ExceptionHandling\Corpus\**" />
     <None Remove="GeneralFixture\Corpus\**" />
     <None Remove="IgnoredTest\Corpus\**" />
     <None Remove="MagicNumber\Corpus\**" />
     <None Remove="MysteryGuest\Corpus\**" />
     <None Remove="RedundantAssertion\Corpus\**" />
+    <None Remove="SleepyTest\Corpus\**" />
+    <None Remove="UnknownTest\Corpus\**" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
@@ -55,18 +60,14 @@
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing.MSTest" Version="1.1.2-beta1.23431.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing.MSTest" Version="1.1.2-beta1.23431.1" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\TestSmells.CodeFixes\TestSmells.CodeFixes.csproj" />
     <ProjectReference Include="..\TestSmells\TestSmells.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <EditorConfigFiles Remove="C:\Repos\TestSmellsMemoria\TestSmells\TestSmells.Test\.editorconfig" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="C:\Repos\TestSmellsMemoria\TestSmells\TestSmells.Test\.editorconfig" />
   </ItemGroup>
-
 </Project>
