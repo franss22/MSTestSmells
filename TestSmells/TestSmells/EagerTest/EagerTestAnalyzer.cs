@@ -119,7 +119,7 @@ namespace TestSmells.EagerTest
                 }
                 else return;
 
-
+                
                 if (TestUtils.SymbolEquals(target.Local, referenceArg.Local))
                 {
                     foreach (var op in assign.Value.DescendantsAndSelf())

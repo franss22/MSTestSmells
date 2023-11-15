@@ -83,7 +83,6 @@ namespace TestSmells.GeneralFixture
 
 
                 var analyzeOperations = AnalyzeMethodOperations(fields, testInitMethod, testMethods, initFields, usedFieldsPerTest);
-
                 context.RegisterOperationAction(analyzeOperations, OperationKind.MethodBody);
 
 
@@ -114,7 +113,9 @@ namespace TestSmells.GeneralFixture
 
                     foreach (var (symbol, location) in unusedFields)
                     {
-                        var diagnostic = Diagnostic.Create(Rule, location, properties: TestUtils.MethodNameProperty(context), symbol.Name, testMethodName);
+
+
+                        var diagnostic = Diagnostic.Create(Rule, location, properties: TestUtils.ImmProperty("MethodName", testInitMethod.ToString()), symbol.Name, testMethodName);
                         context.ReportDiagnostic(diagnostic);
                     }
                     

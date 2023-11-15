@@ -139,9 +139,12 @@ namespace TestSmells.Compendium.MysteryGuest
 
             return (context) =>
             {
-
                 var fileOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(context.FilterTree);
-                fileOptions.TryGetValue("dotnet_diagnostic.MysteryGuest.IgnoredFiles", out var ignoredFiles);
+
+
+                var ignoredFiles = SettingSingleton.GetSettings(fileOptions, "dotnet_diagnostic.MysteryGuest.IgnoredFiles");
+
+
                 var ignoredFilesList = new List<string>();
                 if (ignoredFiles != null)
                 {
@@ -160,9 +163,10 @@ namespace TestSmells.Compendium.MysteryGuest
                 {
                     if (operation is ILiteralOperation literal)
                     {
-                        if (literal.Type != null && literal.Type.SpecialType == SpecialType.System_String && literal.ConstantValue.HasValue)
+                        if (literal.Type?.SpecialType == SpecialType.System_String && literal.ConstantValue.HasValue)
                         {
-                            if (ignoredFilesList.Any(f => literal.ConstantValue.Value.ToString().Contains(f)))
+                            var shouldIgnore = ignoredFilesList.Any(f => literal.ConstantValue.Value.ToString().Contains(f));
+                            if (shouldIgnore)
                             {
                                 return;
                             }

@@ -18,6 +18,12 @@ namespace TestSmells.Console
         /// <returns>The formatted message.</returns>
         public virtual string Format(Diagnostic diagnostic, IFormatProvider? formatter = null)
         {
+            return Format(diagnostic, diagnostic.Severity, formatter);
+        }
+
+
+        public virtual string Format(Diagnostic diagnostic, DiagnosticSeverity severity, IFormatProvider? formatter = null)
+        {
             if (diagnostic == null)
             {
                 throw new ArgumentNullException(nameof(diagnostic));
@@ -52,23 +58,17 @@ namespace TestSmells.Console
                     return string.Format(formatter, "{0}, {1}, {2}, {3}{4}",
                                          FormatSourcePath(path, basePath, formatter),
                                          FormatSourceSpan(mappedSpan.Span, formatter),
-                                         GetMessagePrefix(diagnostic),
+                                         GetMessagePrefix(diagnostic, severity),
                                          diagnostic.GetMessage(culture),
                                          FormatHelpLinkUri(diagnostic));
 
                 default:
-                    if (diagnostic.Id == "AD0001")
-                    {
-                        return string.Format(formatter, "Exception, {0}", diagnostic.GetMessage(culture).Replace("\n", "").Replace("\r", " "));
-                    }
-                    else
-                    {
-                        var prefix = GetMessagePrefix(diagnostic);
-                        var message = diagnostic.GetMessage(culture);
-                        var helplink = FormatHelpLinkUri(diagnostic);
+                    var prefix = GetMessagePrefix(diagnostic, severity);
+                    var message = diagnostic.GetMessage(culture);
+                    var helplink = FormatHelpLinkUri(diagnostic);
 
-                        return string.Format(formatter, "{0}, {1}{2}", prefix, message, helplink);
-                    }
+                    return string.Format(formatter, "{0}, {1}{2}", prefix, message, helplink);
+
                     
             }
         }
@@ -84,10 +84,10 @@ namespace TestSmells.Console
             return string.Format("{0}, {1}", span.Start.Line + 1, span.Start.Character + 1);
         }
 
-        internal static string GetMessagePrefix(Diagnostic diagnostic)
+        internal static string GetMessagePrefix(Diagnostic diagnostic, DiagnosticSeverity severity)
         {
             string prefix;
-            switch (diagnostic.Severity)
+            switch (severity)
             {
                 case DiagnosticSeverity.Hidden:
                     prefix = "hidden";
@@ -102,7 +102,7 @@ namespace TestSmells.Console
                     prefix = "error";
                     break;
                 default:
-                    throw ExceptionUtilities.UnexpectedValue(diagnostic.Severity);
+                    throw ExceptionUtilities.UnexpectedValue(severity);
             }
 
             return string.Format("{0}, {1}", prefix, diagnostic.Id);
@@ -122,7 +122,7 @@ namespace TestSmells.Console
 
         internal virtual bool HasDefaultHelpLinkUri(Diagnostic diagnostic) => true;
 
-        internal static readonly DiagnosticCSVFormatter Instance = new DiagnosticCSVFormatter();
+        internal static readonly DiagnosticCSVFormatter Instance = new();
     }
 
     internal static class ExceptionUtilities

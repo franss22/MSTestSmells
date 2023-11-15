@@ -121,57 +121,6 @@ namespace TestSmells.DuplicateAssert
             };
         }
 
-        private static Action<OperationBlockAnalysisContext> AnalyzeMethodOperations(IMethodSymbol[] relevantAssertions)
-
-        {
-            return (OperationBlockAnalysisContext context) =>
-            {
-                var assertions = new List<IInvocationOperation>();
-                var blockOperation = TestUtils.GetBlockOperation(context);
-
-                var descendants = blockOperation.Descendants();
-                foreach (var operation in descendants)
-                {
-                    if (operation.Kind != OperationKind.Invocation) { continue; }
-                    var invocationOperation = (IInvocationOperation)operation;
-                    if (TestUtils.MethodIsInList(invocationOperation.TargetMethod, relevantAssertions))
-                    {
-                        assertions.Add(invocationOperation);
-                    }
-                }
-
-                if (assertions.Count <= 1) { return; }
-
-
-                var duplications = new List<List<IInvocationOperation>>
-                {
-                    new List<IInvocationOperation> { assertions.First() }
-                };
-
-                foreach (var assert in assertions.Skip(1))
-                {
-                    bool unique = true;
-                    foreach (var similarOperations in duplications)
-                    {
-                        if (AreSimilarInvocations(assert, similarOperations.First()))
-                        {
-                            similarOperations.Add(assert);
-                            unique = false;
-                            break;
-                        }
-                    }
-                    if (unique)
-                    {
-                        duplications.Add(new List<IInvocationOperation> { assert });
-                    }
-                }
-
-
-
-
-            };
-        }
-
         private static bool AreSimilarInvocations(IInvocationOperation invocation1, IInvocationOperation invocation2)
         {
             return (invocation1.Syntax.IsEquivalentTo(invocation2.Syntax, true));

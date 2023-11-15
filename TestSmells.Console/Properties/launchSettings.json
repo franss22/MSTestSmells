@@ -6,7 +6,7 @@
     },
     "Analyze TestProject": {
       "commandName": "Project",
-      "commandLineArgs": "-s C:\\Users\\frano\\source\\repos\\TestProject1\\TestProject1.sln\r\n-o Analisis.csv"
+      "commandLineArgs": "-s C:\\Users\\frano\\source\\repos\\TestProject1\\TestProject1.sln\r\n-o Analisis.csv\r\n-m Methods.csv"
     },
     "Analyze TestSmells": {
       "commandName": "Project",
@@ -14,7 +14,15 @@
     },
     "Analyze Testsmells with Config": {
       "commandName": "Project",
-      "commandLineArgs": "-s C:\\Repos\\TestSmellsMemoria\\TestSmells.sln\r\n-o Analisis.csv\r\n-m Methods.csv\r\n-c .config"
+      "commandLineArgs": "-s C:\\Repos\\TestSmellsMemoria\\TestSmells.sln\r\n-o Analisis.csv\r\n-m Methods.csv\r\n-c config.json\r\n-i"
+    },
+    "Analyze TestProject with Config": {
+      "commandName": "Project",
+      "commandLineArgs": "-s C:\\Users\\frano\\source\\repos\\TestProject1\\TestProject1.sln\r\n-o Analisis.csv\r\n-m Methods.csv\r\n-c config.json\r\n"
+    },
+    "Help Message": {
+      "commandName": "Project",
+      "commandLineArgs": "--help\r\n"
     }
   }
 }

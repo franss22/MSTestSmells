@@ -9,6 +9,8 @@ using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.Options;
+using System.Text.Json;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace TestSmells.Console
 {
@@ -24,14 +26,14 @@ namespace TestSmells.Console
             public string? Output { get; set; }
 
             [Option('m', "method_output", Required = false, Default = null, HelpText = "File path for method csv output. If left empty, results are not printed")]
-            public string? OutputMethods { get; set;}
+            public string? OutputMethods { get; set; }
 
-            //[Option('c', "config", Required = false, Default = null, HelpText = "File path for global editorconfig file")]
-            //public string? Config { get; set; }
+            [Option('c', "config", Required = false, Default = null, HelpText = "File path for global JSON config file")]
+            public string? Config { get; set; }
 
-
+            [Option('i', "ignore_default_config", Required = false, Default = false, HelpText = "Override of default analyzer configuration. If enabled, analyzers will use default configuration instead of any local editorconfig values. Does not apply to diagnosis severity.")]
+            public bool IgnoreExistingConfig { get; set; }
         }
-
 
         private static IEnumerable<INamedTypeSymbol> GetTestClassSymbols(INamespaceSymbol Namespace, INamedTypeSymbol testClassAttr)
         {
@@ -98,6 +100,7 @@ namespace TestSmells.Console
                 //MagicNumber
                 //RedundantAssertion
                 //SleepyTest
+                //Mystery Guest
                 new Compendium.AnalyzerCompendium(),
 
                 new DuplicateAssert.DuplicateAssertAnalyzer(),
@@ -113,10 +116,10 @@ namespace TestSmells.Console
             return analyzers.SelectMany(a => a.SupportedDiagnostics).Select(d => d.Id).Order().ToArray();
         }
 
-        static string DiagnosticToCSV(Diagnostic d)
+        static string DiagnosticToCSV(Diagnostic d, DiagnosticSeverity diagnosticSeverity)
         {
 
-            return DiagnosticCSVFormatter.Instance.Format(d);// d.ToString(); //String.Join(", ", d.Location, d.Id, d.WarningLevel);
+            return DiagnosticCSVFormatter.Instance.Format(d, diagnosticSeverity);// d.ToString(); //String.Join(", ", d.Location, d.Id, d.WarningLevel);
         }
 
         static async Task<Solution> TryOpenSolutionAsync(MSBuildWorkspace workspace, string solutionName)
@@ -141,6 +144,7 @@ namespace TestSmells.Console
 
             var analyzers = TestSmellAnalyzers();
             var analyzerIds = SupportedDagnosticsIds(analyzers);
+            Dictionary<string, string?> severityConfig;
 
             System.Console.WriteLine("Loading analyzers");
 
@@ -150,28 +154,16 @@ namespace TestSmells.Console
                 System.Console.WriteLine("Loading solution");
                 var solution = await TryOpenSolutionAsync(workspace, options.Solution);
 
-                //string? editorConfig = GetOptionalEditorConfig(options);
-                //if (editorConfig != null)
-                //{
+                severityConfig = SetConfig(options, analyzerIds);
 
-                //    var configSource = SourceText.From(editorConfig);
-
-                //    foreach (var projectId in solution.ProjectIds)
-                //    {
-                //        DocumentId documentId = DocumentId.CreateNewId(projectId, ".editorconfig_console");
-                //        solution = solution.AddAnalyzerConfigDocument(documentId, ".editorconfig", configSource, filePath: "/.editorconfig");
-                //    }
-
-                //}   
-
-                //workspace.TryApplyChanges(solution);
 
 
                 System.Console.WriteLine("Compiling Solution");
                 var compilations = await Task.WhenAll(solution.Projects.Select(p => p.GetCompilationAsync()));
 
                 System.Console.WriteLine("Analyzing Solution");
-                var analysis = compilations.Where(c => c != null).Select(c => ProcessCompilation(c, analyzers, projectSummaries)).ToArray();
+                var analysis = compilations.Where(c => c != null)
+                    .Select(c => ProcessCompilation(c, analyzers, projectSummaries, severityConfig)).ToArray();
                 diagnostics = (await Task.WhenAll(analysis)).SelectMany(x => x).ToList();
             }
 
@@ -191,7 +183,7 @@ namespace TestSmells.Console
 
             System.Console.WriteLine($"Printing diagnostic details to {options.Output ?? "console"}");
             var diagnosticPrinter = new Printer(options.Output);
-            var CSVDiagnostics = from d in diagnostics select DiagnosticToCSV(d);
+            var CSVDiagnostics = from d in diagnostics select DiagnosticToCSV(d, d.GetSeverityWithConfig(severityConfig));
             diagnosticPrinter.Print("File Path, Start Line, Start Character, Severity, ID, Message");
             diagnosticPrinter.Print(CSVDiagnostics);
 
@@ -200,22 +192,59 @@ namespace TestSmells.Console
             Environment.Exit(0);
         }
 
-        //private static string? GetOptionalEditorConfig(Options options)
-        //{
-        //    if (options.Config is not null)
-        //    {
-        //        try
-        //        {
-        //            return File.ReadAllText(options.Config);
-        //        }
-        //        catch (FileNotFoundException fnf)
-        //        {
-        //            System.Console.WriteLine(fnf.Message);
-        //            Environment.Exit(0);
-        //        }
-        //    }
-        //    return null;
-        //}
+        private static Dictionary<string, string?> SetConfig(Options options, string[] analyzerIds)
+        {
+            string? configJson = GetOptionalEditorJson(options);
+
+            if (configJson is null)
+            {
+                return new();
+            }
+            else
+            {
+                using var configValues = JsonDocument.Parse(configJson);
+                var root = configValues.RootElement.EnumerateObject();
+                var generalSettings = root.Where(e => !e.NameEquals("severity")).ToDictionary(e => e.Name, e => e.Value.GetString());
+                SettingSingleton.SetSettings(generalSettings, options.IgnoreExistingConfig);
+
+
+                if (configValues.RootElement.TryGetProperty("severity", out var severitiesProperty))
+                {
+                    try
+                    {
+                        return severitiesProperty.Deserialize<Dictionary<string, string>>();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine(ex.Message);
+                        Environment.Exit(0);
+                        return new();
+                    }
+
+                }
+                else
+                {
+                    return new();
+                }
+            }
+        }
+
+            private static string? GetOptionalEditorJson(Options options)
+        {
+            if (options.Config is not null)
+            {
+                try
+                {
+                    return File.ReadAllText(options.Config);
+                }
+                catch (FileNotFoundException fnf)
+                {
+                    System.Console.WriteLine(fnf.Message);
+                    Environment.Exit(0);
+                }
+            }
+            return null;
+        }
 
         private static void SaveMethodSummary(Options options, List<Diagnostic> diagnostics, string[] analyzerIds)
         {
@@ -238,21 +267,51 @@ namespace TestSmells.Console
 
                 List<string> lines = new() { $"Method, {string.Join(", ", analyzerIds)}, Total diagnostics" };
 
+                List<(string line, int total)> values = new();
                 foreach ((var method, var diagnosticAmounts) in methodCounter)
                 {
                     var orderedAmount = diagnosticAmounts.OrderBy(p => p.Key).Select(p => p.Value);
-                    lines.Add($"{method}, {string.Join(", ", orderedAmount)}, {orderedAmount.Sum()}");
+                    values.Add(($"{method}, {string.Join(", ", orderedAmount)}, {orderedAmount.Sum()}", orderedAmount.Sum()));
                 }
+                lines.AddRange(values.OrderByDescending(v => v.total).Select(v=>v.line));
 
                 methodPrinter.Print(lines.ToArray());
 
             }
         }
 
+        private static DiagnosticSeverity GetSeverityWithConfig(this Diagnostic diagnostic, Dictionary<string, string?> config)
+        {
+            if (config.TryGetValue(diagnostic.Id, out var severityString))
+            {
+                var severity = StringToSeverity(severityString);
+                return severity ?? diagnostic.Severity;
+            }
+            else return diagnostic.Severity;
+        }
+
+        private static DiagnosticSeverity? StringToSeverity(string? severityString)
+        {
+            switch (severityString)
+            {
+                case "error":
+                    return DiagnosticSeverity.Error;
+                case "warning":
+                    return DiagnosticSeverity.Warning;
+                case "suggestion":
+                    return DiagnosticSeverity.Info;
+                case "silent":
+                    return DiagnosticSeverity.Hidden;
+                default:
+                    return null;
+            }
+        }
+
         private static async Task<Diagnostic[]> ProcessCompilation(
             Compilation compilation,
             ImmutableArray<DiagnosticAnalyzer> analyzers,
-            ConcurrentBag<ProjectSummary> projectSummariesBag)
+            ConcurrentBag<ProjectSummary> projectSummariesBag,
+            Dictionary<string, string?> severityConfig)
         {
             var testClassAttr = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
             var testMethodAttr = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
@@ -264,8 +323,16 @@ namespace TestSmells.Console
                 CountTests(compilation, testClassAttr, testMethodAttr, out int testClassAmount, out int testMethodAmount);
 
                 var analyzerResults = await analyzerTask;
-                var relevantResults = analyzerResults.Where(d => d.Severity != DiagnosticSeverity.Hidden);
+                var relevantResults = analyzerResults.Where(d => d.GetSeverityWithConfig(severityConfig) != DiagnosticSeverity.Hidden && d.Id != "AD0001");
+                var exceptions = analyzerResults.Where(d => d.Id == "AD0001");
 
+
+                System.Console.ForegroundColor = ConsoleColor.Red;
+                foreach (var e in exceptions)
+                {
+                    System.Console.WriteLine(e+"\n");
+                }
+                System.Console.ResetColor();
 
                 var foundSmells = relevantResults.Count();
                 var hiddenSmells = analyzerResults.Length - relevantResults.Count();

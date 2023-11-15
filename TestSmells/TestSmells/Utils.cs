@@ -126,5 +126,10 @@ namespace TestSmells
             return new Dictionary<string, string> { { "MethodName", context.ContainingSymbol.ToString() } }.ToImmutableDictionary();
         }
 
+        public static ImmutableDictionary<string, string> ImmProperty(string key, string value)
+        {
+            return new Dictionary<string, string> { { key, value } }.ToImmutableDictionary();
+        }
+
     }
 }
