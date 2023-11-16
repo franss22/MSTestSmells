@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.DuplicateAssert {
+namespace TestSmells.Compendium.UnknownTest {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.DuplicateAssert {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.DuplicateAssert.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.Compendium.UnknownTest.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.DuplicateAssert {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Assertion testing the same condition should be in different methods.
+        ///   Looks up a localized string similar to Tests should have assertions.
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -70,7 +70,7 @@ namespace TestSmells.DuplicateAssert {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test method &apos;{0}&apos; contains multiple similar assertions..
+        ///   Looks up a localized string similar to Test method &apos;{0}&apos; has no assertions.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace TestSmells.DuplicateAssert {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Duplicate assertion.
+        ///   Looks up a localized string similar to Unknown Test.
         /// </summary>
         internal static string AnalyzerTitle {
             get {

@@ -1,6 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using System.Collections.Concurrent;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -130,6 +132,19 @@ namespace TestSmells
         {
             return new Dictionary<string, string> { { key, value } }.ToImmutableDictionary();
         }
+
+        public static Action<OperationAnalysisContext> CollectAssertions(IEnumerable<IMethodSymbol> assertionSymbols, ConcurrentBag<IInvocationOperation> assertionBag)
+        {
+            return (OperationAnalysisContext context) =>
+            {
+                var invocation = (IInvocationOperation)context.Operation;
+                if (MethodIsInList(invocation.TargetMethod, assertionSymbols))
+                {
+                    assertionBag.Add(invocation);
+                }
+            };
+        }
+
 
     }
 }

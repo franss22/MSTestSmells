@@ -1,0 +1,61 @@
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+
+
+namespace TestSmells.Compendium.UnknownTest
+{
+    public class UnknownTestAnalyzer
+    {
+        public const string DiagnosticId = "UnknownTest";
+
+
+        private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableString MessageFormat = new LocalizableResourceString(nameof(Resources.AnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources));
+        private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.AnalyzerDescription), Resources.ResourceManager, typeof(Resources));
+        private const string Category = "Test Smells";
+
+        internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
+
+
+        internal static void RegisterTwoPartAnalysis(SymbolStartAnalysisContext context, IEnumerable<IMethodSymbol> assertionSymbols)
+        {
+            ConcurrentBag<IInvocationOperation> assertionBag = new ConcurrentBag<IInvocationOperation>();
+
+            context.RegisterOperationAction(CollectAssertionsAndHelperAssertions(assertionSymbols, assertionBag), OperationKind.Invocation);
+            context.RegisterSymbolEndAction(AnalyzeAssertions(assertionBag));
+        }
+
+        private static Action<SymbolAnalysisContext> AnalyzeAssertions(ConcurrentBag<IInvocationOperation> methodBag)
+        {
+            return (SymbolAnalysisContext context) =>
+            {
+                if (methodBag.Count != 0) { return; }
+
+                var diagnostic = Diagnostic.Create(Rule, context.Symbol.Locations[0], properties: TestUtils.MethodNameProperty(context), context.Symbol.Name);
+                context.ReportDiagnostic(diagnostic);
+            };
+        }
+
+        private static Action<OperationAnalysisContext> CollectAssertionsAndHelperAssertions(IEnumerable<IMethodSymbol> assertionSymbols, ConcurrentBag<IInvocationOperation> methodBag)
+        {
+            return (OperationAnalysisContext context) =>
+            {
+                var invocation = (IInvocationOperation)context.Operation;
+
+                var calledMethod = invocation.TargetMethod;
+                if (TestUtils.MethodIsInList(calledMethod, assertionSymbols) ||calledMethod.Name.ToLower().Contains("assert"))
+                {
+                    methodBag.Add(invocation);
+                }
+
+            };
+        }
+
+    }
+}

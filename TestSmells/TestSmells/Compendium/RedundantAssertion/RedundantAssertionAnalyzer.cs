@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-
+using System.Threading.Tasks;
 
 namespace TestSmells.Compendium.RedundantAssertion
 {
@@ -56,17 +56,23 @@ namespace TestSmells.Compendium.RedundantAssertion
             return TestUtils.GetAssertionMethodSymbols(compilation, SmellSpecificAssertionMethodNames);
         }
 
-        internal static void AnalyzeAssertions(OperationBlockAnalysisContext context, IEnumerable<IInvocationOperation> assertions)
+
+        internal static Action<OperationAnalysisContext> AnalyzeInvocations(IEnumerable<IMethodSymbol> assertionSymbols)
         {
-            foreach (var assertInvocation in assertions)
+            return (OperationAnalysisContext context) =>
             {
-                var relevantArguments = assertInvocation.Arguments.Where(arg => ArgNames.Contains(arg.Parameter.Name)).ToArray();
-                if (relevantArguments.Count() == 2 && AreSimilarArguments(relevantArguments[0], relevantArguments[1]))
+                var invocation = (IInvocationOperation)context.Operation;
+                if (TestUtils.MethodIsInList(invocation.TargetMethod, assertionSymbols))
                 {
-                    var diagnostic = Diagnostic.Create(Rule, assertInvocation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.OwningSymbol.Name, assertInvocation.TargetMethod.Name);
-                    context.ReportDiagnostic(diagnostic);
+                    var relevantArguments = invocation.Arguments.Where(arg => ArgNames.Contains(arg.Parameter.Name)).ToArray();
+                    if (relevantArguments.Count() == 2 && AreSimilarArguments(relevantArguments[0], relevantArguments[1]))
+                    {
+                        var diagnostic = Diagnostic.Create(Rule, invocation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.ContainingSymbol.Name, invocation.TargetMethod.Name);
+                        context.ReportDiagnostic(diagnostic);
+                    }
                 }
-            }
+            };
+
         }
 
         private static bool AreSimilarArguments(IArgumentOperation invocation1, IArgumentOperation invocation2)

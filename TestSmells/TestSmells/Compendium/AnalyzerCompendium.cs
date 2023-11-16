@@ -16,6 +16,8 @@ using TestSmells.Compendium.AssertionRoulette;
 using TestSmells.Compendium.RedundantAssertion;
 using TestSmells.Compendium.SleepyTest;
 using TestSmells.Compendium.MysteryGuest;
+using TestSmells.Compendium.DuplicateAssert;
+using TestSmells.Compendium.UnknownTest;
 
 namespace TestSmells.Compendium
 {
@@ -38,6 +40,8 @@ namespace TestSmells.Compendium
                 AssertionRouletteAnalyzer.Rule,
                 SleepyTestAnalyzer.Rule,
                 MysteryGuestAnalyzer.Rule,
+                DuplicateAssertAnalyzer.Rule,
+                UnknownTestAnalyzer.Rule
             };
             return ImmutableArray.Create(Rules);
         }
@@ -49,90 +53,72 @@ namespace TestSmells.Compendium
 
             context.RegisterCompilationStartAction(CompilationAction);
         }
-        private static void CompilationAction(CompilationStartAnalysisContext context)
+        private static void CompilationAction(CompilationStartAnalysisContext compilationContext)
         {
 
             // Get the attribute symbols from the compilation
-            var testClassAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
+            var testClassAttr = compilationContext.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
             if (testClassAttr is null) { return; }
-            var testMethodAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
+            var testMethodAttr = compilationContext.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute");
             if (testMethodAttr is null) { return; }
 
 
-            var ignoreAttr = context.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute");
+            var ignoreAttr = compilationContext.Compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute");
             if (ignoreAttr is null) { return; }
 
-            var threadClass = context.Compilation.GetTypeByMetadataName("System.Threading.Thread");
+            var threadClass = compilationContext.Compilation.GetTypeByMetadataName("System.Threading.Thread");
             if (threadClass is null) { return; }
             var threadSleep = new List<IMethodSymbol>(from m in threadClass.GetMembers("Sleep") select (IMethodSymbol)m);
             if (threadSleep.Count == 0) { return; }
 
-            var allAssertionMethods = TestUtils.GetAssertionMethodSymbols(context.Compilation);
-            var magicNumberAssertions = MagicNumberAnalyzer.RelevantAssertions(context.Compilation);
-            var redundantAssertionAssertions = RedundantAssertionAnalyzer.RelevantAssertions(context.Compilation);
-            var fileSymbols = new MysteryGuestAnalyzer.FileSymbols(context.Compilation);
+            var allAssertionMethods = TestUtils.GetAssertionMethodSymbols(compilationContext.Compilation);
+            var magicNumberAssertions = MagicNumberAnalyzer.RelevantAssertions(compilationContext.Compilation);
+            var redundantAssertionAssertions = RedundantAssertionAnalyzer.RelevantAssertions(compilationContext.Compilation);
+            var fileSymbols = new MysteryGuestAnalyzer.FileSymbols(compilationContext.Compilation);
 
             // We register a Symbol Start Action to filter all test classes and their test methods
-            context.RegisterSymbolStartAction((ctx) =>
+            compilationContext.RegisterSymbolStartAction((symbolStartContext) =>
             {
-                if (!TestUtils.TestMethodInTestClass(ctx, testClassAttr, testMethodAttr)) { return; }
+                if (!TestUtils.TestMethodInTestClass(symbolStartContext, testClassAttr, testMethodAttr)) { return; }
 
                 // Empty Test
-                ctx.RegisterOperationAction(EmptyTestAnalyzer.AnalyzeMethodBodyOperation, OperationKind.MethodBody);
+                symbolStartContext.RegisterOperationAction(EmptyTestAnalyzer.AnalyzeMethodBodyOperation, OperationKind.MethodBody);
 
                 //Exception Handling
-                ctx.RegisterOperationAction(ExceptionHandlingAnalyzer.AnalyzeOperations("throws an exception"), OperationKind.Throw);
-                ctx.RegisterOperationAction(ExceptionHandlingAnalyzer.AnalyzeOperations("handles exceptions"), OperationKind.Try);
+                symbolStartContext.RegisterOperationAction(ExceptionHandlingAnalyzer.AnalyzeOperations("throws an exception"), OperationKind.Throw);
+                symbolStartContext.RegisterOperationAction(ExceptionHandlingAnalyzer.AnalyzeOperations("handles exceptions"), OperationKind.Try);
 
                 //Conditional Test
-                ctx.RegisterOperationAction(ConditionalTestAnalyzer.AnalyzeConditionalOperations("conditional"), OperationKind.Conditional);
-                ctx.RegisterOperationAction(ConditionalTestAnalyzer.AnalyzeConditionalOperations("loop"), OperationKind.Loop);
-                ctx.RegisterOperationAction(ConditionalTestAnalyzer.AnalyzeConditionalOperations("switch"), OperationKind.Switch);
+                symbolStartContext.RegisterOperationAction(ConditionalTestAnalyzer.AnalyzeConditionalOperations("conditional"), OperationKind.Conditional);
+                symbolStartContext.RegisterOperationAction(ConditionalTestAnalyzer.AnalyzeConditionalOperations("loop"), OperationKind.Loop);
+                symbolStartContext.RegisterOperationAction(ConditionalTestAnalyzer.AnalyzeConditionalOperations("switch"), OperationKind.Switch);
 
                 //Magic Number
-                ctx.RegisterOperationAction(MagicNumberAnalyzer.AnalyzeInvocation(magicNumberAssertions), OperationKind.Invocation);
+                symbolStartContext.RegisterOperationAction(MagicNumberAnalyzer.AnalyzeInvocation(magicNumberAssertions), OperationKind.Invocation);
 
                 //Sleepy Test
-                ctx.RegisterOperationAction(SleepyTestAnalyzer.AnalyzeInvocation(threadSleep), OperationKind.Invocation);
+                symbolStartContext.RegisterOperationAction(SleepyTestAnalyzer.AnalyzeInvocation(threadSleep), OperationKind.Invocation);
 
-                ctx.RegisterOperationBlockAction(MysteryGuestAnalyzer.AnalyzeMethodOperations(fileSymbols));
+                //MysteryGuest
+                symbolStartContext.RegisterOperationBlockAction(MysteryGuestAnalyzer.AnalyzeMethodOperations(fileSymbols));
 
+                //Redundant Assertions
+                symbolStartContext.RegisterOperationAction(RedundantAssertionAnalyzer.AnalyzeInvocations(redundantAssertionAssertions), OperationKind.Invocation);
 
                 //Assertion Roulette
-                //Redundant Assertions
-                ctx.RegisterOperationBlockAction(AssertionIterationAnalyzers(allAssertionMethods, redundantAssertionAssertions));
+                AssertionRouletteAnalyzer.RegisterTwoPartAnalysis(symbolStartContext, allAssertionMethods);
+
+                //Duplicate Assert
+                DuplicateAssertAnalyzer.RegisterTwoPartAnalysis(symbolStartContext, allAssertionMethods);
+
+                //Unknown Test
+                UnknownTestAnalyzer.RegisterTwoPartAnalysis(symbolStartContext, allAssertionMethods);
 
             }
             , SymbolKind.Method);
 
             //Ignored Test
-            context.RegisterSymbolAction(IgnoredTestAnalyzer.CheckMethodSymbol(ignoreAttr, testClassAttr, testMethodAttr), SymbolKind.Method);
-        }
-
-
-        private static Action<OperationBlockAnalysisContext> AssertionIterationAnalyzers(IMethodSymbol[] allAssertions, IMethodSymbol[] redundantAssertionAssertions)
-        {
-            return (OperationBlockAnalysisContext context) =>
-            {
-                var block = TestUtils.GetBlockOperation(context);
-                if (block is null) { return; }
-
-                var assertionInvocations = block.Descendants()
-                    .Where(op => op.Kind == OperationKind.Invocation)
-                    .Cast<IInvocationOperation>()
-                    .Where(invocation => TestUtils.MethodIsInList(invocation.TargetMethod, allAssertions));
-
-
-                //Assertion Roulette
-                AssertionRouletteAnalyzer.AnalyzeAssertions(context, assertionInvocations);
-
-                //Redundant Assertion
-                var redundantAssertionAssertionInvocations = assertionInvocations.Where(invocation => TestUtils.MethodIsInList(invocation.TargetMethod, redundantAssertionAssertions));
-                RedundantAssertionAnalyzer.AnalyzeAssertions(context, redundantAssertionAssertionInvocations);
-
-
-            };
-            
+            compilationContext.RegisterSymbolAction(IgnoredTestAnalyzer.CheckMethodSymbol(ignoreAttr, testClassAttr, testMethodAttr), SymbolKind.Method);
         }
 
     }

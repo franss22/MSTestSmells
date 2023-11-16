@@ -16,12 +16,16 @@ namespace TestSmells.Test
 [*.cs]
 dotnet_diagnostic.AssertionRoulette.severity = {Severity(diagnosticName, "AssertionRoulette")}
 dotnet_diagnostic.ConditionalTest.severity = {Severity(diagnosticName, "ConditionalTest")}
+dotnet_diagnostic.DuplicateAssert.severity = {Severity(diagnosticName, "DuplicateAssert")}
 dotnet_diagnostic.EmptyTest.severity = {Severity(diagnosticName, "EmptyTest")}
 dotnet_diagnostic.ExceptionHandling.severity = {Severity(diagnosticName, "ExceptionHandling")}
 dotnet_diagnostic.IgnoredTest.severity = {Severity(diagnosticName, "IgnoredTest")}
 dotnet_diagnostic.MagicNumber.severity = {Severity(diagnosticName, "MagicNumber")}
+dotnet_diagnostic.MysteryGuest.severity = {Severity(diagnosticName, "MysteryGuest")}
 dotnet_diagnostic.RedundantAssertion.severity = {Severity(diagnosticName, "RedundantAssertion")}
 dotnet_diagnostic.SleepyTest.severity = {Severity(diagnosticName, "SleepyTest")}
+dotnet_diagnostic.UnknownTest.severity = {Severity(diagnosticName, "UnknownTest")}
+
 "
                 );
         }

@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -21,25 +22,35 @@ namespace TestSmells.Compendium.AssertionRoulette
 
         internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
-        internal static void AnalyzeAssertions(OperationBlockAnalysisContext context, IEnumerable<IInvocationOperation> assertionInvocations)
+
+        internal static void RegisterTwoPartAnalysis(SymbolStartAnalysisContext context, IEnumerable<IMethodSymbol> assertionSymbols)
+        {
+            ConcurrentBag<IInvocationOperation> assertionBag = new ConcurrentBag<IInvocationOperation>();
+
+            context.RegisterOperationAction(TestUtils.CollectAssertions(assertionSymbols, assertionBag), OperationKind.Invocation);
+            context.RegisterSymbolEndAction(AnalyzeAssertions(assertionBag));
+        }
+
+        internal static Action<SymbolAnalysisContext> AnalyzeAssertions(ConcurrentBag<IInvocationOperation> assertionInvocations)
 
         {
-
-            if (assertionInvocations.Count() <= 1) { return; }
-
-            var smellyAssertions = assertionInvocations.Where(invocation => !IsMessageAssertion(invocation.TargetMethod));
-
-            foreach (var assert in smellyAssertions)
+            return (SymbolAnalysisContext context) =>
             {
-                var invocationSyntax = assert.Syntax;
-                if (invocationSyntax.IsKind(SyntaxKind.InvocationExpression))
+                if (assertionInvocations.Count() <= 1) { return; }
+
+                var smellyAssertions = assertionInvocations.Where(invocation => !IsMessageAssertion(invocation.TargetMethod));
+
+                foreach (var assert in smellyAssertions)
                 {
-                    var diagnostic = Diagnostic.Create(Rule, invocationSyntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), assert.TargetMethod.Name);
+                    var invocationSyntax = assert.Syntax;
+                    if (invocationSyntax.IsKind(SyntaxKind.InvocationExpression))
+                    {
+                        var diagnostic = Diagnostic.Create(Rule, invocationSyntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), assert.TargetMethod.Name);
 
-                    context.ReportDiagnostic(diagnostic);
+                        context.ReportDiagnostic(diagnostic);
+                    }
                 }
-            }
-
+            };
         }
 
 

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.UnknownTest {
+namespace TestSmells.Compendium.DuplicateAssert {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.UnknownTest {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.UnknownTest.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.Compendium.DuplicateAssert.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.UnknownTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tests should have assertions.
+        ///   Looks up a localized string similar to Assertion testing the same condition should be in different methods.
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -70,7 +70,7 @@ namespace TestSmells.UnknownTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test method &apos;{0}&apos; has no assertions.
+        ///   Looks up a localized string similar to Test method &apos;{0}&apos; contains multiple similar assertions..
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace TestSmells.UnknownTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unknown Test.
+        ///   Looks up a localized string similar to Duplicate assertion.
         /// </summary>
         internal static string AnalyzerTitle {
             get {
