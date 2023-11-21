@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -125,111 +126,105 @@ namespace TestSmells.Compendium.MysteryGuest
             return methods.ToArray();
         }
 
-
-        internal static Action<OperationBlockAnalysisContext> AnalyzeMethodOperations(
-            FileSymbols fileSymbols)
+        internal static void RegisterTwoPartAnalysis(SymbolStartAnalysisContext context, FileSymbols fileSymbols)
         {
-            if (fileSymbols.Error()) return c => { };
+            ConcurrentBag<IInvocationOperation> writeBag = new ConcurrentBag<IInvocationOperation>();
+            ConcurrentBag<IInvocationOperation> readBag = new ConcurrentBag<IInvocationOperation>();
+            ConcurrentBag<ILiteralOperation> ignoredFilesBag = new ConcurrentBag<ILiteralOperation>();
 
 
-            IMethodSymbol[] readMethods = fileSymbols.ReadMethods;
-            IMethodSymbol[] writeMethods = fileSymbols.WriteMethods;
-            INamedTypeSymbol fileClass = fileSymbols.FileClass;
-            INamedTypeSymbol fileStreamClass = fileSymbols.FileStreamClass;
+            
 
-            return (context) =>
+            context.RegisterOperationAction(AnalyzeLiteralOperations(ignoredFilesBag), OperationKind.Literal);
+            context.RegisterOperationAction(AnalyzeInvocationOperations(writeBag, readBag, fileSymbols), OperationKind.Invocation);
+
+
+            context.RegisterSymbolEndAction(AnalyzeBags(ignoredFilesBag, writeBag, readBag));
+        }
+
+        private static Action<SymbolAnalysisContext> AnalyzeBags(ConcurrentBag<ILiteralOperation> ignoredFilesBag, ConcurrentBag<IInvocationOperation> writeBag, ConcurrentBag<IInvocationOperation> readBag)
+        {
+            return (SymbolAnalysisContext context) =>
             {
-                var fileOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(context.FilterTree);
-
-
-                var ignoredFiles = SettingSingleton.GetSettings(fileOptions, "dotnet_diagnostic.MysteryGuest.IgnoredFiles");
-
-
-                var ignoredFilesList = new List<string>();
-                if (ignoredFiles != null)
+                if (writeBag.Count > 0 || ignoredFilesBag.Count > 0) { return; }
+                foreach (var readOperation in readBag)
                 {
-                    foreach (var filename in ignoredFiles.Split(','))
-                    {
-                        ignoredFilesList.Add(filename.Trim());
-                    }
-                }
-                var blockOperation = TestUtils.GetBlockOperation(context);
-                if (blockOperation == null) { return; }
-
-
-                var readOperations = new List<IInvocationOperation>();
-                var writeOperations = new List<IInvocationOperation>();
-                foreach (var operation in blockOperation.Descendants())
-                {
-                    if (operation is ILiteralOperation literal)
-                    {
-                        if (literal.Type?.SpecialType == SpecialType.System_String && literal.ConstantValue.HasValue)
-                        {
-                            var shouldIgnore = ignoredFilesList.Any(f => literal.ConstantValue.Value.ToString().Contains(f));
-                            if (shouldIgnore)
-                            {
-                                return;
-                            }
-                        }
-
-                    }
-                    if (operation.Kind != OperationKind.Invocation) { continue; }
-                    var invocationOperation = (IInvocationOperation)operation;
-                    var methodIsStatic = invocationOperation.Instance is null;
-                    if (!methodIsStatic)
-                    {
-                        var methodInstanceIsFile = TestUtils.SymbolEquals(invocationOperation.Instance.Type, fileClass);
-                        var methodInstanceIsFileStream = TestUtils.SymbolEquals(invocationOperation.Instance.Type, fileStreamClass);
-                        if (!(methodInstanceIsFile || methodInstanceIsFileStream)) { continue; }
-
-                    }
-
-
-                    if (MethodIsInList(invocationOperation.TargetMethod.OriginalDefinition, readMethods))
-                    {
-                        readOperations.Add(invocationOperation);
-                    }
-                    if (MethodIsInList(invocationOperation.TargetMethod.OriginalDefinition, writeMethods))
-                    {
-                        writeOperations.Add(invocationOperation);
-                    }
-                }
-
-                if (writeOperations.Count > 0) { return; }
-                foreach (var readOperation in readOperations)
-                {
-                    var args = readOperation.Arguments;
-                    var isIgnored = false;
-                    foreach (var argument in args)
-                    {
-                        var val = argument.Value;
-                    }
-                    if (isIgnored)
-                    {
-                        continue;
-                    }
-                    var diagnostic = Diagnostic.Create(Rule, readOperation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.OwningSymbol.Name, readOperation.TargetMethod.Name);
+                    var diagnostic = Diagnostic.Create(Rule, readOperation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.Symbol.Name, readOperation.TargetMethod.Name);
                     context.ReportDiagnostic(diagnostic);
                 }
-
-
             };
         }
 
-        private static bool MethodIsInList(IMethodSymbol symbol, ISymbol[] relevantAssertions)
+        private static Action<OperationAnalysisContext> AnalyzeLiteralOperations(ConcurrentBag<ILiteralOperation> ignoredFilesBag)
         {
-            if (symbol == null) return false;
-
-            foreach (var function in relevantAssertions)
+            return (OperationAnalysisContext context) =>
             {
-                if (TestUtils.SymbolEquals(symbol.OriginalDefinition, function))
-                {
-                    return true;
+                var fileOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(context.FilterTree);
+                List<string> ignoredFilesList = GetIgnoredFilesFromOptions(fileOptions);
 
+                var literal = (ILiteralOperation)context.Operation;
+
+                if (literal.Type?.SpecialType == SpecialType.System_String && literal.ConstantValue.HasValue)
+                {
+                    if (ignoredFilesList.Any(f => literal.ConstantValue.Value.ToString().Contains(f)))
+                    {
+                        ignoredFilesBag.Add(literal);
+                    }
+                }
+            };
+        }
+
+        private static Action<OperationAnalysisContext> AnalyzeInvocationOperations(ConcurrentBag<IInvocationOperation> writeBag, ConcurrentBag<IInvocationOperation> readBag, FileSymbols fileSymbols)
+        {
+            return (OperationAnalysisContext context) =>
+            {
+                IMethodSymbol[] readMethods = fileSymbols.ReadMethods;
+                IMethodSymbol[] writeMethods = fileSymbols.WriteMethods;
+                INamedTypeSymbol fileClass = fileSymbols.FileClass;
+                INamedTypeSymbol fileStreamClass = fileSymbols.FileStreamClass;
+
+                var invocation = (IInvocationOperation)context.Operation;
+
+                //Check if the method are called from the file classes instead of any parent class
+                //FileStream.ReadAsync and Stream.ReadAsync are the smae symbol,
+                //but if ReadAsync is called from a FileStream object, it is a file read method
+                var methodIsStatic = invocation.Instance is null;
+                if (!methodIsStatic)
+                {
+                    var methodInstanceIsFile = TestUtils.SymbolEquals(invocation.Instance.Type, fileClass);
+                    var methodInstanceIsFileStream = TestUtils.SymbolEquals(invocation.Instance.Type, fileStreamClass);
+                    if (!(methodInstanceIsFile || methodInstanceIsFileStream)) { return; }
+                }
+
+
+                if (TestUtils.MethodIsInList(invocation.TargetMethod.OriginalDefinition, readMethods))
+                {
+                    readBag.Add(invocation);
+                }
+                if (TestUtils.MethodIsInList(invocation.TargetMethod.OriginalDefinition, writeMethods))
+                {
+                    writeBag.Add(invocation);
+                }
+            };
+        }
+
+        private static List<string> GetIgnoredFilesFromOptions(AnalyzerConfigOptions fileOptions)
+        {
+            var ignoredFiles = SettingSingleton.GetSettings(fileOptions, "dotnet_diagnostic.MysteryGuest.IgnoredFiles");
+
+
+            var ignoredFilesList = new List<string>();
+            if (ignoredFiles != null)
+            {
+                foreach (var filename in ignoredFiles.Split(','))
+                {
+                    ignoredFilesList.Add(filename.Trim());
                 }
             }
-            return false;
 
+            return ignoredFilesList;
         }
+
+
     }
 }

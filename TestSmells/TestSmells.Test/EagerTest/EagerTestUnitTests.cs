@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
-using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.EagerTest.EagerTestAnalyzer>;
+using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.Compendium.AnalyzerCompendium>;
 using TestReading;
 
 namespace TestSmells.Test.EagerTest
@@ -32,7 +32,7 @@ namespace TestSmells.Test.EagerTest
         public async Task SimpleEagerTest()
         {
             var testFile = @"SimpleEagerTest.cs";
-            var expected = VerifyCS.Diagnostic()
+            var expected = VerifyCS.Diagnostic("EagerTest")
                 .WithSpan(15, 13, 15, 41) //First Assert
                 .WithSpan(10, 21, 10, 32) //Method Declaration
                 .WithSpan(15, 13, 15, 41) //First Assert
@@ -52,7 +52,7 @@ namespace TestSmells.Test.EagerTest
         public async Task LocalVarEagerTest()
         {
             var testFile = @"LocalVarEagerTest.cs";
-            var expected = VerifyCS.Diagnostic()
+            var expected = VerifyCS.Diagnostic("EagerTest")
                 .WithSpan(18, 13, 18, 31) //First Assert
                 .WithSpan(10, 21, 10, 32) //Method Declaration
                 .WithSpan(18, 13, 18, 31) //First Assert

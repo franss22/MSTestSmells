@@ -19,7 +19,14 @@ namespace TestSmells.Compendium.ConditionalTest
 
         internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
-        internal static Action<OperationAnalysisContext> AnalyzeConditionalOperations(string controlType)
+        internal static void RegisterOperationActions(SymbolStartAnalysisContext symbolStartContext)
+        {
+            symbolStartContext.RegisterOperationAction(AnalyzeConditionalOperations("conditional"), OperationKind.Conditional);
+            symbolStartContext.RegisterOperationAction(AnalyzeConditionalOperations("loop"), OperationKind.Loop);
+            symbolStartContext.RegisterOperationAction(AnalyzeConditionalOperations("switch"), OperationKind.Switch);
+        }
+
+        private static Action<OperationAnalysisContext> AnalyzeConditionalOperations(string controlType)
         {
             return (context) =>
             {

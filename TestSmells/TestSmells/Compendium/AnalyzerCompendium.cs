@@ -18,6 +18,7 @@ using TestSmells.Compendium.SleepyTest;
 using TestSmells.Compendium.MysteryGuest;
 using TestSmells.Compendium.DuplicateAssert;
 using TestSmells.Compendium.UnknownTest;
+using TestSmells.Compendium.EagerTest;
 
 namespace TestSmells.Compendium
 {
@@ -41,7 +42,8 @@ namespace TestSmells.Compendium
                 SleepyTestAnalyzer.Rule,
                 MysteryGuestAnalyzer.Rule,
                 DuplicateAssertAnalyzer.Rule,
-                UnknownTestAnalyzer.Rule
+                UnknownTestAnalyzer.Rule,
+                EagerTestAnalyzer.Rule,
             };
             return ImmutableArray.Create(Rules);
         }
@@ -85,34 +87,30 @@ namespace TestSmells.Compendium
                 symbolStartContext.RegisterOperationAction(EmptyTestAnalyzer.AnalyzeMethodBodyOperation, OperationKind.MethodBody);
 
                 //Exception Handling
-                symbolStartContext.RegisterOperationAction(ExceptionHandlingAnalyzer.AnalyzeOperations("throws an exception"), OperationKind.Throw);
-                symbolStartContext.RegisterOperationAction(ExceptionHandlingAnalyzer.AnalyzeOperations("handles exceptions"), OperationKind.Try);
-
+                ExceptionHandlingAnalyzer.RegisterOperationActions(symbolStartContext);
                 //Conditional Test
-                symbolStartContext.RegisterOperationAction(ConditionalTestAnalyzer.AnalyzeConditionalOperations("conditional"), OperationKind.Conditional);
-                symbolStartContext.RegisterOperationAction(ConditionalTestAnalyzer.AnalyzeConditionalOperations("loop"), OperationKind.Loop);
-                symbolStartContext.RegisterOperationAction(ConditionalTestAnalyzer.AnalyzeConditionalOperations("switch"), OperationKind.Switch);
-
-                //Magic Number
-                symbolStartContext.RegisterOperationAction(MagicNumberAnalyzer.AnalyzeInvocation(magicNumberAssertions), OperationKind.Invocation);
-
+                ConditionalTestAnalyzer.RegisterOperationActions(symbolStartContext);
                 //Sleepy Test
                 symbolStartContext.RegisterOperationAction(SleepyTestAnalyzer.AnalyzeInvocation(threadSleep), OperationKind.Invocation);
 
-                //MysteryGuest
-                symbolStartContext.RegisterOperationBlockAction(MysteryGuestAnalyzer.AnalyzeMethodOperations(fileSymbols));
 
+                //Magic Number
+                symbolStartContext.RegisterOperationAction(MagicNumberAnalyzer.AnalyzeInvocation(magicNumberAssertions), OperationKind.Invocation);
                 //Redundant Assertions
                 symbolStartContext.RegisterOperationAction(RedundantAssertionAnalyzer.AnalyzeInvocations(redundantAssertionAssertions), OperationKind.Invocation);
 
                 //Assertion Roulette
                 AssertionRouletteAnalyzer.RegisterTwoPartAnalysis(symbolStartContext, allAssertionMethods);
-
                 //Duplicate Assert
                 DuplicateAssertAnalyzer.RegisterTwoPartAnalysis(symbolStartContext, allAssertionMethods);
-
                 //Unknown Test
                 UnknownTestAnalyzer.RegisterTwoPartAnalysis(symbolStartContext, allAssertionMethods);
+
+                //Eager Test
+                symbolStartContext.RegisterOperationBlockAction(EagerTestAnalyzer.AnalyzeMethodBody(allAssertionMethods));
+
+                //MysteryGuest
+                MysteryGuestAnalyzer.RegisterTwoPartAnalysis(symbolStartContext, fileSymbols);
 
             }
             , SymbolKind.Method);

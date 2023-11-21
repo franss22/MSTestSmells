@@ -75,9 +75,9 @@ namespace TestSmells.Compendium.RedundantAssertion
 
         }
 
-        private static bool AreSimilarArguments(IArgumentOperation invocation1, IArgumentOperation invocation2)
+        private static bool AreSimilarArguments(IArgumentOperation argument1, IArgumentOperation argument2)
         {
-            return invocation1.Syntax.IsEquivalentTo(invocation2.Syntax, true);
+            return argument1.Syntax.IsEquivalentTo(argument2.Syntax, true);
         }
     }
 }

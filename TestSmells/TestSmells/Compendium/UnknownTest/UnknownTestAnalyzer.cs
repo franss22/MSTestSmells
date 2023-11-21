@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 
 
@@ -46,16 +47,41 @@ namespace TestSmells.Compendium.UnknownTest
         {
             return (OperationAnalysisContext context) =>
             {
+                var fileOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(context.FilterTree);
+
+                var customAssertionNames = GetCustomAssertionsFromOptions(fileOptions);
+
+
                 var invocation = (IInvocationOperation)context.Operation;
 
                 var calledMethod = invocation.TargetMethod;
-                if (TestUtils.MethodIsInList(calledMethod, assertionSymbols) ||calledMethod.Name.ToLower().Contains("assert"))
+                if (IsCountedAsAssertion(assertionSymbols, calledMethod, customAssertionNames))
                 {
                     methodBag.Add(invocation);
                 }
-
             };
         }
 
+        private static List<string> GetCustomAssertionsFromOptions(AnalyzerConfigOptions fileOptions)
+        {
+            var customAssertionNames = SettingSingleton.GetSettings(fileOptions, "dotnet_diagnostic.UnknownTest.CustomAssertions");
+
+
+            var CustomAssertions = new List<string>();
+            if (customAssertionNames != null)
+            {
+                foreach (var filename in customAssertionNames.Split(','))
+                {
+                    CustomAssertions.Add(filename.Trim());
+                }
+            }
+
+            return CustomAssertions;
+        }
+
+        private static bool IsCountedAsAssertion(IEnumerable<IMethodSymbol> assertionSymbols, IMethodSymbol calledMethod, List<string> customAssertionNames)
+        {
+            return TestUtils.MethodIsInList(calledMethod, assertionSymbols) || calledMethod.Name.ToLower().Contains("assert") || customAssertionNames.Contains(calledMethod.Name);
+        }
     }
 }

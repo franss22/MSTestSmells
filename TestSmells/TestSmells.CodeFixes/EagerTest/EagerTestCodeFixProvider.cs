@@ -13,6 +13,7 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TestSmells.Compendium.EagerTest;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 
@@ -40,6 +41,8 @@ namespace TestSmells.EagerTest
             var testMethod = root.FindToken(testMethodSpan.Start).Parent.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().First();
             var diagnostics = new List<InvocationExpressionSyntax>(from l in diagnostic.AdditionalLocations.Skip(1) select (InvocationExpressionSyntax) root.FindNode(l.SourceSpan));
 
+
+            //check if any of the invocations has an argument of a type not supported by the fix.
             foreach (var invocation in diagnostics)
             {
                 if (invocation.ArgumentList.Arguments.Any(NotPermittedArgument))
@@ -123,11 +126,7 @@ namespace TestSmells.EagerTest
         {
             var permittedKinds = new List<SyntaxKind> 
             { 
-                SyntaxKind.IdentifierName,
-                SyntaxKind.NumericLiteralExpression,
-                SyntaxKind.StringLiteralExpression,
-                SyntaxKind.InterpolatedStringExpression,
-                SyntaxKind.InvocationExpression, 
+                 , 
             };
 
             return !permittedKinds.Contains(arg.Expression.Kind());

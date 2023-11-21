@@ -49,6 +49,28 @@ namespace TestSmells.Test.DuplicateAssert
         }
 
         [TestMethod]
+        public async Task DuplicateAndNot()
+        {
+            //@ duplicate assertoins followed by a unique assertion
+
+            var testFile = @"DuplicateAndNot.cs";
+            var expected = VerifyCS.Diagnostic("DuplicateAssert")
+                .WithSpan(16, 13, 16, 34)//1st assert
+                .WithSpan(11, 21, 11, 32)//method
+                .WithSpan(16, 13, 16, 34)//1st assert
+                .WithSpan(18, 13, 18, 34)//2nd assert
+                .WithArguments("TestMethod1");
+            var test = new VerifyCS.Test
+            {
+                TestCode = testReader.ReadTest(testFile),
+                ExpectedDiagnostics = { expected },
+                ReferenceAssemblies = UnitTestingAssembly
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
+        }
+
+        [TestMethod]
         public async Task CommentDifference()
         {
             var testFile = @"CommentDifference.cs";

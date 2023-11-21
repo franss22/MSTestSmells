@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using VerifyCS = TestSmells.Test.CSharpCodeFixVerifier<
-    TestSmells.EagerTest.EagerTestAnalyzer,
+    TestSmells.Compendium.AnalyzerCompendium,
     TestSmells.EagerTest.EagerTestCodeFixProvider>;
 using TestReading;
 
@@ -36,7 +36,7 @@ namespace TestSmells.Test.EagerTest
             var testFile = @"SimpleEagerTest.cs";
             var fixedFile = @"SimpleEagerTestFixed.cs";
 
-            var expected = VerifyCS.Diagnostic()
+            var expected = VerifyCS.Diagnostic("EagerTest")
                 .WithSpan(15, 13, 15, 41)
                 .WithSpan(10, 21, 10, 32)
                 .WithSpan(15, 13, 15, 41)
@@ -60,7 +60,7 @@ namespace TestSmells.Test.EagerTest
             var testFile = @"LocalVarEagerTest.cs";
             var fixedFile = @"LocalVarEagerTestFixed.cs";
 
-            var expected = VerifyCS.Diagnostic()
+            var expected = VerifyCS.Diagnostic("EagerTest")
                 .WithSpan(18, 13, 18, 31) //First Assert
                 .WithSpan(10, 21, 10, 32) //Method Declaration
                 .WithSpan(18, 13, 18, 31) //First Assert
@@ -83,7 +83,7 @@ namespace TestSmells.Test.EagerTest
             var testFile = @"MultipleArguments.cs";
             var fixedFile = @"MultipleArgumentsFixed.cs";
 
-            var expected = VerifyCS.Diagnostic()
+            var expected = VerifyCS.Diagnostic("EagerTest")
                 .WithSpan(16, 13, 16, 67)
                 .WithSpan(10, 21, 10, 32)
                 .WithSpan(16, 13, 16, 67)
@@ -106,7 +106,7 @@ namespace TestSmells.Test.EagerTest
             var testFile = @"LocalVarEagerTestTrivia.cs";
             var fixedFile = @"LocalVarEagerTestTriviaFixed.cs";
 
-            var expected = VerifyCS.Diagnostic()
+            var expected = VerifyCS.Diagnostic("EagerTest")
                 .WithSpan(18, 13, 18, 36)
                 .WithSpan(10, 21, 10, 32)
                 .WithSpan(18, 13, 18, 36)

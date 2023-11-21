@@ -72,5 +72,28 @@ namespace TestSmells.Test.UnknownTest
             await test.RunAsync();
         }
 
+
+        [TestMethod]
+        public async Task TestWithHelperAssertionInOptions()
+        {
+            var testFile = @"TestWithHelperAssertion.cs";
+            var test = new VerifyCS.Test
+            {
+                TestCode = testReader.ReadTest(testFile),
+                ExpectedDiagnostics = { },
+                ReferenceAssemblies = UnitTestingAssembly
+            };
+            var helperAssertions = "\ndotnet_diagnostic.MysteryGuest.CustomAssertions = MyTestFunction, YourTestFunction";
+
+            (string filename, string content) editorconfig =
+                (
+                ExcludeOtherCompendiumDiagnostics.filename,
+                ExcludeOtherCompendiumDiagnostics.content + helperAssertions
+                );
+
+            test.TestState.AnalyzerConfigFiles.Add(editorconfig);
+            await test.RunAsync();
+        }
+
     }
 }

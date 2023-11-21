@@ -35,12 +35,12 @@ namespace TestSmells
             return Instance;
         }
 
-        public static void SetSettings(Dictionary<string, string> newSettings, bool _delegate)
+        public static void SetSettings(Dictionary<string, string> newSettings, bool Override)
         {
             var S = GetInstance();
             S.Settings = newSettings;
             S.CustomSettingsProvided = true;
-            S.HardOverride = _delegate;
+            S.HardOverride = Override;
         }
 
         public static string GetSettings(AnalyzerConfigOptions defaultOptions, string key) 

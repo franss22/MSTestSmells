@@ -254,7 +254,6 @@ namespace TestSmells.Console
                 //Unknown Test
                 new Compendium.AnalyzerCompendium(),
 
-                new EagerTest.EagerTestAnalyzer(),
                 new GeneralFixture.GeneralFixtureAnalyzer(),
 
             };

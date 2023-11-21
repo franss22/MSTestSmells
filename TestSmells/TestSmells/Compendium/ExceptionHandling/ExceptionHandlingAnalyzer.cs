@@ -20,7 +20,13 @@ namespace TestSmells.Compendium.ExceptionHandling
 
         internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
-        internal static Action<OperationAnalysisContext> AnalyzeOperations(string description)
+        internal static void RegisterOperationActions(SymbolStartAnalysisContext symbolStartContext)
+        {
+            symbolStartContext.RegisterOperationAction(AnalyzeOperations("throws an exception"), OperationKind.Throw);
+            symbolStartContext.RegisterOperationAction(AnalyzeOperations("handles exceptions"), OperationKind.Try);
+        }
+
+        private static Action<OperationAnalysisContext> AnalyzeOperations(string description)
         {
             return (context) =>
             {

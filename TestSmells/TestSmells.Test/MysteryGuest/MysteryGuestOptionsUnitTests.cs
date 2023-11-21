@@ -37,9 +37,9 @@ namespace TestSmells.Test.MysteryGuest
 
 
         [TestMethod]
-        public async Task OpenRead()
+        public async Task ShouldIgnoreVar()
         {
-            var testFile = @"shouldignore.cs";
+            var testFile = @"ShouldIgnoreVar.cs";
 
             //var diagnostic = VerifyCS.Diagnostic().WithSpan(13, 24, 13, 43).WithArguments("TestMethod");
 
@@ -62,7 +62,33 @@ namespace TestSmells.Test.MysteryGuest
             await test.RunAsync();
         }
 
- 
+
+        [TestMethod]
+        public async Task ShouldIgnoreArgument()
+        {
+            var testFile = @"ShouldIgnoreArgument.cs";
+
+            //var diagnostic = VerifyCS.Diagnostic().WithSpan(13, 24, 13, 43).WithArguments("TestMethod");
+
+            var test = new VerifyCS.Test
+            {
+                TestCode = testReader.ReadTest(testFile),
+                ExpectedDiagnostics = { },
+                ReferenceAssemblies = UnitTestingAssembly,
+            };
+
+            var ignoredFiles = "\ndotnet_diagnostic.MysteryGuest.IgnoredFiles = C:\\Program Files\\AMD\\atikmdag_dce.log, C:\\Program Files\\AMD\\atikmdag_dceb.log";
+
+            (string filename, string content) editorconfig =
+                (
+                ExcludeOtherCompendiumDiagnostics.filename,
+                ExcludeOtherCompendiumDiagnostics.content + ignoredFiles
+                );
+
+            test.TestState.AnalyzerConfigFiles.Add(editorconfig);
+            await test.RunAsync();
+        }
+
 
     }
 }

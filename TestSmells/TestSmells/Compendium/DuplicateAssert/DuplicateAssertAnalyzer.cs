@@ -59,9 +59,10 @@ namespace TestSmells.Compendium.DuplicateAssert
                 }
 
                 if (similarInvocations.Count == assertions.Count()) { return; }
-                foreach (var assertionGroup in similarInvocations)
+                var testLocation = context.Symbol.Locations.First();
+                var duplicateInvocations = similarInvocations.Where(l => l.Count > 1);
+                foreach (var assertionGroup in duplicateInvocations)
                 {
-                    var testLocation = context.Symbol.Locations.First();
 
                     var locations = new List<Location>(from o in assertionGroup select o.Syntax.GetLocation());
                     var diagnosticLocation = locations.First();
