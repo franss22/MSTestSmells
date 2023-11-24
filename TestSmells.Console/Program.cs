@@ -51,6 +51,7 @@ namespace TestSmells.Console
             var diagnostics = new List<Diagnostic>();
 
             var projectSummaries = new ConcurrentBag<ProjectSummary>();
+            var testMethodsBag = new ConcurrentBag<ISymbol>();
 
             var analyzers = TestSmellAnalyzers();
             var analyzerIds = SupportedDagnosticsIds(analyzers);
@@ -69,7 +70,7 @@ namespace TestSmells.Console
                 var compilations = await Task.WhenAll(solution.Projects.Select(p => p.GetCompilationAsync()));
 
                 System.Console.WriteLine("Analyzing Solution");
-                diagnostics = await AnalyzeSolution(diagnostics, projectSummaries, analyzers, severityConfig, compilations);
+                diagnostics = await AnalyzeSolution(diagnostics, projectSummaries, testMethodsBag, analyzers, severityConfig, compilations);
 
                 System.Console.WriteLine("Finalized Analysis");
 
@@ -82,13 +83,32 @@ namespace TestSmells.Console
 
             SaveMethodSummaryCSV(options, diagnostics, analyzerIds);
 
+            SaveMethodListCSV(options, testMethodsBag);
+
+
             Environment.Exit(0);
         }
 
-        private static async Task<List<Diagnostic>> AnalyzeSolution(List<Diagnostic> diagnostics, ConcurrentBag<ProjectSummary> projectSummaries, ImmutableArray<DiagnosticAnalyzer> analyzers, Dictionary<string, string?> severityConfig, Compilation?[] compilations)
+        private static void SaveMethodListCSV(ConsoleProgramOptions options, ConcurrentBag<ISymbol> testMethodsBag)
+        {
+            if (options.MethodListOutput is not null)
+            {
+                System.Console.WriteLine($"Printing method list to {options.OutputMethods}");
+
+                var methodPrinter = new Printer(options.MethodListOutput);
+               
+                var methodNames = testMethodsBag.Select(m => m.ToString());
+
+                methodPrinter.Print("Method name");
+                methodPrinter.Print(methodNames);
+
+            }
+        }
+
+        private static async Task<List<Diagnostic>> AnalyzeSolution(List<Diagnostic> diagnostics, ConcurrentBag<ProjectSummary> projectSummaries, ConcurrentBag<ISymbol> testMethodsBag, ImmutableArray<DiagnosticAnalyzer> analyzers, Dictionary<string, string?> severityConfig, Compilation?[] compilations)
         {
             var analysis = compilations.Where(c => c != null)
-                                .Select(c => ProcessCompilation(c, analyzers, projectSummaries, severityConfig)).ToArray();
+                                .Select(c => ProcessCompilation(c, analyzers, projectSummaries, testMethodsBag, severityConfig)).ToArray();
             return (await Task.WhenAll(analysis)).SelectMany(x => x).ToList();
         }
 
@@ -157,6 +177,7 @@ namespace TestSmells.Console
             Compilation compilation,
             ImmutableArray<DiagnosticAnalyzer> analyzers,
             ConcurrentBag<ProjectSummary> projectSummariesBag,
+            ConcurrentBag<ISymbol> testMethodsBags,
             Dictionary<string, string?> severityConfig)
         {
             var testClassAttr = compilation.GetTypeByMetadataName("Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
@@ -166,7 +187,11 @@ namespace TestSmells.Console
 
                 var analyzerTask = compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
 
-                CountTests(compilation, testClassAttr, testMethodAttr, out int testClassAmount, out int testMethodAmount);
+                CountTests(compilation, testClassAttr, testMethodAttr, out int testClassAmount, out int testMethodAmount, out ISymbol[] allTestMethods);
+                foreach (var symbol in allTestMethods)
+                {
+                    testMethodsBags.Add(symbol);
+                }
 
                 var analyzerResults = await analyzerTask;
                 var relevantResults = analyzerResults.Where(d => d.GetSeverityWithConfig(severityConfig) != DiagnosticSeverity.Hidden && d.Id != "AD0001");
@@ -355,16 +380,19 @@ namespace TestSmells.Console
 
 
 
-        private static void CountTests(Compilation compilation, INamedTypeSymbol? testClassAttr, INamedTypeSymbol? testMethodAttr, out int testClassAmount, out int testMethodAmount)
+        private static void CountTests(Compilation compilation, INamedTypeSymbol? testClassAttr, INamedTypeSymbol? testMethodAttr, out int testClassAmount, out int testMethodAmount, out ISymbol[] testMethodList)
         {
             var testClasses = GetTestClassSymbols(compilation.SourceModule.GlobalNamespace, testClassAttr);
             testClassAmount = testClasses.Count();
             testMethodAmount = 0;
+            List<ISymbol> allTests = new();
             foreach (var testClass in testClasses)
             {
                 var testMethods = testClass.GetMembers().Where(t => TestUtils.AttributeIsInSymbol(testMethodAttr, t));
                 testMethodAmount += testMethods.Count();
+                allTests.AddRange(testMethods);
             }
+            testMethodList = allTests.ToArray();
         }
     }
 }

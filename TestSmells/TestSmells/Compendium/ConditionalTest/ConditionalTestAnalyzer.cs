@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
@@ -22,10 +23,20 @@ namespace TestSmells.Compendium.ConditionalTest
         internal static void RegisterOperationActions(SymbolStartAnalysisContext symbolStartContext)
         {
             symbolStartContext.RegisterOperationAction(AnalyzeConditionalOperations("conditional"), OperationKind.Conditional);
-            symbolStartContext.RegisterOperationAction(AnalyzeConditionalOperations("loop"), OperationKind.Loop);
+            symbolStartContext.RegisterOperationAction(AnalyzeLoopOperations("loop"), OperationKind.Loop);
             symbolStartContext.RegisterOperationAction(AnalyzeConditionalOperations("switch"), OperationKind.Switch);
         }
+        private static Action<OperationAnalysisContext> AnalyzeLoopOperations(string controlType)
+        {
+            return (context) =>
+            {
+                var loop = (ILoopOperation)context.Operation;
+                if (loop.LoopKind == LoopKind.ForEach) return;
 
+                var diagnostic = Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), context.ContainingSymbol.Name, controlType);
+                context.ReportDiagnostic(diagnostic);
+            };
+        }
         private static Action<OperationAnalysisContext> AnalyzeConditionalOperations(string controlType)
         {
             return (context) =>

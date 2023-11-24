@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestSmells.Compendium.EagerTest {
+namespace TestSmells.Compendium.ObviousFail {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TestSmells.Compendium.EagerTest {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.Compendium.EagerTest.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TestSmells.Compendium.ObviousFail.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace TestSmells.Compendium.EagerTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test method should test a single production method.
+        ///   Looks up a localized string similar to Use Assert.Fail() instead of other assertion methods when it makes sense.
         /// </summary>
         internal static string AnalyzerDescription {
             get {
@@ -70,7 +70,7 @@ namespace TestSmells.Compendium.EagerTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test Method &apos;{0}&apos; runs assert on more than one production method: {1}.
+        ///   Looks up a localized string similar to {0} can be replaced with Assert.Fail().
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace TestSmells.Compendium.EagerTest {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Eager Test.
+        ///   Looks up a localized string similar to Obvious Fail.
         /// </summary>
         internal static string AnalyzerTitle {
             get {

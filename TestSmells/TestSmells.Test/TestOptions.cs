@@ -25,6 +25,8 @@ dotnet_diagnostic.MysteryGuest.severity = {Severity(diagnosticName, "MysteryGues
 dotnet_diagnostic.RedundantAssertion.severity = {Severity(diagnosticName, "RedundantAssertion")}
 dotnet_diagnostic.SleepyTest.severity = {Severity(diagnosticName, "SleepyTest")}
 dotnet_diagnostic.UnknownTest.severity = {Severity(diagnosticName, "UnknownTest")}
+dotnet_diagnostic.ObviousFail.severity = {Severity(diagnosticName, "ObviousFail")}
+
 
 "
                 );

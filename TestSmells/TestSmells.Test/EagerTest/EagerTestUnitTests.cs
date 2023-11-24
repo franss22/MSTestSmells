@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using VerifyCS = TestSmells.Test.CSharpAnalyzerVerifier<TestSmells.Compendium.AnalyzerCompendium>;
 using TestReading;
+using TestSmells.Compendium;
 
 namespace TestSmells.Test.EagerTest
 {
@@ -33,11 +34,11 @@ namespace TestSmells.Test.EagerTest
         {
             var testFile = @"SimpleEagerTest.cs";
             var expected = VerifyCS.Diagnostic("EagerTest")
-                .WithSpan(15, 13, 15, 41) //First Assert
+                .WithSpan(10, 21, 10, 32) //First Assert
                 .WithSpan(10, 21, 10, 32) //Method Declaration
                 .WithSpan(15, 13, 15, 41) //First Assert
                 .WithSpan(16, 13, 16, 39) //Second Assert
-                .WithArguments("TestMethod1");
+                .WithArguments("TestMethod1", "Contains, Equals");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -53,11 +54,11 @@ namespace TestSmells.Test.EagerTest
         {
             var testFile = @"LocalVarEagerTest.cs";
             var expected = VerifyCS.Diagnostic("EagerTest")
-                .WithSpan(18, 13, 18, 31) //First Assert
-                .WithSpan(10, 21, 10, 32) //Method Declaration
-                .WithSpan(18, 13, 18, 31) //First Assert
-                .WithSpan(19, 13, 19, 31) //Second Assert
-                .WithArguments("TestMethod1");
+                .WithSpan(10, 21, 10, 32)
+                .WithSpan(10, 21, 10, 32)
+                .WithSpan(18, 13, 18, 31)
+                .WithSpan(19, 13, 19, 31)
+                .WithArguments("TestMethod1", "Contains, Equals");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -109,7 +110,27 @@ namespace TestSmells.Test.EagerTest
             test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
             await test.RunAsync();
         }
+        
 
+        [TestMethod]
+        public async Task VarDeclarationWithoutValue()
+        {
+            var testFile = @"VarDeclarationWithoutValue.cs";
+            var expected = VerifyCS.Diagnostic("EagerTest")
+                .WithSpan(10, 21, 10, 32)
+                .WithSpan(10, 21, 10, 32)
+                .WithSpan(20, 13, 20, 31)
+                .WithSpan(21, 13, 21, 31)
+                .WithArguments("TestMethod1", "Contains, Equals");
+            var test = new VerifyCS.Test
+            {
+                TestCode = testReader.ReadTest(testFile),
+                ExpectedDiagnostics = { expected },
+                ReferenceAssemblies = UnitTestingAssembly
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
+        }
 
     }
 }

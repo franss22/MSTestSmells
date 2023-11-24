@@ -24,7 +24,7 @@ namespace TestSmells.Test.EagerTest
         public async Task EmptyProgram()
         {
             var test = @"";
-
+             
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
@@ -37,11 +37,11 @@ namespace TestSmells.Test.EagerTest
             var fixedFile = @"SimpleEagerTestFixed.cs";
 
             var expected = VerifyCS.Diagnostic("EagerTest")
-                .WithSpan(15, 13, 15, 41)
+                .WithSpan(10, 21, 10, 32)
                 .WithSpan(10, 21, 10, 32)
                 .WithSpan(15, 13, 15, 41)
                 .WithSpan(16, 13, 16, 39)
-                .WithArguments("TestMethod1");
+                .WithArguments("TestMethod1", "Contains, Equals");
             ;
             var test = new VerifyCS.Test
             {
@@ -61,11 +61,11 @@ namespace TestSmells.Test.EagerTest
             var fixedFile = @"LocalVarEagerTestFixed.cs";
 
             var expected = VerifyCS.Diagnostic("EagerTest")
-                .WithSpan(18, 13, 18, 31) //First Assert
+                .WithSpan(10, 21, 10, 32) //Method Declaration
                 .WithSpan(10, 21, 10, 32) //Method Declaration
                 .WithSpan(18, 13, 18, 31) //First Assert
                 .WithSpan(19, 13, 19, 31) //Second Assert
-                .WithArguments("TestMethod1");
+                .WithArguments("TestMethod1", "Contains, Equals");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -84,11 +84,11 @@ namespace TestSmells.Test.EagerTest
             var fixedFile = @"MultipleArgumentsFixed.cs";
 
             var expected = VerifyCS.Diagnostic("EagerTest")
-                .WithSpan(16, 13, 16, 67)
+                .WithSpan(10, 21, 10, 32)
                 .WithSpan(10, 21, 10, 32)
                 .WithSpan(16, 13, 16, 67)
                 .WithSpan(17, 13, 17, 64)
-                .WithArguments("TestMethod1");
+                .WithArguments("TestMethod1", "Contains, Equals");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
@@ -107,11 +107,11 @@ namespace TestSmells.Test.EagerTest
             var fixedFile = @"LocalVarEagerTestTriviaFixed.cs";
 
             var expected = VerifyCS.Diagnostic("EagerTest")
-                .WithSpan(18, 13, 18, 36)
+                .WithSpan(10, 21, 10, 32)
                 .WithSpan(10, 21, 10, 32)
                 .WithSpan(18, 13, 18, 36)
                 .WithSpan(19, 13, 19, 31)
-                .WithArguments("TestMethod1");
+                .WithArguments("TestMethod1", "Contains, Equals");
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),

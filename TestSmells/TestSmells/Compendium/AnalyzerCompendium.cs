@@ -19,6 +19,7 @@ using TestSmells.Compendium.MysteryGuest;
 using TestSmells.Compendium.DuplicateAssert;
 using TestSmells.Compendium.UnknownTest;
 using TestSmells.Compendium.EagerTest;
+using TestSmells.Compendium.ObviousFail;
 
 namespace TestSmells.Compendium
 {
@@ -44,6 +45,7 @@ namespace TestSmells.Compendium
                 DuplicateAssertAnalyzer.Rule,
                 UnknownTestAnalyzer.Rule,
                 EagerTestAnalyzer.Rule,
+                ObviousFailAnalyzer.Rule,
             };
             return ImmutableArray.Create(Rules);
         }
@@ -76,6 +78,7 @@ namespace TestSmells.Compendium
             var allAssertionMethods = TestUtils.GetAssertionMethodSymbols(compilationContext.Compilation);
             var magicNumberAssertions = MagicNumberAnalyzer.RelevantAssertions(compilationContext.Compilation);
             var redundantAssertionAssertions = RedundantAssertionAnalyzer.RelevantAssertions(compilationContext.Compilation);
+            var obviousFailAssertions = ObviousFailAnalyzer.RelevantAssertions(compilationContext.Compilation);
             var fileSymbols = new MysteryGuestAnalyzer.FileSymbols(compilationContext.Compilation);
 
             // We register a Symbol Start Action to filter all test classes and their test methods
@@ -98,6 +101,8 @@ namespace TestSmells.Compendium
                 symbolStartContext.RegisterOperationAction(MagicNumberAnalyzer.AnalyzeInvocation(magicNumberAssertions), OperationKind.Invocation);
                 //Redundant Assertions
                 symbolStartContext.RegisterOperationAction(RedundantAssertionAnalyzer.AnalyzeInvocations(redundantAssertionAssertions), OperationKind.Invocation);
+                //Obvious Fail
+                symbolStartContext.RegisterOperationAction(ObviousFailAnalyzer.AnalyzeAssertions(obviousFailAssertions), OperationKind.Invocation);
 
                 //Assertion Roulette
                 AssertionRouletteAnalyzer.RegisterTwoPartAnalysis(symbolStartContext, allAssertionMethods);

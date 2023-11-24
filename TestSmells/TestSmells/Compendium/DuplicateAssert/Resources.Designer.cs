@@ -70,7 +70,7 @@ namespace TestSmells.Compendium.DuplicateAssert {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test method &apos;{0}&apos; contains multiple similar assertions..
+        ///   Looks up a localized string similar to Test method &apos;{0}&apos; contains multiple similar assertions in lines {1}.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {

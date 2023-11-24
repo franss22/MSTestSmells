@@ -105,9 +105,10 @@ namespace TestSmells.Compendium.EagerTest
                     var secondaryLocations = new List<Location>(from o in assertions select o.Syntax.GetLocation());
                     secondaryLocations.Insert(0, testLocation);
 
+                    var methodNames = string.Join(", ", calledMethods.Select(m => m.Name));
 
 
-                    var diagnostic = Diagnostic.Create(Rule, firstLocation, secondaryLocations, properties: TestUtils.MethodNameProperty(context), context.OwningSymbol.Name);
+                    var diagnostic = Diagnostic.Create(Rule, testLocation, secondaryLocations, properties: TestUtils.MethodNameProperty(context), context.OwningSymbol.Name, methodNames);
                     context.ReportDiagnostic(diagnostic);
                 }
             };
@@ -150,6 +151,8 @@ namespace TestSmells.Compendium.EagerTest
             if (operation.Kind == OperationKind.VariableDeclarator)
             {
                 var declaration = (IVariableDeclaratorOperation)operation;
+                if (declaration.Initializer is null) return;
+
                 if (TestUtils.SymbolEquals(declaration.Symbol, referenceArg.Local))
                 {
                     foreach (var op in declaration.Initializer.Value.DescendantsAndSelf())

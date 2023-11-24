@@ -8,11 +8,11 @@
   <PropertyGroup>
     <PackageId>TestSmells</PackageId>
     <PackageVersion>1.0.0.0</PackageVersion>
-    <Authors>frano</Authors>
-    <PackageLicenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</PackageLicenseUrl>
-    <PackageProjectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</PackageProjectUrl>
-    <PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>
-    <RepositoryUrl>http://REPOSITORY_URL_HERE_OR_DELETE_THIS_LINE</RepositoryUrl>
+    <Authors>franss22</Authors>
+    <PackageLicenseUrl>https://licenses.nuget.org/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/franss22/MSTestSmells/</PackageProjectUrl>
+    <PackageIcon>vsextensibilityicon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/franss22/MSTestSmells/</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>TestSmells</Description>
     <PackageReleaseNotes>Summary of changes made in this release of the package.</PackageReleaseNotes>
@@ -22,6 +22,15 @@
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="..\..\..\..\Users\frano\.nuget\packages\microsoft.vssdk.buildtools\17.7.2196\contentFiles\any\net472\vsextensibilityicon.png" Link="vsextensibilityicon.png">
+      <Private>False</Private>
+      <NuGetPackageVersion>17.7.2196</NuGetPackageVersion>
+      <NuGetItemType>Content</NuGetItemType>
+      <NuGetPackageId>Microsoft.VSSDK.BuildTools</NuGetPackageId>
+      <Pack>false</Pack>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TestSmells.CodeFixes\TestSmells.CodeFixes.csproj" />
     <ProjectReference Include="..\TestSmells\TestSmells.csproj" />

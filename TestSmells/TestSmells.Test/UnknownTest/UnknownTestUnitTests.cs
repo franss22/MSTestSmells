@@ -22,7 +22,6 @@ namespace TestSmells.Test.UnknownTest
         public async Task EmptyProgram()
         {
             var test = @"";
-
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
 

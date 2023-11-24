@@ -23,6 +23,10 @@
     "Help Message": {
       "commandName": "Project",
       "commandLineArgs": "--help\r\n"
+    },
+    "TestProject Method List": {
+      "commandName": "Project",
+      "commandLineArgs": "-s C:\\Repos\\TestSmellsMemoria\\TestSmells.sln\r\n-o Analisis.csv\r\n-l MethodsList.csv"
     }
   }
 }

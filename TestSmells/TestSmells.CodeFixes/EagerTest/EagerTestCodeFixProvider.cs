@@ -125,8 +125,12 @@ namespace TestSmells.EagerTest
         private bool NotPermittedArgument(ArgumentSyntax arg)
         {
             var permittedKinds = new List<SyntaxKind> 
-            { 
-                 , 
+            {
+                SyntaxKind.IdentifierName,
+                SyntaxKind.NumericLiteralExpression,
+                SyntaxKind.StringLiteralExpression,
+                SyntaxKind.InterpolatedStringExpression,
+                SyntaxKind.InvocationExpression,
             };
 
             return !permittedKinds.Contains(arg.Expression.Kind());

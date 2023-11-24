@@ -66,9 +66,12 @@ namespace TestSmells.Compendium.DuplicateAssert
 
                     var locations = new List<Location>(from o in assertionGroup select o.Syntax.GetLocation());
                     var diagnosticLocation = locations.First();
+
+                    var linesMessage = string.Join(", ", locations.Select(loc => loc.GetMappedLineSpan().Span.Start.Line + 1));
+
                     locations.Insert(0, testLocation);
 
-                    var diagnostic = Diagnostic.Create(Rule, diagnosticLocation, locations, properties: TestUtils.MethodNameProperty(context), context.Symbol.Name);
+                    var diagnostic = Diagnostic.Create(Rule, diagnosticLocation, locations, properties: TestUtils.MethodNameProperty(context), context.Symbol.Name, linesMessage);
                     context.ReportDiagnostic(diagnostic);
 
                 }

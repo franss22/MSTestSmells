@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="TestSmells.a0b79202-9507-4a58-bf67-b930ff3179dd" Version="1.0" Language="en-US" Publisher="frano"/>
-    <DisplayName>TestSmells</DisplayName>
-    <Description xml:space="preserve">This is a sample diagnostic extension for the .NET Compiler Platform ("Roslyn").</Description>
+    <Identity Id="TestSmells.a0b79202-9507-4a58-bf67-b930ff3179dd" Version="1.0" Language="en-US" Publisher="FranciscoOrtiz"/>
+    <DisplayName>MSTest Smells</DisplayName>
+    <Description xml:space="preserve">This is a test smell diagnostic extension for the MSTest framework.</Description>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0,)" />

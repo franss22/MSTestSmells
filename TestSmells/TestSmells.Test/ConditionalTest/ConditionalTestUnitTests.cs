@@ -83,12 +83,11 @@ namespace TestSmells.Test.ConditionalTest
         public async Task Foreach()
         {
             var testFile = @"Foreach.cs";
-            var expected = VerifyCS.Diagnostic("ConditionalTest").WithSpan(14, 13, 17, 14).WithArguments("TestMethod1", "loop");
 
             var test = new VerifyCS.Test
             {
                 TestCode = testReader.ReadTest(testFile),
-                ExpectedDiagnostics = { expected },
+                ExpectedDiagnostics = { },
                 ReferenceAssemblies = UnitTestingAssembly
             };
             test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
