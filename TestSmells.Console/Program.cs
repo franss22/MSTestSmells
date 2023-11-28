@@ -11,12 +11,14 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.Options;
 using System.Text.Json;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Diagnostics;
 
 namespace TestSmells.Console
 {
 
     internal static partial class Program
     {
+        private static readonly char S = '\t';
 
         public readonly struct ProjectSummary
         {
@@ -48,6 +50,9 @@ namespace TestSmells.Console
 
         private static async Task RunProgram(ConsoleProgramOptions options)
         {
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             var diagnostics = new List<Diagnostic>();
 
             var projectSummaries = new ConcurrentBag<ProjectSummary>();
@@ -84,6 +89,8 @@ namespace TestSmells.Console
             SaveMethodSummaryCSV(options, diagnostics, analyzerIds);
 
             SaveMethodListCSV(options, testMethodsBag);
+            var ts = stopwatch.Elapsed;
+            System.Console.WriteLine($"Analysis took {ts.TotalSeconds:0.##} seconds");
 
 
             Environment.Exit(0);
@@ -116,7 +123,7 @@ namespace TestSmells.Console
         {
             var diagnosticPrinter = new Printer(options.Output);
             var CSVDiagnostics = from d in diagnostics select DiagnosticToCSV(d, d.GetSeverityWithConfig(severityConfig));
-            diagnosticPrinter.Print("File Path, Start Line, Start Character, Severity, ID, Message");
+            diagnosticPrinter.Print($"File Path{S} Start Line{S} Start Character{S} Severity{S} ID{S} Message");
             diagnosticPrinter.Print(CSVDiagnostics);
         }
 
@@ -247,13 +254,13 @@ namespace TestSmells.Console
                     methodCounter[method][id]++;
                 }
 
-                List<string> lines = new() { $"Method, {string.Join(", ", analyzerIds)}, Total diagnostics" };
+                List<string> lines = new() { $"Method{S} {string.Join(S, analyzerIds)}{S} Total diagnostics" };
 
                 List<(string line, int total)> values = new();
                 foreach ((var method, var diagnosticAmounts) in methodCounter)
                 {
                     var orderedAmount = diagnosticAmounts.OrderBy(p => p.Key).Select(p => p.Value);
-                    values.Add(($"{method}, {string.Join(", ", orderedAmount)}, {orderedAmount.Sum()}", orderedAmount.Sum()));
+                    values.Add(($"{method}{S} {string.Join(S, orderedAmount)}{S} {orderedAmount.Sum()}", orderedAmount.Sum()));
                 }
                 lines.AddRange(values.OrderByDescending(v => v.total).Select(v => v.line));
 

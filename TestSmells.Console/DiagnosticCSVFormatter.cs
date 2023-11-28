@@ -55,7 +55,7 @@ namespace TestSmells.Console
                         basePath = null;
                     }
 
-                    return string.Format(formatter, "{0}, {1}, {2}, {3}{4}",
+                    return string.Format(formatter, "{0}\t {1}\t {2}\t {3}{4}",
                                          FormatSourcePath(path, basePath, formatter),
                                          FormatSourceSpan(mappedSpan.Span, formatter),
                                          GetMessagePrefix(diagnostic, severity),
@@ -67,7 +67,7 @@ namespace TestSmells.Console
                     var message = diagnostic.GetMessage(culture);
                     var helplink = FormatHelpLinkUri(diagnostic);
 
-                    return string.Format(formatter, "{0}, {1}{2}", prefix, message, helplink);
+                    return string.Format(formatter, "{0}\t {1}{2}", prefix, message, helplink);
 
                     
             }
@@ -81,7 +81,7 @@ namespace TestSmells.Console
 
         internal virtual string FormatSourceSpan(LinePositionSpan span, IFormatProvider? formatter)
         {
-            return string.Format("{0}, {1}", span.Start.Line + 1, span.Start.Character + 1);
+            return string.Format("{0}\t {1}", span.Start.Line + 1, span.Start.Character + 1);
         }
 
         internal static string GetMessagePrefix(Diagnostic diagnostic, DiagnosticSeverity severity)
@@ -105,7 +105,7 @@ namespace TestSmells.Console
                     throw ExceptionUtilities.UnexpectedValue(severity);
             }
 
-            return string.Format("{0}, {1}", prefix, diagnostic.Id);
+            return string.Format("{0}\t {1}", prefix, diagnostic.Id);
         }
 
         private string FormatHelpLinkUri(Diagnostic diagnostic)
@@ -117,7 +117,7 @@ namespace TestSmells.Console
                 return string.Empty;
             }
 
-            return $", {uri}";
+            return $"\t {uri}";
         }
 
         internal virtual bool HasDefaultHelpLinkUri(Diagnostic diagnostic) => true;

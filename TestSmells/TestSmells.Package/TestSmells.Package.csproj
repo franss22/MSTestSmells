@@ -11,7 +11,6 @@
     <Authors>franss22</Authors>
     <PackageLicenseUrl>https://licenses.nuget.org/MIT</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/franss22/MSTestSmells/</PackageProjectUrl>
-    <PackageIcon>vsextensibilityicon.png</PackageIcon>
     <RepositoryUrl>https://github.com/franss22/MSTestSmells/</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>TestSmells</Description>
@@ -22,15 +21,6 @@
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Include="..\..\..\..\Users\frano\.nuget\packages\microsoft.vssdk.buildtools\17.7.2196\contentFiles\any\net472\vsextensibilityicon.png" Link="vsextensibilityicon.png">
-      <Private>False</Private>
-      <NuGetPackageVersion>17.7.2196</NuGetPackageVersion>
-      <NuGetItemType>Content</NuGetItemType>
-      <NuGetPackageId>Microsoft.VSSDK.BuildTools</NuGetPackageId>
-      <Pack>false</Pack>
-    </Content>
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TestSmells.CodeFixes\TestSmells.CodeFixes.csproj" />
     <ProjectReference Include="..\TestSmells\TestSmells.csproj" />
