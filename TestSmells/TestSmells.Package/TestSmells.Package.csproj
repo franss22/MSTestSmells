@@ -7,11 +7,12 @@
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>TestSmells</PackageId>
-    <PackageVersion>1.0.0.0</PackageVersion>
+    <PackageVersion>1.0.1.0</PackageVersion>
     <Authors>franss22</Authors>
     <PackageLicenseUrl>https://licenses.nuget.org/MIT</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/franss22/MSTestSmells/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/franss22/MSTestSmells/</RepositoryUrl>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>TestSmells</Description>
     <PackageReleaseNotes>Summary of changes made in this release of the package.</PackageReleaseNotes>
@@ -22,6 +23,7 @@
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
   <ItemGroup>
+	  <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
     <ProjectReference Include="..\TestSmells.CodeFixes\TestSmells.CodeFixes.csproj" />
     <ProjectReference Include="..\TestSmells\TestSmells.csproj" />
   </ItemGroup>
