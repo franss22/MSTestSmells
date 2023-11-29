@@ -46,6 +46,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Update="ObviousFail\CodeFixResources.Designer.cs">
+      <DependentUpon>CodeFixResources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
     <Compile Update="_Replace\CodeFixResources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="CodeFixResources.resx" />
     <Compile Update="EmptyTest\CodeFixResources.Designer.cs">
       <DependentUpon>CodeFixResources.resx</DependentUpon>
@@ -69,6 +74,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="RedundantAssertion\CodeFixResources.resx">
+      <LastGenOutput>CodeFixResources.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="ObviousFail\CodeFixResources.resx">
       <LastGenOutput>CodeFixResources.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>

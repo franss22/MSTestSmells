@@ -46,7 +46,7 @@ namespace TestSmells.Compendium.ObviousFail
                     (targetMethod.Name == "IsFalse" && boolArg.Expression.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.TrueLiteralExpression))
                     )
                 {
-                    var diagnosticExpected = Diagnostic.Create(Rule, invocation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), invocation.Syntax.ToString());
+                    var diagnosticExpected = Diagnostic.Create(Rule, invocation.Syntax.GetLocation(), properties: TestUtils.MethodNameProperty(context), invocation.Syntax.ToString().Replace("\t", "    "));
                     context.ReportDiagnostic(diagnosticExpected);
                 }
             };
