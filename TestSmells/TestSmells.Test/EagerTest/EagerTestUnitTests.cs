@@ -50,6 +50,21 @@ namespace TestSmells.Test.EagerTest
         }
 
         [TestMethod]
+        public async Task SimpleEagerTestButSystemMethods()
+        {
+            var testFile = @"SimpleEagerTestSystem.cs";
+
+            var test = new VerifyCS.Test
+            {
+                TestCode = testReader.ReadTest(testFile),
+                ExpectedDiagnostics = {  },
+                ReferenceAssemblies = UnitTestingAssembly
+            };
+            test.TestState.AnalyzerConfigFiles.Add(ExcludeOtherCompendiumDiagnostics);
+            await test.RunAsync();
+        }
+
+        [TestMethod]
         public async Task LocalVarEagerTest()
         {
             var testFile = @"LocalVarEagerTest.cs";

@@ -9,23 +9,12 @@ namespace Corpus
         [TestMethod]
         public void TestMethod1()
         {
-            var a = new Car();
-            var b = new Car();
+            var a = new List<int>();
+            var b = new List<int>();
 
             Assert.IsTrue(a.Contains(1));
             Assert.IsTrue(a.Equals(b));
         }
     }
-    public class Car
-    {
-        public Car() { }
-        public bool Contains(int a)
-        {
-            return a == 1;
-        }
-        public bool Equals(Car other)
-        {
-            return other == this;
-        }
-    }
+
 }

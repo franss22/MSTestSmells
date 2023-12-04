@@ -80,6 +80,8 @@ namespace TestSmells.Compendium
             var redundantAssertionAssertions = RedundantAssertionAnalyzer.RelevantAssertions(compilationContext.Compilation);
             var obviousFailAssertions = ObviousFailAnalyzer.RelevantAssertions(compilationContext.Compilation);
             var fileSymbols = new MysteryGuestAnalyzer.FileSymbols(compilationContext.Compilation);
+            var systemNamespace = EagerTestAnalyzer.GetSystemNamespace(compilationContext.Compilation);
+
 
             // We register a Symbol Start Action to filter all test classes and their test methods
             compilationContext.RegisterSymbolStartAction((symbolStartContext) =>
@@ -112,7 +114,7 @@ namespace TestSmells.Compendium
                 UnknownTestAnalyzer.RegisterTwoPartAnalysis(symbolStartContext, allAssertionMethods);
 
                 //Eager Test
-                symbolStartContext.RegisterOperationBlockAction(EagerTestAnalyzer.AnalyzeMethodBody(allAssertionMethods));
+                symbolStartContext.RegisterOperationBlockAction(EagerTestAnalyzer.AnalyzeMethodBody(allAssertionMethods, systemNamespace));
 
                 //MysteryGuest
                 MysteryGuestAnalyzer.RegisterTwoPartAnalysis(symbolStartContext, fileSymbols);

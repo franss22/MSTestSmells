@@ -54,9 +54,13 @@ namespace TestSmells.Compendium.EagerTest
             return (assignments.ToArray(), assertions.ToArray());
         }
 
+        internal static INamespaceSymbol GetSystemNamespace(Compilation compilation)
+        {
+            var system = compilation.GetTypeByMetadataName("System.Exception").ContainingNamespace;
+            return system;
+        }
 
-
-        internal static Action<OperationBlockAnalysisContext> AnalyzeMethodBody(IMethodSymbol[] relevantAssertions)
+        internal static Action<OperationBlockAnalysisContext> AnalyzeMethodBody(IMethodSymbol[] relevantAssertions, INamespaceSymbol systemNamespace)
         {
             return (context) =>
             {
@@ -93,8 +97,23 @@ namespace TestSmells.Compendium.EagerTest
                             }
                         }
                     }
+                                       
+                }
 
+                var calledMethodsCopy = calledMethods.ToArray();
+                foreach (var method in calledMethodsCopy)
+                {
+                    var methodNamespace = method.ContainingNamespace;
                     
+                    while (methodNamespace != null)
+                    {
+                        if (TestUtils.SymbolEquals(methodNamespace, systemNamespace))
+                        {
+                            calledMethods.Remove(method);
+                            break;
+                        }
+                        methodNamespace = methodNamespace.ContainingNamespace;
+                    }
                 }
 
                 if (calledMethods.Count > 1)
