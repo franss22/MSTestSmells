@@ -72,7 +72,7 @@ namespace TestSmells.Compendium.MysteryGuest
         };
 
 
-        public readonly struct FileSymbols
+        public class FileSymbols
         {
             public readonly IMethodSymbol[] WriteMethods;
             public readonly IMethodSymbol[] ReadMethods;
